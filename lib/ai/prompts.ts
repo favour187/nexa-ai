@@ -242,3 +242,135 @@ export function buildWhatifUserPrompt(
   lines.push("Return the simulation as JSON matching the schema.");
   return lines.join("\n");
 }
+
+export const NEXT_ACTION_PROMPT_VERSION = "next-action.v1";
+
+export const NEXT_ACTION_SYSTEM_PROMPT = `You are NEXA's next-action advisor. Given the user's current plan and available time, recommend the SINGLE best task to do right now.
+
+OUTPUT: a SINGLE JSON object and NOTHING else, matching:
+{
+  "recommended_task_id": "<existing task id>" | null,
+  "recommended_task_title": string,
+  "reason": string,
+  "estimated_minutes": integer (>0) | null,
+  "urgency": "low" | "medium" | "high",
+  "expected_outcome": string,
+  "alternative_task_id": "<existing task id>" | null,
+  "alternative_task_title": string,
+  "warnings": [string]
+}
+
+RULES:
+- Pick from the provided incomplete tasks only. Use the provided task ids verbatim.
+- Prefer the highest-priority, soonest-due task that FITS the available time. If available time is given, prefer a task whose estimate fits; if none fit, still recommend the most urgent one and add a warning.
+- "reason" must explain the choice (priority, deadline, fit with available time, recent misses).
+- If there are no incomplete tasks, set recommended_task_id to null and explain in "reason".
+- "urgency" reflects deadline pressure. "expected_outcome" describes what completing the task achieves.
+- This is a RECOMMENDATION only. You do not change anything.
+- Never invent progress or claim a task was completed when it was not.
+
+PROHIBITED:
+- Do not reference task ids that are not in the provided list.
+- Do not include secrets, API keys, or PII.
+- Do not provide medical, legal, or financial advice.`;
+
+export function buildNextActionUserPrompt(
+  context: import("@/lib/db/mentor-context").MentorContext,
+): string {
+  const lines: string[] = [];
+  lines.push(
+    `Available time: ${context.availableMinutes ?? "unspecified"} minutes`,
+  );
+  lines.push(`Now: ${new Date().toISOString()}`);
+  lines.push("Goals:");
+  for (const g of context.goals) {
+    lines.push(
+      `- ${g.title} (priority ${g.priority}, deadline ${
+        g.target_deadline ?? "none"
+      }, status ${g.status})`,
+    );
+  }
+  lines.push("Incomplete tasks:");
+  for (const t of context.incompleteTasks) {
+    lines.push(
+      `- id=${t.id} "${t.title}" | status=${t.status} | priority=${t.priority} | due=${
+        t.due_at ?? "none"
+      } | est=${t.estimated_minutes ?? "?"}min | goal=${t.goal_title}`,
+    );
+  }
+  if (context.missed.length) {
+    lines.push(
+      `Recently missed/skipped: ${context.missed
+        .map((m) => `${m.title} (${m.status})`)
+        .join(", ")}`,
+    );
+  }
+  if (context.recentCompleted.length) {
+    lines.push(
+      `Recently completed: ${context.recentCompleted
+        .map((c) => c.title)
+        .join(", ")}`,
+    );
+  }
+  lines.push(`Recent replans: ${context.recentReplanCount}`);
+  lines.push("Return the recommendation as JSON matching the schema.");
+  return lines.join("\n");
+}
+
+export const MENTOR_PROMPT_VERSION = "mentor.v1";
+
+export const MENTOR_SYSTEM_PROMPT = `You are NEXA's AI mentor. Answer the user's question using ONLY their actual plan and task data provided below. Be concise and practical.
+
+OUTPUT: a SINGLE JSON object and NOTHING else, matching:
+{
+  "reply": string,
+  "references_tasks": [string],
+  "warnings": [string]
+}
+
+RULES:
+- Ground every answer in the provided data (goals, incomplete tasks, missed tasks, recent completions, replans).
+- "references_tasks" lists task titles you mention.
+- If asked whether the user is falling behind, judge from deadlines, missed tasks, and replans.
+- Suggest concrete next steps that fit the user's tasks and time.
+
+PROHIBITED:
+- NEVER invent progress, completion, or outcomes. Never claim an action happened that the data does not show.
+- Never state a task is done unless it appears in the completed list.
+- If the data does not cover the question, say so honestly.
+- Do not include secrets, API keys, or PII. Do not provide medical, legal, or financial advice.`;
+
+export function buildMentorUserPrompt(
+  context: import("@/lib/db/mentor-context").MentorContext,
+  message: string,
+): string {
+  const lines: string[] = [`User question: ${message}`];
+  lines.push(`Now: ${new Date().toISOString()}`);
+  lines.push("Goals:");
+  for (const g of context.goals) {
+    lines.push(`- ${g.title} (deadline ${g.target_deadline ?? "none"})`);
+  }
+  lines.push("Incomplete tasks:");
+  for (const t of context.incompleteTasks) {
+    lines.push(
+      `- "${t.title}" | status=${t.status} | priority=${t.priority} | due=${
+        t.due_at ?? "none"
+      } | goal=${t.goal_title}`,
+    );
+  }
+  if (context.missed.length) {
+    lines.push(
+      `Missed/skipped: ${context.missed
+        .map((m) => `${m.title} (${m.status})`)
+        .join(", ")}`,
+    );
+  }
+  if (context.recentCompleted.length) {
+    lines.push(
+      `Completed: ${context.recentCompleted.map((c) => c.title).join(", ")}`,
+    );
+  }
+  lines.push(`Recent replans: ${context.recentReplanCount}`);
+  lines.push("Return the reply as JSON matching the schema.");
+  return lines.join("\n");
+}
