@@ -6,7 +6,7 @@
   "description": "NEXA — Don't just plan. Execute. An AI-powered personal execution system.",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/write-env.mjs && next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
