@@ -64,3 +64,27 @@ export async function rejectProposal(
   if (!data) throw new NotFoundError("Proposal not found or already handled");
   return data as AiProposal;
 }
+
+/** Store a pending reminder_time proposal (specs/notifications.md §8). */
+export async function createReminderProposal(
+  supabase: SupabaseClient,
+  userId: string,
+  goalId: string,
+  payload: { task_id: string; remind_at: string },
+  rationale: string,
+): Promise<AiProposal> {
+  const { data, error } = await supabase
+    .from("ai_proposals")
+    .insert({
+      user_id: userId,
+      goal_id: goalId,
+      kind: "reminder_time",
+      payload: payload as unknown as Record<string, unknown>,
+      rationale,
+      status: "pending",
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data as AiProposal;
+}

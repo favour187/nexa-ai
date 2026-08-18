@@ -8,6 +8,7 @@ import { Brand } from "@/components/Brand";
 const links = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/goals", label: "Goals" },
+  { href: "/reminders", label: "Reminders" },
   { href: "/settings", label: "Settings" },
 ];
 

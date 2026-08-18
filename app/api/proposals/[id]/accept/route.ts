@@ -3,6 +3,7 @@ import { getUser } from "@/lib/auth/session";
 import { tryCreateClient } from "@/lib/supabase/server";
 import { getProposal } from "@/lib/db/proposals";
 import { applyReplan } from "@/lib/db/replan";
+import { applyReminderProposal } from "@/lib/db/reminders";
 import {
   badRequest,
   notFound,
@@ -33,13 +34,16 @@ export async function POST(
   if (proposal.status !== "pending") {
     return badRequest("Proposal is no longer pending");
   }
-  if (proposal.kind !== "replan") {
-    return badRequest("Only replan proposals can be applied at this time");
-  }
-
   try {
-    const result = await applyReplan(supabase, params.id);
-    return NextResponse.json(result);
+    if (proposal.kind === "replan") {
+      const result = await applyReplan(supabase, params.id);
+      return NextResponse.json(result);
+    }
+    if (proposal.kind === "reminder_time") {
+      const result = await applyReminderProposal(supabase, params.id);
+      return NextResponse.json(result);
+    }
+    return badRequest("This proposal type cannot be applied yet");
   } catch {
     return serverError("Could not apply the proposal. No changes were made.");
   }

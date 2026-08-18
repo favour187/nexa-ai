@@ -117,3 +117,48 @@ export interface AiEvent {
   payload: Record<string, unknown> | null;
   created_at: string;
 }
+
+// ---- Phase 4: notifications & reminders -------------------------------------
+
+export interface NotificationChannels {
+  in_app?: boolean;
+  web_notification?: boolean;
+  push?: boolean;
+}
+
+export type QuietHours = {
+  start: string; // "HH:MM"
+  end: string; // "HH:MM"
+  timezone?: string;
+} | null;
+
+export interface NotificationSettings {
+  user_id: string;
+  enabled: boolean;
+  channels: NotificationChannels;
+  quiet_hours: QuietHours;
+  default_lead_minutes: number;
+  allow_ai_suggested_times: boolean;
+  push_subscribed: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ReminderChannel = "in_app" | "web_notification" | "push";
+
+export interface Reminder {
+  id: string;
+  task_id: string;
+  user_id: string;
+  remind_at: string;
+  delivered: boolean;
+  channel: ReminderChannel;
+  enabled: boolean;
+  lead_minutes: number | null;
+  created_at: string;
+}
+
+/** A reminder with its task title resolved (for list UI). */
+export interface ReminderWithTask extends Reminder {
+  task: { id: string; title: string } | null;
+}
