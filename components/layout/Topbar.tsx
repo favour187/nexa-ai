@@ -10,7 +10,9 @@ export function Topbar({ userEmail }: { userEmail: string | null }) {
       <div className="hidden md:block" />
       <div className="flex items-center gap-4">
         {userEmail ? (
-          <span className="text-sm text-slate-500">{userEmail}</span>
+          <span className="hidden max-w-[40vw] truncate text-sm text-slate-500 sm:inline">
+            {userEmail}
+          </span>
         ) : null}
         <SignOutButton />
       </div>

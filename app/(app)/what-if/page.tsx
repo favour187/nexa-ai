@@ -182,7 +182,10 @@ export default function WhatIfPage() {
       ) : null}
 
       {result ? (
-        <Card className="mt-6 p-6">
+        <Card className="animate-fade-up mt-6 p-6">
+          <div className="mb-4 rounded-lg border border-dashed border-brand-300 bg-brand-50 px-3 py-2 text-xs font-medium text-brand-800">
+            Simulation — your current plan has not changed.
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge className={feasibilityStyles[result.simulation.feasibility]}>
               {result.simulation.feasibility.replace("_", " ")}

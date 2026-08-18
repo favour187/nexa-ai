@@ -139,9 +139,13 @@ export default function NewGoalPage() {
             </p>
           ) : null}
 
-          <p className="text-xs text-slate-500">
+          <p
+            className={`text-xs text-slate-500 ${
+              loading ? "animate-pulse-soft" : ""
+            }`}
+          >
             {loading
-              ? "Generating your plan with AI. This can take a few seconds…"
+              ? "NEXA is thinking — generating your plan…"
               : "On submit, NEXA calls Featherless AI to draft a plan, then saves it as a draft."}
           </p>
 

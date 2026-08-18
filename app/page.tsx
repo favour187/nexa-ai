@@ -43,7 +43,7 @@ export default async function HomePage() {
         </nav>
       </header>
 
-      <section className="flex flex-1 flex-col justify-center py-16">
+      <section className="animate-fade-up flex flex-1 flex-col justify-center py-16">
         <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
           AI-powered personal execution system
         </p>
