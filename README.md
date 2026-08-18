@@ -2,67 +2,103 @@
 
 > **Don't just plan. Execute.**
 
-NEXA is an AI-powered personal execution system that turns user goals into
-actionable plans — and adapts them as life happens.
+NEXA is an **AI-powered personal execution system**. It turns a plain-language
+goal into a scheduled plan of milestones and tasks, keeps that plan alive as
+circumstances change, and always tells you the single best thing to do right now.
+Where a chatbot only talks and a calendar only stores, NEXA **drives execution** —
+while keeping you in authority over every important decision.
+
+Built for the **Pixel Forge AI Hackathon 2026**.
 
 ---
 
-## 🚧 Project Status
+## ✨ Main features
 
-**Scaffolding / Planning.** This repository has just been initialized.
-NEXA's features are **not yet implemented**. Product and architecture
-specifications are currently being drafted under [`specs/`](./specs).
+- **Goals → Plans** — capture a goal in plain language; NEXA drafts milestones
+  and scheduled tasks.
+- **Adaptive replanning** — when tasks are missed or life changes, NEXA proposes
+  an updated plan (never silently).
+- **"What should I do now?"** — a single, context-aware next action with a
+  one-line rationale.
+- **AI mentor** — a chat that already knows your current task and deadline
+  pressure.
+- **What-if simulations** — rehearse alternative plans safely, without touching
+  your real plan.
+- **Behind-detection & recovery** — NEXA notices when you're slipping and
+  proposes a recovery plan.
+- **Deadline tracking & reminders** — track progress and get reminders within
+  your device/browser's permissions.
 
-This project is being built for the **Pixel Forge AI Hackathon 2026**.
+> The AI **proposes**; the user **disposes**. NEXA never silently changes a
+> deadline or deletes your data. See [`specs/ai.md`](./specs/ai.md).
 
----
+## 🧠 Technology architecture overview
 
-## 🎯 Vision
+A deliberately narrow stack chosen for a fast hackathon build
+([`specs/architecture.md`](./specs/architecture.md)):
 
-NEXA is designed to do more than store a to-do list. Planned capabilities:
+| Layer | Technology |
+|-------|-----------|
+| Frontend + API | **Next.js** (App Router, TypeScript) |
+| Database + Auth | **Supabase** (PostgreSQL, Row-Level Security, Auth) |
+| AI inference | **Featherless AI** (OpenAI-compatible, server-side) |
+| Spec guardrails | **Prelint** (product review on every PR) |
+| Hosting | Vercel + Supabase |
 
-- **Goals → Plans:** Turn high-level user goals into structured, actionable plans.
-- **Milestones & Tasks:** Break goals down into milestones and concrete tasks.
-- **Adaptive Planning:** Automatically adapt the plan when tasks are missed or
-  circumstances change.
-- **AI Mentor:** An AI mentor that understands the context of your current task.
-- **"What should I do now?":** Context-aware next-action recommendations.
-- **What-If Simulations:** Explore alternative plans and outcomes before
-  committing.
-- **Deadline Tracking:** Track progress toward deadlines and surface risks early.
-- **Notifications & Reminders:** Alarms/reminders where supported by the user's
-  device and permissions.
+```
+Browser (Next.js) ──HTTPS──▶ Next.js API ──▶ Supabase Postgres (RLS)
+                                   └───────▶ Featherless AI (server-only)
+                            Service worker ◀── Web Push (best-effort)
+```
 
-## 🧠 Technology
+## 🔌 Featherless AI's role
 
-- **[Featherless AI](https://featherless.ai/)** — core AI inference layer.
-- **[Prelint](https://prelint.com/)** — keeps the implementation aligned with
-  the specifications in [`specs/`](./specs), integrated into our development
-  workflow.
+[Featherless AI](https://featherless.ai/) is NEXA's **core AI inference layer** —
+a serverless, OpenAI-compatible API (`https://api.featherless.ai/v1`) giving
+access to open-source models with no GPU management. NEXA calls it
+**server-side only** (the API key never reaches the browser or the repo) to:
+understand goals, break them into milestones/tasks, schedule and replan, pick the
+next action, explain decisions, run what-ifs, detect slippage, and propose
+recovery plans. Details: [`specs/ai.md`](./specs/ai.md).
 
-## 📁 Repository Structure
+## 🛡️ Prelint's role
+
+[Prelint](https://prelint.com/) is our **product-review layer**. It reviews
+**every pull request** against the specifications in [`specs/`](./specs),
+flagging product drift, spec contradictions, conflicting technology choices, and
+scope creep before they merge. It complements (it does not replace) code review.
+Open-source projects use Prelint for free. Details:
+[`specs/prelint.md`](./specs/prelint.md).
+
+## 📁 Repository structure
 
 ```
 nexa-ai/
-├── README.md           # You are here
-├── LICENSE             # MIT License
+├── README.md
+├── LICENSE               # MIT
 ├── .gitignore
-└── specs/              # Product & architecture specifications (drafts)
-    ├── product.md
-    ├── architecture.md
-    ├── ai.md
-    ├── notifications.md
-    └── prelint.md
+└── specs/                # Product & architecture specifications (v1)
+    ├── product.md        # Problem, users, features, MVP scope
+    ├── architecture.md   # Stack, data model, API, security
+    ├── ai.md             # Featherless AI responsibilities & hard limits
+    ├── notifications.md  # Reminders within real web-platform limits
+    └── prelint.md        # How Prelint protects product intent
 ```
 
-> The application source tree will be added once the technology stack is finalized.
+> The application source tree will be added once implementation begins.
+
+## 🚧 Development status
+
+**Specifications complete (v1); implementation not started.** The `specs/`
+directory is the source of truth. No application features are built yet —
+implementation will follow the specifications under Prelint review.
 
 ## 🔐 Security
 
-This repository must **never** contain secrets, API keys, or credentials
-(including Featherless AI keys). Secrets are managed outside the repo (e.g.,
-via environment variables / a secrets manager). See `.gitignore`.
+This repository **never** contains secrets, API keys, or credentials (including
+Featherless/Supabase keys). Secrets are server-side environment variables only.
+See `.gitignore` and [`specs/architecture.md`](./specs/architecture.md).
 
 ## 📜 License
 
-Distributed under the [MIT License](./LICENSE).
+[MIT](./LICENSE) © 2026 NEXA Contributors.
