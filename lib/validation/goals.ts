@@ -2,8 +2,7 @@ import { z } from "zod";
 
 /**
  * Request validation schemas. These enforce the shape of user-supplied input at
- * the API boundary (specs/architecture.md §6). They are USER-driven inputs only;
- * they are intentionally not used by any AI code path in this phase.
+ * the API boundary (specs/architecture.md §6). USER-driven inputs only.
  */
 
 export const priorityEnum = z.enum(["low", "medium", "high"]);
@@ -15,6 +14,7 @@ export const createGoalSchema = z.object({
   description: z.string().trim().max(2000).optional().nullable(),
   priority: priorityEnum.default("medium"),
   target_deadline: z.string().datetime().optional().nullable(),
+  constraints: z.string().trim().max(2000).optional().nullable(),
 });
 
 export const updateGoalSchema = z

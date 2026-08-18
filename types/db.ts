@@ -1,10 +1,10 @@
 /**
- * NEXA domain types.
+ * NEXA domain types. Mirror the database schema in
+ * `supabase/migrations/0001_init.sql` + `0002_ai_planning.sql` and the
+ * conceptual model in specs/product.md §6 / specs/architecture.md §4.
  *
- * These mirror the database schema in `supabase/migrations/0001_init.sql` and
- * the conceptual model in `specs/product.md` §6 / `specs/architecture.md` §4.
- * Only the Phase 1 entities (users come from Supabase Auth, plus goals, plans,
- * milestones, tasks) are defined here. AI/notification entities are deferred.
+ * Phase 2 additions: goals.constraints, plans.strategy/rationale,
+ * tasks.order_index.
  */
 
 export type Priority = "low" | "medium" | "high";
@@ -26,6 +26,7 @@ export interface Goal {
   description: string | null;
   priority: Priority;
   target_deadline: string | null;
+  constraints: string | null;
   status: GoalStatus;
   created_at: string;
   updated_at: string;
@@ -37,6 +38,8 @@ export interface Plan {
   version: number;
   status: PlanStatus;
   source: PlanSource;
+  strategy: string | null;
+  rationale: string | null;
   created_at: string;
 }
 
@@ -58,6 +61,19 @@ export interface Task {
   estimated_minutes: number | null;
   due_at: string | null;
   status: TaskStatus;
+  order_index: number;
+  priority: Priority;
   created_at: string;
   completed_at: string | null;
+}
+
+/** A milestone with its nested tasks (used by the plan UI). */
+export interface MilestoneWithTasks extends Milestone {
+  tasks: Task[];
+}
+
+/** Response shape for goal creation (goal + the generated draft plan). */
+export interface GoalCreateResponse {
+  goal: Goal;
+  plan: Pick<Plan, "id" | "goal_id" | "version" | "status" | "source" | "strategy" | "rationale" | "created_at">;
 }
