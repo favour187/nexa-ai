@@ -1,5 +1,6 @@
 import type { PlanInput } from "./planner";
 import type { ReplanContext } from "./replan-schema";
+import type { ReminderContext } from "./reminder-schema";
 
 /**
  * Versioned prompt templates, stored in the repo so they are auditable
@@ -9,6 +10,7 @@ import type { ReplanContext } from "./replan-schema";
 
 export const PLANNER_PROMPT_VERSION = "planner.v1";
 export const REPLANNER_PROMPT_VERSION = "replanner.v1";
+export const REMINDER_PROMPT_VERSION = "reminder.v1";
 
 export const PLANNER_SYSTEM_PROMPT = `You are NEXA's goal-planning engine. Turn the user's goal into a realistic, structured execution plan.
 
@@ -128,5 +130,47 @@ export function buildReplanUserPrompt(context: ReplanContext): string {
     }
   }
   lines.push("Return the proposed changes as JSON matching the schema.");
+  return lines.join("\n");
+}
+
+export const REMINDER_RECOMMENDER_SYSTEM_PROMPT = `You are NEXA's reminder scheduler. Recommend a single reminder time for the given task.
+
+OUTPUT: a SINGLE JSON object and NOTHING else, matching:
+{ "remind_at": "ISO 8601 datetime ending in Z", "rationale": string, "lead_minutes": integer (>=0, optional) }
+
+RULES:
+- "remind_at" must be in the future, BEFORE the task's due time (a nudge ahead of the task), and within the goal deadline.
+- Prefer the user's "default lead minutes" unless context (many missed tasks, high priority) justifies a different lead.
+- Do NOT schedule within the user's quiet hours.
+- This is a PROPOSAL the user will accept, change, or reject.
+- This is a reminder delivered by a web app — never claim to set a device alarm or guarantee delivery.
+
+PROHIBITED:
+- Do not include secrets, API keys, or PII.
+- Do not provide medical, legal, or financial advice.
+- Do not override the user's master notification setting (you cannot disable/enable it).`;
+
+export function buildReminderUserPrompt(context: ReminderContext): string {
+  const lines: string[] = [
+    `Task: ${context.task.title}`,
+    `Task due at: ${context.task.due_at ?? "unspecified"}`,
+  ];
+  if (context.task.estimated_minutes) {
+    lines.push(`Estimated duration: ${context.task.estimated_minutes} min`);
+  }
+  lines.push(`Goal: ${context.goal.title}`);
+  if (context.goal.target_deadline) {
+    lines.push(`Goal deadline: ${context.goal.target_deadline}`);
+  }
+  if (context.goal.constraints) {
+    lines.push(`Constraints: ${context.goal.constraints}`);
+  }
+  lines.push(`Default lead minutes: ${context.defaultLeadMinutes}`);
+  if (context.quietHours) {
+    lines.push(`Quiet hours: ${context.quietHours.start}-${context.quietHours.end}`);
+  }
+  lines.push(`Recently missed tasks: ${context.recentMissedCount}`);
+  lines.push(`Now: ${new Date().toISOString()}`);
+  lines.push("Return the recommended reminder as JSON matching the schema.");
   return lines.join("\n");
 }

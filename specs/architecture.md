@@ -90,11 +90,14 @@ to the authenticated user.
   `goal_id`, `type`, `summary`, `rationale`, `accepted` (bool), `payload`
   (jsonb — e.g. a before-snapshot for history), `created_at` — the transparency
   log.
-- **notification_settings**: `user_id` (pk), `enabled`, `channels` (jsonb),
-  `quiet_hours` (jsonb), `default_lead_minutes`, `allow_ai_suggested_times`
-  (bool), `push_subscribed` (bool).
-- **reminder_schedules**: `id`, `task_id`, `user_id`, `remind_at` (timestamptz),
-  `delivered` (bool), `channel`.
+- **notification_settings** (created Phase 4): `user_id` (pk), `enabled`,
+  `channels` (jsonb), `quiet_hours` (jsonb), `default_lead_minutes`,
+  `allow_ai_suggested_times` (bool), `push_subscribed` (bool), `created_at`,
+  `updated_at`.
+- **reminder_schedules** (created Phase 4): `id`, `task_id`, `user_id`,
+  `remind_at` (timestamptz), `delivered` (bool), `channel`, `enabled` (bool,
+  default true — Phase 4), `lead_minutes` (integer, nullable — Phase 4),
+  `created_at`.
 
 **Status invariants:**
 

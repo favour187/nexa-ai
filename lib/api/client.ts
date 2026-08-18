@@ -1,7 +1,17 @@
-import type { Goal, Plan, Task, GoalCreateResponse } from "@/types/db";
+import type {
+  Goal,
+  Plan,
+  Task,
+  GoalCreateResponse,
+  NotificationSettings,
+  Reminder,
+  ReminderWithTask,
+} from "@/types/db";
 import type { ReplanResponse } from "@/lib/ai/replan-schema";
 import type { CreateGoalInput, UpdateGoalInput } from "@/lib/validation/goals";
 import type { UpdateTaskInput } from "@/lib/validation/tasks";
+import type { CreateReminderInput, UpdateReminderInput } from "@/lib/validation/reminders";
+import type { NotificationSettingsInput } from "@/lib/validation/notifications";
 
 /**
  * Typed browser-side API client used by client components to talk to the
@@ -43,9 +53,28 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
+export interface ReminderRecommendationResponse {
+  proposal_id: string;
+  remind_at: string;
+  rationale: string;
+  lead_minutes?: number;
+}
+
 export const api = {
   health: () => request<{ status: string }>("/api/health"),
+
+  // Goals & plans
   listGoals: () => request<Goal[]>("/api/goals"),
+  listTasks: () =>
+    request<
+      Array<
+        Task & {
+          milestone: {
+            plan: { goal: { id: string; title: string } | null } | null;
+          } | null;
+        }
+      >
+    >("/api/tasks"),
   createGoal: (input: CreateGoalInput) =>
     request<GoalCreateResponse>("/api/goals", {
       method: "POST",
@@ -62,7 +91,7 @@ export const api = {
   acceptPlan: (planId: string) =>
     request<{ plan: Plan }>(`/api/plans/${planId}/accept`, { method: "POST" }),
 
-  // Phase 3 — task status + adaptive replanning
+  // Tasks & adaptive replanning
   updateTaskStatus: (taskId: string, input: UpdateTaskInput) =>
     request<{ task: Task }>(`/api/tasks/${taskId}`, {
       method: "PATCH",
@@ -80,5 +109,35 @@ export const api = {
   rejectProposal: (proposalId: string) =>
     request<{ ok: boolean }>(`/api/proposals/${proposalId}/reject`, {
       method: "POST",
+    }),
+
+  // Notifications & reminders (Phase 4)
+  getNotificationSettings: () =>
+    request<NotificationSettings>("/api/notifications/settings"),
+  updateNotificationSettings: (input: NotificationSettingsInput) =>
+    request<NotificationSettings>("/api/notifications/settings", {
+      method: "PUT",
+      body: JSON.stringify(input),
+    }),
+  listReminders: (due = false) =>
+    request<ReminderWithTask[]>(
+      `/api/reminders${due ? "?due=true" : ""}`,
+    ),
+  createReminder: (input: CreateReminderInput) =>
+    request<Reminder>("/api/reminders", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  updateReminder: (id: string, input: UpdateReminderInput) =>
+    request<Reminder>(`/api/reminders/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    }),
+  deleteReminder: (id: string) =>
+    request<{ ok: true }>(`/api/reminders/${id}`, { method: "DELETE" }),
+  requestReminderRecommendation: (taskId: string) =>
+    request<ReminderRecommendationResponse>("/api/ai/reminder-time", {
+      method: "POST",
+      body: JSON.stringify({ task_id: taskId }),
     }),
 };
