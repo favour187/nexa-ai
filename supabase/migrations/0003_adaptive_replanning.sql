@@ -61,6 +61,11 @@ create policy "ai_events_owner_select" on public.ai_events
 -- (reschedule / reprioritize / add_task — NEVER deletes, NEVER changes the goal
 -- deadline), captures the before-state into ai_events (history), and marks the
 -- proposal accepted. All in one transaction; any error rolls everything back.
+--
+-- SECURITY: the proposal payload is user-editable via RLS, so it is UNTRUSTED.
+-- Every referenced task/milestone is verified to belong to the caller's goal
+-- before any write. A tampered payload referencing another user's data raises
+-- and aborts the whole transaction.
 create or replace function public.apply_replan(p_proposal_id uuid)
 returns jsonb
 language plpgsql
@@ -90,6 +95,32 @@ begin
   v_goal_id := v_prop.goal_id;
   v_changes := coalesce(v_prop.payload->'changes', '[]'::jsonb);
 
+  -- SECURITY validation: confirm ownership of every referenced entity.
+  for v_change in select * from jsonb_array_elements(v_changes) loop
+    if v_change->>'type' in ('reschedule','reprioritize') then
+      v_task_id := (v_change->>'task_id')::uuid;
+      if not exists (
+        select 1 from public.tasks t
+        join public.milestones m on m.id = t.milestone_id
+        join public.plans p on p.id = m.plan_id
+        join public.goals g on g.id = p.goal_id
+        where t.id = v_task_id and g.user_id = v_user_id and p.goal_id = v_goal_id
+      ) then
+        raise exception 'Task % is not part of this goal', v_task_id using errcode = '42501';
+      end if;
+    elseif v_change->>'type' = 'add_task' then
+      if not exists (
+        select 1 from public.milestones m
+        join public.plans p on p.id = m.plan_id
+        join public.goals g on g.id = p.goal_id
+        where m.id = (v_change->>'milestone_id')::uuid and g.user_id = v_user_id and p.goal_id = v_goal_id
+      ) then
+        raise exception 'Milestone is not part of this goal' using errcode = '42501';
+      end if;
+    end if;
+  end loop;
+
+  -- Apply (now ownership-verified) and capture before-state for history.
   for v_change in select * from jsonb_array_elements(v_changes) loop
     if v_change->>'type' = 'reschedule' then
       v_task_id := (v_change->>'task_id')::uuid;

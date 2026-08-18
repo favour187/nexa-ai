@@ -18,13 +18,26 @@ export async function fetchReplanContext(
   if (goalError) throw goalError;
   if (!goal) return null;
 
-  const { data: plan } = await supabase
+  // Prefer the ACTIVE plan (what the user is executing); fall back to the most
+  // recent plan if there is no active one yet (architecture.md §4 invariant).
+  const { data: activePlan } = await supabase
     .from("plans")
     .select("*")
     .eq("goal_id", goalId)
-    .order("created_at", { ascending: false })
-    .limit(1)
+    .eq("status", "active")
     .maybeSingle();
+  // eslint-disable-next-line prefer-const
+  let plan = activePlan;
+  if (!plan) {
+    const { data: latestPlan } = await supabase
+      .from("plans")
+      .select("*")
+      .eq("goal_id", goalId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    plan = latestPlan;
+  }
 
   let milestones: Milestone[] = [];
   let tasks: Task[] = [];

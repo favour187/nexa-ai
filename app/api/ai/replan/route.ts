@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getUser } from "@/lib/auth/session";
 import { tryCreateClient } from "@/lib/supabase/server";
 import { isAiConfigured } from "@/lib/env";
+import { rateLimit } from "@/lib/ai/rateLimit";
 import { replanRequestSchema } from "@/lib/validation/replan";
 import { fetchReplanContext } from "@/lib/db/replan";
 import { generateReplan, buildReplanDiff } from "@/lib/ai/replanner";

@@ -103,7 +103,8 @@ architecture.md §4.
   `order_index`, optional `target_date`, status.
 - **Task** — a concrete action within a milestone. Fields: title, description,
   `estimated_minutes`, `due_at`, status (`todo`, `in_progress`, `done`,
-  `missed`, `skipped`), `created_at`, `completed_at`.
+  `missed`, `skipped`, `postponed`), `status_reason` (optional reason for
+  the current status), `created_at`, `completed_at`.
 - **Schedule** — the assignment of tasks to time (dates/times) respecting the
   user's availability and deadlines.
 - **Recovery Plan** — a special draft plan proposed when the user is behind.
