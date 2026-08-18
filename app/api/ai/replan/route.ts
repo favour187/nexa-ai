@@ -28,6 +28,14 @@ export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) return unauthorized();
 
+  const limit = rateLimit(user.id);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many AI requests. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
+    );
+  }
+
   const supabase = await tryCreateClient();
   if (!supabase) return serviceUnavailable();
 
