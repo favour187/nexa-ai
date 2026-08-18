@@ -59,6 +59,35 @@ export class AiServiceError extends AiError {
 }
 
 /**
+ * Map an OpenAI/Featherless SDK error to a typed AiError. Shared by the planner
+ * and the replanner (no second AI client — same SDK, same error shapes).
+ */
+export function mapSdkError(error: unknown): Error {
+  const anyError = error as {
+    constructor?: { name?: string };
+    status?: number;
+    message?: string;
+  };
+  const name = anyError?.constructor?.name ?? "";
+  const status = anyError?.status;
+
+  if (name === "APIConnectionTimeoutError") return new AiTimeoutError();
+  if (name === "APIConnectionError") {
+    return new AiNetworkError(anyError?.message);
+  }
+  if (name === "RateLimitError" || status === 429) {
+    return new AiRateLimitError();
+  }
+  if (status && status >= 500) {
+    return new AiServiceError(`AI service error (${status})`, status);
+  }
+  if (name === "BadRequestError" || status === 400) {
+    return new AiServiceError("AI rejected the request", 400);
+  }
+  return new AiServiceError(anyError?.message ?? "AI request failed", status);
+}
+
+/**
  * Map a thrown AiError (or unknown error) to an HTTP status + user-friendly
  * message. Never offers a fake/fallback plan — only a clear, retryable error.
  */
@@ -87,7 +116,7 @@ export function describeAiError(error: unknown): {
   if (error instanceof AiResponseError) {
     return {
       status: 502,
-      message: "The AI returned a plan we could not use. Please try again.",
+      message: "The AI returned a response we could not use. Please try again.",
     };
   }
   if (error instanceof AiServiceError) {
@@ -96,5 +125,5 @@ export function describeAiError(error: unknown): {
       message: "The AI service reported an error. Please try again.",
     };
   }
-  return { status: 502, message: "Plan generation failed. Please try again." };
+  return { status: 502, message: "AI request failed. Please try again." };
 }

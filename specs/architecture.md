@@ -76,16 +76,20 @@ to the authenticated user.
   `status`.
 - **tasks**: `id`, `milestone_id`, `title`, `description`, `estimated_minutes`,
   `due_at` (timestamptz), `status` (`todo` | `in_progress` | `done` | `missed`
-  | `skipped`), `priority` (`low` | `medium` | `high`, default `medium` — Phase
-  2), `created_at`, `completed_at`, `order_index` (integer, default 0 — Phase 2).
-- **ai_proposals**: `id`, `user_id`, `goal_id`, `kind` (`plan` | `recovery` |
-  `next_action` | `reminder_time` | `replan`), `payload` (jsonb), `rationale`
-  (text), `status` (`pending` | `accepted` | `rejected`), `created_at`.
-  Every AI output that would change data is stored here as a proposal the user
-  accepts/rejects. This table is the mechanism that enforces "propose, don't
-  apply."
-- **ai_events** (decision/explanation log): `id`, `user_id`, `goal_id`, `type`,
-  `summary`, `rationale`, `accepted` (bool), `created_at` — the transparency log.
+  | `skipped` | `postponed` — `postponed` added Phase 3), `priority` (`low` |
+  `medium` | `high`, default `medium` — Phase 2), `status_reason` (text, nullable
+  — Phase 3), `created_at`, `completed_at`, `order_index` (integer, default 0 —
+  Phase 2).
+- **ai_proposals** (created Phase 3): `id`, `user_id`, `goal_id`, `kind` (`plan`
+  | `recovery` | `next_action` | `reminder_time` | `replan`), `payload` (jsonb),
+  `rationale` (text), `status` (`pending` | `accepted` | `rejected`),
+  `applied_at` (timestamptz, nullable), `created_at`. Every AI output that would
+  change data is stored here as a proposal the user accepts/rejects. This table
+  is the mechanism that enforces "propose, don't apply."
+- **ai_events** (decision/explanation log; created Phase 3): `id`, `user_id`,
+  `goal_id`, `type`, `summary`, `rationale`, `accepted` (bool), `payload`
+  (jsonb — e.g. a before-snapshot for history), `created_at` — the transparency
+  log.
 - **notification_settings**: `user_id` (pk), `enabled`, `channels` (jsonb),
   `quiet_hours` (jsonb), `default_lead_minutes`, `allow_ai_suggested_times`
   (bool), `push_subscribed` (bool).

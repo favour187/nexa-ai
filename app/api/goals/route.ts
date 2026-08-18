@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getUser } from "@/lib/auth/session";
 import { tryCreateClient } from "@/lib/supabase/server";
 import { isAiConfigured } from "@/lib/env";
+import { rateLimit } from "@/lib/ai/rateLimit";
 import { createGoalSchema } from "@/lib/validation/goals";
 import { getGoal, listGoals } from "@/lib/db/goals";
 import { getPlan } from "@/lib/db/plans";
@@ -45,6 +46,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) return unauthorized();
+
+  const limit = rateLimit(user.id);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many AI requests. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
+    );
+  }
 
   const supabase = await tryCreateClient();
   if (!supabase) return serviceUnavailable();
