@@ -154,6 +154,33 @@ The Supabase service-role key is used server-side only (guarded by the
 `server-only` package). See `.gitignore` and
 [`specs/architecture.md`](./specs/architecture.md).
 
+## 🚀 Production deployment (Render)
+
+NEXA is a single Next.js application (UI + API routes on the same origin), so it
+deploys as **one Render Web Service** (`next start`) — not a static site (it
+uses server-side API routes, SSR, and server-only secrets). Full guide:
+[`DEPLOYMENT.md`](./DEPLOYMENT.md); reproducible spec: [`render.yaml`](./render.yaml).
+
+- **Live URL:** _add your Render URL here after deploy_
+- **Health check:** `GET /api/health` → 200 + service status
+- **Runtime:** Node 20 (`.nvmrc`) · **Build:** `npm ci && npm run build` · **Start:** `npm run start`
+
+Required environment variables (set in the Render dashboard — **names only,
+never commit values**):
+
+| Variable | Exposure | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | public (build-time) | Supabase project URL (Postgres + Auth) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | public (build-time) | Supabase anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | server-only | privileged DB ops (health probe) |
+| `FEATHERLESS_API_KEY` | server-only | Featherless AI inference |
+| `NEXA_FEATHERLESS_MODEL` | server-only | model id (default `Qwen/Qwen3-32B`) |
+
+> **CORS:** the frontend and API share one origin, so no cross-origin CORS
+> configuration is required. **Database:** apply the SQL in
+> [`supabase/migrations/`](./supabase/migrations) in your Supabase project;
+> Render does not run migrations.
+
 ## 📜 License
 
 [MIT](./LICENSE) © 2026 NEXA Contributors.

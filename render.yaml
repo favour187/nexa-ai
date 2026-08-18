@@ -1,0 +1,32 @@
+# Render Blueprint for NEXA — reproducible deployment. No secrets are committed;
+# secret env vars use `sync: false` (values are entered in the Render dashboard).
+# Docs: https://render.com/docs/blueprint-spec
+#
+# NEXA is a single Next.js app (UI + API on the same origin), so it deploys as
+# ONE web service running `next start` (not a static site — it uses server-side
+# API routes, SSR, and server-only secrets).
+services:
+  - type: web
+    name: nexa-ai
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20.20.2"
+      # Public — baked into the build (must be present at build time).
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      # Server-only secrets — never exposed to the browser.
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: FEATHERLESS_API_KEY
+        sync: false
+      - key: NEXA_FEATHERLESS_MODEL
+        value: Qwen/Qwen3-32B
