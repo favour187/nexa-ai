@@ -1,11 +1,23 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return reduced;
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,6 +26,24 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [leaving, setLeaving] = useState(false);
+
+  // Branded intro animation (~1.9s). Skipped entirely under reduced motion.
+  const reduced = usePrefersReducedMotion();
+  const [intro, setIntro] = useState(true);
+  const [introLeaving, setIntroLeaving] = useState(false);
+
+  useEffect(() => {
+    if (reduced) {
+      setIntro(false);
+      return;
+    }
+    const t1 = window.setTimeout(() => setIntroLeaving(true), 1500);
+    const t2 = window.setTimeout(() => setIntro(false), 1900);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [reduced]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,6 +73,30 @@ export default function LoginPage() {
 
   return (
     <>
+      {intro ? (
+        <div
+          aria-hidden
+          className={`fixed inset-0 z-50 flex items-center justify-center bg-slate-50 transition-opacity duration-500 ${
+            introLeaving ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          <div className="flex flex-col items-center gap-5">
+            <div className="relative flex h-24 w-24 items-center justify-center">
+              <span className="animate-nexa-ring absolute inset-0 rounded-2xl border-2 border-brand-400" />
+              <span className="animate-mark-in-big flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-600 text-3xl font-bold text-white shadow-lg">
+                N
+              </span>
+            </div>
+            <span className="animate-fade-up-delayed text-xl font-semibold tracking-tight text-slate-900">
+              NEXA
+            </span>
+            <span className="animate-fade-up-delayed-2 text-xs text-slate-400">
+              {"Don't just plan. Execute."}
+            </span>
+          </div>
+        </div>
+      ) : null}
+
       <Card className="p-8">
         <h1 className="text-xl font-semibold text-slate-900">Sign in</h1>
         <p className="mt-1 text-sm text-slate-500">
@@ -97,10 +151,7 @@ export default function LoginPage() {
       </Card>
 
       {leaving ? (
-        <div
-          aria-hidden
-          className="animate-fade-in fixed inset-0 z-50 bg-slate-50"
-        />
+        <div aria-hidden className="animate-fade-in fixed inset-0 z-50 bg-slate-50" />
       ) : null}
     </>
   );
