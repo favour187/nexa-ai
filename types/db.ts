@@ -1,10 +1,6 @@
 /**
- * NEXA domain types. Mirror the database schema in
- * `supabase/migrations/0001_init.sql` + `0002_ai_planning.sql` and the
+ * NEXA domain types. Mirror the database schema (migrations 0001–0003) and the
  * conceptual model in specs/product.md §6 / specs/architecture.md §4.
- *
- * Phase 2 additions: goals.constraints, plans.strategy/rationale,
- * tasks.order_index.
  */
 
 export type Priority = "low" | "medium" | "high";
@@ -17,7 +13,14 @@ export type PlanSource = "generated" | "recovery" | "edited";
 
 export type MilestoneStatus = "todo" | "in_progress" | "done" | "skipped";
 
-export type TaskStatus = "todo" | "in_progress" | "done" | "missed" | "skipped";
+// Phase 3: added "postponed".
+export type TaskStatus =
+  | "todo"
+  | "in_progress"
+  | "done"
+  | "missed"
+  | "skipped"
+  | "postponed";
 
 export interface Goal {
   id: string;
@@ -61,8 +64,9 @@ export interface Task {
   estimated_minutes: number | null;
   due_at: string | null;
   status: TaskStatus;
-  order_index: number;
   priority: Priority;
+  order_index: number;
+  status_reason: string | null;
   created_at: string;
   completed_at: string | null;
 }
@@ -75,5 +79,41 @@ export interface MilestoneWithTasks extends Milestone {
 /** Response shape for goal creation (goal + the generated draft plan). */
 export interface GoalCreateResponse {
   goal: Goal;
-  plan: Pick<Plan, "id" | "goal_id" | "version" | "status" | "source" | "strategy" | "rationale" | "created_at">;
+  plan: Pick<
+    Plan,
+    | "id"
+    | "goal_id"
+    | "version"
+    | "status"
+    | "source"
+    | "strategy"
+    | "rationale"
+    | "created_at"
+  >;
+}
+
+/** A pending/accepted/rejected AI proposal (propose/apply mechanism). */
+export interface AiProposal {
+  id: string;
+  user_id: string;
+  goal_id: string;
+  kind: "plan" | "recovery" | "next_action" | "reminder_time" | "replan";
+  payload: Record<string, unknown>;
+  rationale: string | null;
+  status: "pending" | "accepted" | "rejected";
+  applied_at: string | null;
+  created_at: string;
+}
+
+/** Transparency / history log entry. */
+export interface AiEvent {
+  id: string;
+  user_id: string;
+  goal_id: string;
+  type: string;
+  summary: string | null;
+  rationale: string | null;
+  accepted: boolean;
+  payload: Record<string, unknown> | null;
+  created_at: string;
 }

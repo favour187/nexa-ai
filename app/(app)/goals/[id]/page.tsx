@@ -10,6 +10,8 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { AcceptPlanButton } from "@/components/plans/AcceptPlanButton";
+import { ReplanPanel } from "@/components/plans/ReplanPanel";
+import { TaskStatusControl } from "@/components/tasks/TaskStatusControl";
 import { formatDate } from "@/lib/utils";
 import type { MilestoneWithTasks, Plan } from "@/types/db";
 
@@ -144,6 +146,10 @@ export default async function GoalDetailPage({
       {plan && milestones.length > 0 ? (
         <section className="mt-8">
           <h2 className="text-lg font-semibold text-slate-900">Milestones</h2>
+          <p className="text-xs text-slate-500">
+            Mark tasks as you go. Missed, skipped, or postponed tasks can trigger
+            a replan below.
+          </p>
           <div className="mt-3 flex flex-col gap-4">
             {milestones.map((milestone, index) => (
               <Card key={milestone.id} className="p-5">
@@ -167,8 +173,10 @@ export default async function GoalDetailPage({
                         <span className="text-sm font-medium text-slate-800">
                           {task.title}
                         </span>
-                        <Badge className={priorityStyles[task.priority]}>
-                          {task.priority}
+                        <Badge
+                          className={priorityStyles[task.priority ?? "medium"]}
+                        >
+                          {task.priority ?? "medium"}
                         </Badge>
                       </div>
                       {task.description ? (
@@ -183,13 +191,27 @@ export default async function GoalDetailPage({
                         {task.due_at ? (
                           <span>Due {formatDate(task.due_at)}</span>
                         ) : null}
+                        {task.status_reason ? (
+                          <span>Reason: {task.status_reason}</span>
+                        ) : null}
                       </div>
+                      <TaskStatusControl
+                        taskId={task.id}
+                        status={task.status}
+                      />
                     </li>
                   ))}
                 </ul>
               </Card>
             ))}
           </div>
+
+          {/* Adaptive replanning */}
+          {plan.status === "active" ? (
+            <div className="mt-6">
+              <ReplanPanel goalId={goal.id} />
+            </div>
+          ) : null}
 
           <div className="mt-6">
             <Link href="/dashboard">
