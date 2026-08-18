@@ -29,9 +29,8 @@ export async function GET(
     if (!reminder) return notFound("Reminder not found");
     return NextResponse.json(reminder);
   } catch (error) {
-    return serverError(
-      error instanceof Error ? error.message : "Failed to load reminder",
-    );
+    console.error("[reminders] load one failed", error);
+    return serverError("Failed to load reminder");
   }
 }
 

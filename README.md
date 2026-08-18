@@ -93,17 +93,31 @@ nexa-ai/
 
 ## 🚧 Development status
 
-**Phase 1 — application foundation: implemented.** The `specs/` directory is the
-source of truth, and the foundation follows it under Prelint review.
+**Phases 1–6 implemented.** The `specs/` directory is the source of truth.
 
-Implemented so far: the Next.js app shell and routing, Supabase authentication,
-the PostgreSQL data layer (with Row-Level Security) for goals/plans/milestones/
-tasks, the `/api/health` and goals API endpoints, the typed API client, and the
-base UI/layout system with error and loading states.
+Implemented:
 
-**Not yet built (deferred to later phases):** the AI planner (Featherless),
-notifications/alarms, and what-if simulations. The AI must always propose, never
-silently apply, important user decisions (see `specs/ai.md`).
+- **Foundation** (Phase 1): Next.js app shell, routing, Supabase auth, Postgres
+  data layer with Row-Level Security, health + goals API, typed API client,
+  base UI with error/loading states.
+- **AI goal planning** (Phase 2): Featherless generates a structured, validated
+  plan (goal → milestones → tasks), saved as a draft the user accepts.
+- **Adaptive replanning** (Phase 3): mark tasks completed/missed/skipped/
+  postponed; the AI proposes a change set the user approves (atomic apply with
+  history preserved).
+- **Smart notifications & reminders** (Phase 4): browser-notification
+  permissions, reminder CRUD, opt-in AI-suggested reminder times, in-app +
+  browser delivery while the app is open, quiet hours, settings.
+- **What-if simulation** (Phase 5): read-only projections; apply through the
+  replan proposal flow.
+- **AI mentor & "What should I do now?"** (Phase 6): context-aware next-action
+  recommendation and a grounded mentor chat.
+
+The AI always **proposes**; the user **disposes** — it never silently changes a
+deadline or deletes data (`specs/ai.md`).
+
+**Not yet built:** closed-tab Web Push (needs VAPID), the final login animation,
+and the final visual redesign.
 
 ## 🛠️ Getting started (local)
 
