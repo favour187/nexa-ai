@@ -174,3 +174,71 @@ export function buildReminderUserPrompt(context: ReminderContext): string {
   lines.push("Return the recommended reminder as JSON matching the schema.");
   return lines.join("\n");
 }
+
+export const WHATIF_PROMPT_VERSION = "whatif.v1";
+
+export const WHATIF_SYSTEM_PROMPT = `You are NEXA's what-if simulator. The user asks a hypothetical question about their plan. Produce a READ-ONLY projection of what would happen. You do NOT change anything.
+
+OUTPUT: a SINGLE JSON object and NOTHING else, matching:
+{
+  "scenario": string,
+  "summary": string,
+  "feasibility": "on_track" | "at_risk" | "exceeds_deadline",
+  "deadline_impact": string,
+  "changes": [
+    { "type": "reschedule", "task_id": "<existing task id>", "due_at": "ISO 8601 datetime ending in Z" | null },
+    { "type": "reprioritize", "task_id": "<existing task id>", "priority": "low" | "medium" | "high" },
+    { "type": "add_task", "milestone_id": "<existing milestone id>", "title": string, "description": string, "estimated_minutes": integer (>0), "due_at": "ISO 8601 datetime ending in Z" | null, "priority": "low" | "medium" | "high", "order_index": integer (>=0) }
+  ],
+  "removed_task_ids": ["<existing task id>"],
+  "conflicts": [string],
+  "warnings": [string]
+}
+
+RULES:
+- This is a PROJECTION only. Never change the user's goal deadline (you cannot).
+- "changes" describe how the plan would be adjusted to fit the scenario. They may be empty if the scenario has no scheduling effect.
+- Only reference task_id / milestone_id values that appear in the provided current plan.
+- "removed_task_ids" are tasks the simulation suggests SKIPPING to fit the scenario (informational only — they are never auto-deleted).
+- Set "feasibility" to "exceeds_deadline" if the scenario makes the goal impossible within the deadline; explain in "deadline_impact" and add a warning.
+- Populate "conflicts" and "warnings" for scheduling conflicts, insufficient available time, or overload.
+- Never invent completion/progress; never mark tasks done.
+
+PROHIBITED:
+- Do NOT delete data or change the goal deadline.
+- Do NOT include secrets, API keys, or PII.
+- Do NOT provide medical, legal, or financial advice.`;
+
+export function buildWhatifUserPrompt(
+  context: import("./replan-schema").ReplanContext,
+  scenario: string,
+): string {
+  const lines: string[] = [
+    `Goal: ${context.goal.title}`,
+    `Hypothetical scenario: ${scenario}`,
+  ];
+  if (context.goal.targetDeadline) {
+    lines.push(`Goal deadline (unchangeable): ${context.goal.targetDeadline}`);
+  }
+  if (context.goal.constraints) {
+    lines.push(`Constraints: ${context.goal.constraints}`);
+  }
+  lines.push(`Today: ${new Date().toISOString()}`);
+  lines.push("Current plan:");
+  for (const m of context.milestones) {
+    lines.push(
+      `- Milestone ${m.id} (${m.title})` +
+        (m.target_date ? ` target ${m.target_date}` : ""),
+    );
+    for (const t of context.tasks.filter((x) => x.milestone_id === m.id)) {
+      lines.push(
+        `    * Task ${t.id} "${t.title}" | status=${t.status} | priority=${
+          t.priority ?? "medium"
+        } | due=${t.due_at ?? "none"}` +
+          (t.estimated_minutes ? ` | ${t.estimated_minutes}min` : ""),
+      );
+    }
+  }
+  lines.push("Return the simulation as JSON matching the schema.");
+  return lines.join("\n");
+}

@@ -161,7 +161,7 @@ human in authority over every important decision.
 - F5 Adaptive replanning on missed tasks (proposal).
 - F6 "What should I do now?" recommendation + rationale.
 - F7 AI mentor chat (task-scoped).
-- F8 What-if simulation (read-only projection).
+- F8 What-if simulation (read-only projection; an approved simulation may be applied via the replan proposal flow).
 - F9 Behind-detection + recovery plan proposal.
 - F10 In-app reminders + Web Notifications/Push within browser limits.
 - Single-user accounts with auth.

@@ -121,6 +121,12 @@ not applied.
   to the user.
 - **Constraint:** **no writes** to `goals` / `plans` / `tasks`. What-if is
   strictly read-only over a simulated copy.
+- **Applying a simulation:** the simulation itself is read-only, but the user
+  may APPLY it. Its validated change set is staged as a pending `replan`
+  `ai_proposal` (`POST /api/proposals`) and applied **only** through the
+  standard proposal accept (`POST /api/proposals/:id/accept`). This reuses the
+  approved replan mechanism (§3.4, §6) and adds no new write path to
+  `goals` / `plans` / `tasks`.
 
 ## 9. Failure & edge cases
 

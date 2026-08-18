@@ -149,6 +149,8 @@ endpoints return **proposals**, not applied changes (except where noted).
 **Proposals**
 
 - `GET /api/proposals` — list pending proposals.
+- `POST /api/proposals` — create a pending proposal (e.g., stage a what-if
+  simulation's change set as a `replan` proposal); applied via `accept`.
 - `POST /api/proposals/:id/accept` | `/reject` — **user action** that applies
   or discards the proposed change.
 
