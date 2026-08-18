@@ -18,8 +18,7 @@ export async function GET() {
     const tasks = await listTasksForUser(supabase);
     return NextResponse.json(tasks);
   } catch (error) {
-    return serverError(
-      error instanceof Error ? error.message : "Failed to load tasks",
-    );
+    console.error("[tasks] load failed", error);
+    return serverError("Failed to load tasks");
   }
 }

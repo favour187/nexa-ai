@@ -101,6 +101,7 @@ export function MentorChat() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          aria-label="Ask the mentor"
           placeholder="Ask anything about your plan…"
           className="h-11 flex-1 rounded-lg border border-slate-300 px-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
         />

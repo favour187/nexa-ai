@@ -29,9 +29,8 @@ export async function GET() {
     const goals = await listGoals(supabase, user.id);
     return NextResponse.json(goals);
   } catch (error) {
-    return serverError(
-      error instanceof Error ? error.message : "Failed to load goals",
-    );
+    console.error("[goals] load failed", error);
+    return serverError("Failed to load goals");
   }
 }
 

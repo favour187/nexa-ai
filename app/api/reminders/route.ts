@@ -26,9 +26,8 @@ export async function GET(request: NextRequest) {
     const reminders = await listReminders(supabase, user.id, { due });
     return NextResponse.json(reminders);
   } catch (error) {
-    return serverError(
-      error instanceof Error ? error.message : "Failed to load reminders",
-    );
+    console.error("[reminders] load failed", error);
+    return serverError("Failed to load reminders");
   }
 }
 

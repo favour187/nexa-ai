@@ -29,9 +29,8 @@ export async function GET(
     if (!goal) return notFound();
     return NextResponse.json(goal);
   } catch (error) {
-    return serverError(
-      error instanceof Error ? error.message : "Failed to load goal",
-    );
+    console.error("[goals] load one failed", error);
+    return serverError("Failed to load goal");
   }
 }
 
@@ -61,9 +60,8 @@ export async function PATCH(
     const goal = await updateGoal(supabase, user.id, params.id, parsed.data);
     return NextResponse.json(goal);
   } catch (error) {
-    return serverError(
-      error instanceof Error ? error.message : "Failed to update goal",
-    );
+    console.error("[goals] update failed", error);
+    return serverError("Failed to update goal");
   }
 }
 
@@ -83,8 +81,7 @@ export async function DELETE(
     await deleteGoal(supabase, user.id, params.id);
     return NextResponse.json({ ok: true });
   } catch (error) {
-    return serverError(
-      error instanceof Error ? error.message : "Failed to delete goal",
-    );
+    console.error("[goals] delete failed", error);
+    return serverError("Failed to delete goal");
   }
 }

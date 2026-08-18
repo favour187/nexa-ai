@@ -26,9 +26,8 @@ export async function GET() {
     const settings = await getNotificationSettings(supabase, user.id);
     return NextResponse.json(settings);
   } catch (error) {
-    return serverError(
-      error instanceof Error ? error.message : "Failed to load settings",
-    );
+    console.error("[notifications] load settings failed", error);
+    return serverError("Failed to load settings");
   }
 }
 
@@ -57,8 +56,7 @@ export async function PUT(request: NextRequest) {
     );
     return NextResponse.json(settings);
   } catch (error) {
-    return serverError(
-      error instanceof Error ? error.message : "Failed to save settings",
-    );
+    console.error("[notifications] save settings failed", error);
+    return serverError("Failed to save settings");
   }
 }

@@ -101,6 +101,7 @@ export function NextActionCard() {
         <input
           type="number"
           min={1}
+          aria-label="Custom available minutes"
           placeholder="Custom"
           value={custom}
           onChange={(e) => {
