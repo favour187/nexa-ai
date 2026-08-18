@@ -18,7 +18,9 @@ export const notificationSettingsSchema = z.object({
   quiet_hours: quietHoursSchema.optional(),
   default_lead_minutes: z.number().int().min(0).max(10080),
   allow_ai_suggested_times: z.boolean(),
-  push_subscribed: z.boolean().optional(),
+  // NOTE: push_subscribed is intentionally NOT writable here. Per
+  // architecture.md §6 it is managed only by the dedicated push subscribe/
+  // unsubscribe endpoints (deferred). It remains a read-only column.
 });
 
 export type NotificationSettingsInput = z.infer<typeof notificationSettingsSchema>;

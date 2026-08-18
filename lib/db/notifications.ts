@@ -60,7 +60,7 @@ export async function updateNotificationSettings(
     quiet_hours: input.quiet_hours ?? null,
     default_lead_minutes: input.default_lead_minutes,
     allow_ai_suggested_times: input.allow_ai_suggested_times,
-    push_subscribed: input.push_subscribed ?? false,
+    // push_subscribed is managed only by the push subscribe/unsubscribe endpoints.
   };
 
   const { data, error } = await supabase
