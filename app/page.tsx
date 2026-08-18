@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Brand } from "@/components/Brand";
 import { Button } from "@/components/ui/Button";
 import { getUser } from "@/lib/auth/session";
-import { isSupabaseConfigured } from "@/lib/env";
 
 // Render per request so the CTA reflects the live auth state.
 export const dynamic = "force-dynamic";
@@ -76,14 +75,6 @@ export default async function HomePage() {
             </Link>
           )}
         </div>
-
-        {!isSupabaseConfigured ? (
-          <p className="mt-8 max-w-xl rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-            Running in foundation mode: Supabase is not configured, so sign-in
-            and data features are unavailable until environment variables are
-            set. See the README for local setup.
-          </p>
-        ) : null}
       </section>
 
       <footer className="border-t border-slate-200 py-6 text-sm text-slate-400">
