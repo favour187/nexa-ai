@@ -16,6 +16,7 @@ export default function NewGoalPage() {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("medium");
   const [targetDeadline, setTargetDeadline] = useState("");
+  const [constraints, setConstraints] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,15 +25,16 @@ export default function NewGoalPage() {
     setError(null);
     setLoading(true);
     try {
-      await api.createGoal({
+      const result = await api.createGoal({
         title,
         description: description.trim() ? description.trim() : undefined,
         priority,
         target_deadline: targetDeadline
           ? new Date(targetDeadline).toISOString()
           : undefined,
+        constraints: constraints.trim() ? constraints.trim() : undefined,
       });
-      router.push("/goals");
+      router.push(`/goals/${result.goal.id}`);
       router.refresh();
     } catch (err) {
       setError(
@@ -58,7 +60,8 @@ export default function NewGoalPage() {
         New goal
       </h1>
       <p className="mt-1 text-slate-500">
-        Describe what you want to achieve. You can refine it later.
+        Describe what you want to achieve. NEXA will generate a draft plan you
+        can review.
       </p>
 
       <Card className="mt-6 p-8">
@@ -79,11 +82,25 @@ export default function NewGoalPage() {
             <span className="font-medium text-slate-700">Description</span>
             <textarea
               maxLength={2000}
-              rows={4}
+              rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full rounded-lg border border-slate-300 p-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
-              placeholder="Optional details"
+              placeholder="Optional details about the goal"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="font-medium text-slate-700">
+              Constraints / available time
+            </span>
+            <textarea
+              maxLength={2000}
+              rows={2}
+              value={constraints}
+              onChange={(e) => setConstraints(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 p-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              placeholder="e.g. 3 hours per week, weekends only"
             />
           </label>
 
@@ -122,6 +139,12 @@ export default function NewGoalPage() {
             </p>
           ) : null}
 
+          <p className="text-xs text-slate-500">
+            {loading
+              ? "Generating your plan with AI. This can take a few seconds…"
+              : "On submit, NEXA calls Featherless AI to draft a plan, then saves it as a draft."}
+          </p>
+
           <div className="flex justify-end gap-2">
             <Link href="/goals">
               <Button variant="secondary" type="button">
@@ -129,7 +152,7 @@ export default function NewGoalPage() {
               </Button>
             </Link>
             <Button type="submit" loading={loading}>
-              Create goal
+              {loading ? "Generating plan…" : "Create goal & generate plan"}
             </Button>
           </div>
         </form>

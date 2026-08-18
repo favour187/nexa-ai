@@ -67,15 +67,17 @@ to the authenticated user.
 
 - **goals**: `id`, `user_id`, `title`, `description`, `priority`,
   `target_deadline` (timestamptz, nullable), `status`, `created_at`,
-  `updated_at`.
+  `updated_at`, `constraints` (text, nullable — Phase 2).
 - **plans**: `id`, `goal_id`, `version`, `status` (`draft` | `active`),
-  `source` (`generated` | `recovery` | `edited`), `created_at`. Only one
+  `source` (`generated` | `recovery` | `edited`), `created_at`, `strategy`
+  (text, nullable — Phase 2), `rationale` (text, nullable — Phase 2). Only one
   `active` plan per goal; drafts coexist until accepted.
 - **milestones**: `id`, `plan_id`, `title`, `order_index`, `target_date`,
   `status`.
 - **tasks**: `id`, `milestone_id`, `title`, `description`, `estimated_minutes`,
   `due_at` (timestamptz), `status` (`todo` | `in_progress` | `done` | `missed`
-  | `skipped`), `created_at`, `completed_at`.
+  | `skipped`), `priority` (`low` | `medium` | `high`, default `medium` — Phase
+  2), `created_at`, `completed_at`, `order_index` (integer, default 0 — Phase 2).
 - **ai_proposals**: `id`, `user_id`, `goal_id`, `kind` (`plan` | `recovery` |
   `next_action` | `reminder_time` | `replan`), `payload` (jsonb), `rationale`
   (text), `status` (`pending` | `accepted` | `rejected`), `created_at`.

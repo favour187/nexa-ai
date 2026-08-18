@@ -74,7 +74,7 @@ export default async function GoalsPage() {
         {state.kind === "ok" && state.goals.length === 0 ? (
           <EmptyState
             title="No goals yet"
-            description="Create your first goal. AI plan generation arrives in a later phase."
+            description="Create your first goal and NEXA will draft a plan for it with milestones and tasks."
           >
             <Link href="/goals/new">
               <Button size="sm">New goal</Button>

@@ -1,10 +1,9 @@
-import type { Goal } from "@/types/db";
+import type { Goal, Plan, GoalCreateResponse } from "@/types/db";
 import type { CreateGoalInput, UpdateGoalInput } from "@/lib/validation/goals";
 
 /**
  * Typed browser-side API client used by client components to talk to the
- * Next.js API routes (the "API layer between frontend and backend",
- * specs/architecture.md §6).
+ * Next.js API routes (specs/architecture.md §6).
  */
 
 export class ApiError extends Error {
@@ -46,7 +45,7 @@ export const api = {
   health: () => request<{ status: string }>("/api/health"),
   listGoals: () => request<Goal[]>("/api/goals"),
   createGoal: (input: CreateGoalInput) =>
-    request<Goal>("/api/goals", {
+    request<GoalCreateResponse>("/api/goals", {
       method: "POST",
       body: JSON.stringify(input),
     }),
@@ -58,4 +57,9 @@ export const api = {
     }),
   deleteGoal: (id: string) =>
     request<{ ok: true }>(`/api/goals/${id}`, { method: "DELETE" }),
+  /** Promote a draft plan to active (user action). */
+  acceptPlan: (planId: string) =>
+    request<{ plan: Plan }>(`/api/plans/${planId}/accept`, {
+      method: "POST",
+    }),
 };

@@ -1,11 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Milestone } from "@/types/db";
+import type { Milestone, MilestoneWithTasks, Task } from "@/types/db";
 
-/**
- * Read access for milestones. In Phase 1 these return [] because no plan is
- * generated yet (plan generation is an AI-phase feature). Provided now so the
- * data model and goal-detail surface are wired and ready.
- */
+/** Read access for milestones belonging to a goal (via its plans). */
 export async function listMilestonesForGoal(
   supabase: SupabaseClient,
   goalId: string,
@@ -28,4 +24,26 @@ export async function listMilestonesForGoal(
 
   if (error) throw error;
   return (data ?? []) as Milestone[];
+}
+
+/** Milestones for a plan, each with its nested tasks (ordered). */
+export async function listMilestonesWithTasks(
+  supabase: SupabaseClient,
+  planId: string,
+): Promise<MilestoneWithTasks[]> {
+  const { data, error } = await supabase
+    .from("milestones")
+    .select("*, tasks(*)")
+    .eq("plan_id", planId)
+    .order("order_index", { ascending: true });
+
+  if (error) throw error;
+
+  const milestones = (data ?? []) as MilestoneWithTasks[];
+  for (const milestone of milestones) {
+    milestone.tasks = (milestone.tasks ?? [])
+      .slice()
+      .sort((a: Task, b: Task) => a.order_index - b.order_index);
+  }
+  return milestones;
 }

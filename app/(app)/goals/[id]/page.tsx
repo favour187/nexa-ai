@@ -3,12 +3,26 @@ import { notFound } from "next/navigation";
 import { getUser } from "@/lib/auth/session";
 import { tryCreateClient } from "@/lib/supabase/server";
 import { getGoal } from "@/lib/db/goals";
-import { listMilestonesForGoal as listMilestones } from "@/lib/db/milestones";
+import { getLatestPlanForGoal } from "@/lib/db/plans";
+import { listMilestonesWithTasks } from "@/lib/db/milestones";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { AcceptPlanButton } from "@/components/plans/AcceptPlanButton";
 import { formatDate } from "@/lib/utils";
+import type { MilestoneWithTasks, Plan } from "@/types/db";
+
+const priorityStyles: Record<string, string> = {
+  low: "bg-slate-100 text-slate-600",
+  medium: "bg-amber-100 text-amber-700",
+  high: "bg-red-100 text-red-700",
+};
+
+const planStatusStyles: Record<string, string> = {
+  draft: "bg-amber-100 text-amber-700",
+  active: "bg-emerald-100 text-emerald-700",
+};
 
 export default async function GoalDetailPage({
   params,
@@ -32,7 +46,18 @@ export default async function GoalDetailPage({
   const goal = await getGoal(supabase, user.id, params.id);
   if (!goal) notFound();
 
-  const milestones = await listMilestones(supabase, goal.id);
+  let plan: Plan | null = null;
+  let milestones: MilestoneWithTasks[] = [];
+  let loadError: string | null = null;
+  try {
+    plan = await getLatestPlanForGoal(supabase, goal.id);
+    if (plan) {
+      milestones = await listMilestonesWithTasks(supabase, plan.id);
+    }
+  } catch (error) {
+    loadError =
+      error instanceof Error ? error.message : "Failed to load the plan";
+  }
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -48,42 +73,133 @@ export default async function GoalDetailPage({
           {goal.title}
         </h1>
         <Badge className="bg-emerald-100 text-emerald-700">{goal.status}</Badge>
-        <Badge className="bg-amber-100 text-amber-700">{goal.priority}</Badge>
+        <Badge className={priorityStyles[goal.priority]}>
+          {goal.priority} priority
+        </Badge>
       </div>
 
       {goal.description ? (
         <p className="mt-2 text-slate-600">{goal.description}</p>
       ) : null}
 
-      <p className="mt-2 text-sm text-slate-500">
+      <div className="mt-2 text-sm text-slate-500">
         Target deadline: {formatDate(goal.target_deadline)}
-      </p>
+      </div>
+      {goal.constraints ? (
+        <div className="mt-1 text-sm text-slate-500">
+          Constraints: {goal.constraints}
+        </div>
+      ) : null}
 
-      <div className="mt-8">
-        <h2 className="text-lg font-semibold text-slate-900">Plan</h2>
-        {milestones.length === 0 ? (
+      {loadError ? (
+        <Card className="mt-6 p-4">
+          <p className="text-sm text-red-700">{loadError}</p>
+        </Card>
+      ) : null}
+
+      {/* Plan */}
+      <section className="mt-8">
+        <h2 className="text-lg font-semibold text-slate-900">AI-generated plan</h2>
+
+        {!plan ? (
           <div className="mt-3">
             <EmptyState
               title="No plan yet"
-              description="AI plan generation — turning this goal into milestones and tasks — arrives in a later phase."
-            >
-              <Link href="/dashboard">
-                <Button variant="secondary" size="sm">
-                  Back to dashboard
-                </Button>
-              </Link>
-            </EmptyState>
+              description="This goal has no plan associated with it."
+            />
           </div>
         ) : (
-          <div className="mt-3 flex flex-col gap-3">
-            {milestones.map((m) => (
-              <Card key={m.id} className="p-4">
-                <p className="font-medium text-slate-900">{m.title}</p>
+          <Card className="mt-3 p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Badge className={planStatusStyles[plan.status]}>
+                {plan.status} plan
+              </Badge>
+              {plan.status === "draft" ? (
+                <AcceptPlanButton planId={plan.id} />
+              ) : null}
+            </div>
+
+            {plan.strategy ? (
+              <div className="mt-4">
+                <h3 className="text-sm font-semibold text-slate-700">
+                  Strategy
+                </h3>
+                <p className="mt-1 text-sm text-slate-600">{plan.strategy}</p>
+              </div>
+            ) : null}
+
+            {plan.rationale ? (
+              <div className="mt-3">
+                <h3 className="text-sm font-semibold text-slate-700">
+                  Why this plan
+                </h3>
+                <p className="mt-1 text-sm text-slate-600">{plan.rationale}</p>
+              </div>
+            ) : null}
+          </Card>
+        )}
+      </section>
+
+      {/* Milestones & tasks */}
+      {plan && milestones.length > 0 ? (
+        <section className="mt-8">
+          <h2 className="text-lg font-semibold text-slate-900">Milestones</h2>
+          <div className="mt-3 flex flex-col gap-4">
+            {milestones.map((milestone, index) => (
+              <Card key={milestone.id} className="p-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-slate-900">
+                    <span className="mr-2 text-brand-600">{index + 1}.</span>
+                    {milestone.title}
+                  </h3>
+                  <span className="text-xs text-slate-500">
+                    {formatDate(milestone.target_date)}
+                  </span>
+                </div>
+
+                <ul className="mt-3 flex flex-col gap-2">
+                  {milestone.tasks.map((task) => (
+                    <li
+                      key={task.id}
+                      className="rounded-lg border border-slate-200 bg-slate-50 p-3"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-sm font-medium text-slate-800">
+                          {task.title}
+                        </span>
+                        <Badge className={priorityStyles[task.priority]}>
+                          {task.priority}
+                        </Badge>
+                      </div>
+                      {task.description ? (
+                        <p className="mt-1 text-xs text-slate-500">
+                          {task.description}
+                        </p>
+                      ) : null}
+                      <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
+                        {task.estimated_minutes ? (
+                          <span>{task.estimated_minutes} min</span>
+                        ) : null}
+                        {task.due_at ? (
+                          <span>Due {formatDate(task.due_at)}</span>
+                        ) : null}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </Card>
             ))}
           </div>
-        )}
-      </div>
+
+          <div className="mt-6">
+            <Link href="/dashboard">
+              <Button variant="secondary" size="sm">
+                Back to dashboard
+              </Button>
+            </Link>
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }
