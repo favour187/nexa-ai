@@ -153,9 +153,17 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ goal_id: goalId, scenario }),
     }),
-  applyWhatIf: (goalId: string, changes: ReplanChange[], summary?: string) =>
-    request<WhatIfApplyResult>("/api/ai/what-if/apply", {
+  applyWhatIf: async (goalId: string, changes: ReplanChange[], summary?: string) => {
+    // Two-step lifecycle (specs/ai.md §6): stage a pending replan proposal,
+    // then apply it via the standard proposal accept endpoint. The what-if
+    // endpoint itself stays read-only; no create-and-apply shortcut.
+    const staged = await request<{ proposal_id: string }>("/api/proposals", {
       method: "POST",
-      body: JSON.stringify({ goal_id: goalId, changes, summary }),
-    }),
+      body: JSON.stringify({ goal_id: goalId, changes, rationale: summary }),
+    });
+    return request<WhatIfApplyResult>(
+      `/api/proposals/${staged.proposal_id}/accept`,
+      { method: "POST" },
+    );
+  },
 };
