@@ -74,30 +74,71 @@ Open-source projects use Prelint for free. Details:
 
 ```
 nexa-ai/
+├── app/                  # Next.js App Router: pages, API routes, layouts
+├── components/           # UI primitives & layout components
+├── lib/                  # Supabase clients, data layer, API client, env
+├── types/                # Shared TypeScript domain types
+├── supabase/migrations/  # PostgreSQL schema + Row-Level Security
+├── tests/                # Vitest unit tests
+├── specs/                # Product & architecture specifications (v1)
+│   ├── product.md        # Problem, users, features, MVP scope
+│   ├── architecture.md   # Stack, data model, API, security
+│   ├── ai.md             # Featherless AI responsibilities & hard limits
+│   ├── notifications.md  # Reminders within real web-platform limits
+│   └── prelint.md        # How Prelint protects product intent
 ├── README.md
 ├── LICENSE               # MIT
-├── .gitignore
-└── specs/                # Product & architecture specifications (v1)
-    ├── product.md        # Problem, users, features, MVP scope
-    ├── architecture.md   # Stack, data model, API, security
-    ├── ai.md             # Featherless AI responsibilities & hard limits
-    ├── notifications.md  # Reminders within real web-platform limits
-    └── prelint.md        # How Prelint protects product intent
+└── .gitignore
 ```
-
-> The application source tree will be added once implementation begins.
 
 ## 🚧 Development status
 
-**Specifications complete (v1); implementation not started.** The `specs/`
-directory is the source of truth. No application features are built yet —
-implementation will follow the specifications under Prelint review.
+**Phase 1 — application foundation: implemented.** The `specs/` directory is the
+source of truth, and the foundation follows it under Prelint review.
+
+Implemented so far: the Next.js app shell and routing, Supabase authentication,
+the PostgreSQL data layer (with Row-Level Security) for goals/plans/milestones/
+tasks, the `/api/health` and goals API endpoints, the typed API client, and the
+base UI/layout system with error and loading states.
+
+**Not yet built (deferred to later phases):** the AI planner (Featherless),
+notifications/alarms, and what-if simulations. The AI must always propose, never
+silently apply, important user decisions (see `specs/ai.md`).
+
+## 🛠️ Getting started (local)
+
+Prerequisites: Node.js 20+ and a [Supabase](https://supabase.com/) project.
+
+```bash
+cp .env.example .env.local        # add your Supabase URL, anon key, service-role key
+npm install
+npm run dev                       # http://localhost:3000
+```
+
+Apply the database schema in your Supabase project using
+[`supabase/migrations/0001_init.sql`](./supabase/migrations/0001_init.sql) (via
+the SQL editor or `supabase db push`). The app boots even without Supabase keys
+(in a "not configured" mode); authentication and data features require the keys
+and the applied migration.
+
+Useful scripts:
+
+```bash
+npm run dev        # start the dev server
+npm run build      # production build
+npm run lint       # ESLint (next/core-web-vitals)
+npm run typecheck  # tsc --noEmit
+npm run test       # Vitest unit tests
+npm run db:check   # probe Supabase connectivity
+```
 
 ## 🔐 Security
 
 This repository **never** contains secrets, API keys, or credentials (including
 Featherless/Supabase keys). Secrets are server-side environment variables only.
-See `.gitignore` and [`specs/architecture.md`](./specs/architecture.md).
+The Supabase service-role key is used server-side only (guarded by the
+`server-only` package). See `.gitignore` and
+[`specs/architecture.md`](./specs/architecture.md).
 
 ## 📜 License
 
