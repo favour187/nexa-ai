@@ -166,4 +166,22 @@ export const api = {
       { method: "POST" },
     );
   },
+
+  // AI mentor / next-action (Phase 6)
+  requestNextAction: (availableMinutes?: number, goalId?: string) =>
+    request<import("@/lib/ai/next-action-schema").NextActionResponse>(
+      "/api/ai/next-action",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          available_minutes: availableMinutes,
+          goal_id: goalId,
+        }),
+      },
+    ),
+  sendMentorMessage: (message: string, goalId?: string) =>
+    request<import("@/lib/ai/mentor-schema").MentorReply>("/api/ai/chat", {
+      method: "POST",
+      body: JSON.stringify({ message, goal_id: goalId }),
+    }),
 };

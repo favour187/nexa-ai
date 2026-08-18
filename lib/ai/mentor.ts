@@ -1,0 +1,107 @@
+import { env, isAiConfigured } from "@/lib/env";
+import { mentorReplySchema, type MentorReply } from "./mentor-schema";
+import { MENTOR_SYSTEM_PROMPT, buildMentorUserPrompt } from "./prompts";
+import {
+  AiConfigurationError,
+  AiResponseError,
+  AiServiceError,
+  mapSdkError,
+} from "./errors";
+import type { FeatherlessChatClient } from "./planner";
+import type { MentorContext } from "@/lib/db/mentor-context";
+
+const DEFAULT_MODEL = "Qwen/Qwen3-32B";
+
+export interface MentorDeps {
+  client?: FeatherlessChatClient;
+  model?: string;
+  maxAttempts?: number;
+}
+
+/**
+ * Generate a grounded mentor reply using the EXISTING Featherless client. The
+ * reply is validated and may never invent progress. Retries once on transient
+ * errors, then throws a typed AiError.
+ */
+export async function generateMentorReply(
+  context: MentorContext,
+  message: string,
+  deps: MentorDeps = {},
+): Promise<MentorReply> {
+  if (!isAiConfigured && !deps.client) {
+    throw new AiConfigurationError();
+  }
+
+  const maxAttempts = deps.maxAttempts ?? 2;
+  const model = deps.model ?? (env.NEXA_FEATHERLESS_MODEL.trim() || DEFAULT_MODEL);
+
+  const getClient = async (): Promise<FeatherlessChatClient> => {
+    if (deps.client) return deps.client;
+    const { createFeatherlessClient } = await import("./client");
+    return createFeatherlessClient() as unknown as FeatherlessChatClient;
+  };
+
+  let client: FeatherlessChatClient;
+  try {
+    client = await getClient();
+  } catch (error) {
+    throw error instanceof AiConfigurationError
+      ? error
+      : new AiServiceError("Could not initialize the AI client");
+  }
+
+  let lastError: unknown = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    let raw: string | null | undefined;
+
+    try {
+      const completion = await client.chat.completions.create({
+        model,
+        temperature: 0.4,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: MENTOR_SYSTEM_PROMPT },
+          { role: "user", content: buildMentorUserPrompt(context, message) },
+        ],
+      });
+      raw = completion.choices?.[0]?.message?.content ?? null;
+    } catch (error) {
+      lastError = error;
+      const mapped = mapSdkError(error);
+      if (mapped instanceof AiServiceError) throw mapped;
+      if (attempt < maxAttempts) continue;
+      throw mapped;
+    }
+
+    if (!raw) {
+      lastError = new AiResponseError("AI returned an empty response");
+      if (attempt < maxAttempts) continue;
+      throw lastError;
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      lastError = new AiResponseError("AI response was not valid JSON");
+      if (attempt < maxAttempts) continue;
+      throw lastError;
+    }
+
+    const result = mentorReplySchema.safeParse(parsed);
+    if (result.success) {
+      return result.data;
+    }
+    lastError = new AiResponseError(
+      "AI response failed schema validation",
+      result.error.issues,
+    );
+    if (attempt < maxAttempts) continue;
+    throw lastError;
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new AiServiceError("Mentor reply failed");
+}
