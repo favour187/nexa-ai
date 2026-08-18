@@ -7,7 +7,8 @@ import type {
   Reminder,
   ReminderWithTask,
 } from "@/types/db";
-import type { ReplanResponse } from "@/lib/ai/replan-schema";
+import type { ReplanResponse, ReplanChange } from "@/lib/ai/replan-schema";
+import type { WhatIfResponse } from "@/lib/ai/whatif-schema";
 import type { CreateGoalInput, UpdateGoalInput } from "@/lib/validation/goals";
 import type { UpdateTaskInput } from "@/lib/validation/tasks";
 import type { CreateReminderInput, UpdateReminderInput } from "@/lib/validation/reminders";
@@ -58,6 +59,13 @@ export interface ReminderRecommendationResponse {
   remind_at: string;
   rationale: string;
   lead_minutes?: number;
+}
+
+export interface WhatIfApplyResult {
+  ok: boolean;
+  noop?: boolean;
+  proposal_id?: string;
+  history_entries?: number;
 }
 
 export const api = {
@@ -120,9 +128,7 @@ export const api = {
       body: JSON.stringify(input),
     }),
   listReminders: (due = false) =>
-    request<ReminderWithTask[]>(
-      `/api/reminders${due ? "?due=true" : ""}`,
-    ),
+    request<ReminderWithTask[]>(`/api/reminders${due ? "?due=true" : ""}`),
   createReminder: (input: CreateReminderInput) =>
     request<Reminder>("/api/reminders", {
       method: "POST",
@@ -139,5 +145,17 @@ export const api = {
     request<ReminderRecommendationResponse>("/api/ai/reminder-time", {
       method: "POST",
       body: JSON.stringify({ task_id: taskId }),
+    }),
+
+  // What-if simulation (Phase 5)
+  requestWhatIf: (goalId: string, scenario: string) =>
+    request<WhatIfResponse>("/api/ai/what-if", {
+      method: "POST",
+      body: JSON.stringify({ goal_id: goalId, scenario }),
+    }),
+  applyWhatIf: (goalId: string, changes: ReplanChange[], summary?: string) =>
+    request<WhatIfApplyResult>("/api/ai/what-if/apply", {
+      method: "POST",
+      body: JSON.stringify({ goal_id: goalId, changes, summary }),
     }),
 };
