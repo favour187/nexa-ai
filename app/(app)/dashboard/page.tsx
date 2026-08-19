@@ -104,7 +104,7 @@ export default async function DashboardPage() {
       </section>
 
       {/* Today's tasks */}
-      <section className="mt-8" aria-labelledby="today-heading">
+      <section id="today" className="mt-8 scroll-mt-20" aria-labelledby="today-heading">
         <div className="flex items-center justify-between">
           <h2 id="today-heading" className="text-lg font-semibold text-slate-900">
             Today&apos;s tasks

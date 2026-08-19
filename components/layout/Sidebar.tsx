@@ -4,15 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Brand } from "@/components/Brand";
+import { NAV_LINKS, isNavLinkActive } from "@/components/layout/navLinks";
 
-const links = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/goals", label: "Goals" },
-  { href: "/reminders", label: "Reminders" },
-  { href: "/what-if", label: "What-If" },
-  { href: "/settings", label: "Settings" },
-];
-
+/**
+ * Persistent desktop sidebar (Phase B). Same route set as the mobile drawer —
+ * only routes that actually exist (components/layout/navLinks.ts).
+ */
 export function Sidebar() {
   const pathname = usePathname();
   return (
@@ -21,13 +18,13 @@ export function Sidebar() {
         <Brand />
       </div>
       <nav className="mt-2 flex flex-col gap-1">
-        {links.map((link) => {
-          const active =
-            pathname === link.href || pathname.startsWith(`${link.href}/`);
+        {NAV_LINKS.map((link) => {
+          const active = isNavLinkActive(link.href, pathname);
           return (
             <Link
               key={link.href}
               href={link.href}
+              aria-current={active ? "page" : undefined}
               className={cn(
                 "rounded-lg px-3 py-2 text-sm font-medium",
                 active
