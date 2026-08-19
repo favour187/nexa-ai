@@ -61,12 +61,18 @@ The experience is centered on a small number of clear moments:
 1. **Capture a goal** in plain language.
 2. **See it become a plan** — milestones and scheduled tasks appear as a draft
    the user can accept or edit.
-3. **Get told what to do now** — a persistent "What should I do now?" surface
+3. **Authenticated home (dashboard)** — after login the user lands on a
+   dashboard overview, NOT directly on any single tool. It shows: active goals
+   (with progress and current milestones), today's and overdue tasks, upcoming
+   reminders, the recommended next action, and one-tap access to the AI mentor,
+   What-If, and planning. All data comes from the existing APIs — no fabricated
+   data.
+4. **Get told what to do now** — a persistent "What should I do now?" surface
    shows the recommended next action and why.
-4. **Execute & check off** tasks; NEXA records progress.
-5. **Adapt without friction** — when a task is missed or the situation changes,
+5. **Execute & check off** tasks; NEXA records progress.
+6. **Adapt without friction** — when a task is missed or the situation changes,
    NEXA proposes an updated plan/recovery; it never silently rewrites things.
-6. **Ask the mentor** — a context-aware chat that already knows the current task.
+7. **Ask the mentor** — a context-aware chat that already knows the current task.
 
 The default landing screen always answers: **"What should I do right now?"**
 
