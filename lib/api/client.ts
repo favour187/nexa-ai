@@ -194,4 +194,25 @@ export const api = {
         body: JSON.stringify({ message, goal_id: goalId }),
       },
     ),
+
+  // Web Push (Phase D)
+  subscribePush: (
+    endpoint: string,
+    p256dh: string,
+    auth: string,
+    userAgent?: string,
+  ) =>
+    request<{ ok: true }>("/api/notifications/push/subscribe", {
+      method: "POST",
+      body: JSON.stringify({
+        endpoint,
+        keys: { p256dh, auth },
+        user_agent: userAgent,
+      }),
+    }),
+  unsubscribePush: (endpoint: string) =>
+    request<{ ok: true }>("/api/notifications/push/subscribe", {
+      method: "DELETE",
+      body: JSON.stringify({ endpoint }),
+    }),
 };

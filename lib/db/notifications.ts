@@ -72,3 +72,17 @@ export async function updateNotificationSettings(
   if (error) throw error;
   return data as NotificationSettings;
 }
+
+/** Managed ONLY by the push subscribe/unsubscribe endpoints (Phase D). */
+export async function setPushSubscribed(
+  supabase: SupabaseClient,
+  userId: string,
+  value: boolean,
+): Promise<void> {
+  await getNotificationSettings(supabase, userId);
+  const { error } = await supabase
+    .from("notification_settings")
+    .update({ push_subscribed: value })
+    .eq("user_id", userId);
+  if (error) throw error;
+}

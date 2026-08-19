@@ -45,6 +45,10 @@ const schema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: trimmedString,
   FEATHERLESS_API_KEY: trimmedString,
   NEXA_FEATHERLESS_MODEL: trimmedString,
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: trimmedString,
+  VAPID_PRIVATE_KEY: trimmedString,
+  VAPID_SUBJECT: trimmedString,
+  DISPATCH_TOKEN: trimmedString,
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });
 

@@ -162,3 +162,14 @@ export interface Reminder {
 export interface ReminderWithTask extends Reminder {
   task: { id: string; title: string } | null;
 }
+
+/** A stored Web Push subscription (Phase D — push_subscriptions table). */
+export interface PushSubscriptionRow {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth_secret: string;
+  user_agent: string | null;
+  created_at: string;
+}

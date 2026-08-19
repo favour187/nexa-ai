@@ -30,9 +30,9 @@
 | Hosting | **Render** (Next.js web service) + **Supabase** (DB/auth) | Auto-deploys from `main`; live at https://nexa-ai-t1ce.onrender.com |
 
 > This stack is intentionally narrow: **Next.js + Supabase + Featherless**
-> (+ Prelint). Nothing else is introduced unless a spec requirement demands it.
-> If a future requirement (e.g., background scheduling at scale) cannot be met
-> by this set, it is added via a **spec change reviewed by Prelint**.
+> (+ Prelint). One narrow addition was approved for Phase D: the `web-push`
+> npm package (server-side only) for standards-based Web Push. Anything else is
+> introduced only via a **spec change reviewed by Prelint**.
 
 ## 3. High-level components
 
@@ -100,6 +100,10 @@ to the authenticated user.
   `remind_at` (timestamptz), `delivered` (bool), `channel`, `enabled` (bool,
   default true — Phase 4), `lead_minutes` (integer, nullable — Phase 4),
   `created_at`.
+- **push_subscriptions** (created Phase D): `id`, `user_id`, `endpoint` (unique),
+  `p256dh`, `auth_secret`, `user_agent`, `created_at` — one row per device;
+  used only to deliver that user's own reminders. RLS-scoped; the background
+  scheduler reads them via the service-role client (server-only).
 
 **Status invariants:**
 
@@ -163,6 +167,11 @@ is the **actual route inventory** of the shipped app (kept in sync with
 - `GET` / `POST /api/reminders` — list / create reminder schedules.
 - `GET` / `PATCH` / `DELETE /api/reminders/:id` — read, update (e.g., mark
   `delivered`), delete.
+- `POST` / `DELETE /api/notifications/push/subscribe` — store/remove a device's
+  Web Push subscription (Phase D; user-scoped, RLS).
+- `GET|POST /api/notifications/dispatch` — backend reminder dispatch (Phase D):
+  fires due reminders via Web Push. Called by a scheduler (Render Cron or an
+  external pinger); optional `x-dispatch-token` protection via `DISPATCH_TOKEN`.
 
 **Auth & health**
 
@@ -177,8 +186,8 @@ is the **actual route inventory** of the shipped app (kept in sync with
   `POST /api/goals/:id/recover` — regeneration and recovery go through the
   standard replan proposal flow (`POST /api/ai/replan` → accept), which keeps
   "propose, don't apply" intact.
-- `POST` / `DELETE /api/notifications/push/subscribe` — Web Push is **not** in
-  MVP scope (no service worker, no VAPID); see notifications.md.
+- *(none — Web Push is implemented; see notifications.md for its honest
+  limits.)*
 
 Every response that changes user data references the `ai_proposal` it relied on
 and its `rationale`, so the UI can show "why" and request confirmation.
@@ -208,10 +217,11 @@ Detailed AI responsibilities and boundaries: ai.md.
   an in-app toast plus a browser notification **if** the user granted
   notification permission. It honors the master `enabled` switch and
   `quiet_hours`, and never changes task status.
-- **While closed:** nothing fires — the MVP ships no Web Push, no service
-  worker, and no server-side scheduler. This is a deliberate, documented
-  scope decision (honest platform limits — the web cannot guarantee closed-tab
-  delivery without push infra such as VAPID keys, which are future work).
+- **While closed (Phase D):** the backend dispatch endpoint
+  (`/api/notifications/dispatch`, run by Render Cron or an external pinger)
+  sends Web Push to the user's subscribed devices via the service worker
+  (`/sw.js`). Delivery is best-effort and subject to browser/device
+  permissions and platform/network availability.
 - **No native phone alarms.** The web app cannot set the device's native alarm
   clock or bypass Do Not Disturb. Full details and limits: notifications.md.
 
@@ -237,9 +247,9 @@ Detailed AI responsibilities and boundaries: ai.md.
 - **Next.js API ↔ Postgres:** Supabase JS, service-role server-side, RLS on.
 - **Next.js API ↔ Featherless:** HTTPS, OpenAI-compatible, server-only.
 - **Next.js API ↔ Browser (notifications):** browser Notification API +
-  in-app toasts while the app is open; permission-gated and quiet-hours-aware
-  (see notifications.md). No Web Push in MVP.
-- **Scheduling:** a client-side engine polls `reminder_schedules` while the app
-  is open (30 s cadence, plus on window focus) and marks reminders `delivered`
-  after firing. A server-side scheduler (e.g., Render Cron) is future work,
-  not part of the MVP.
+  in-app toasts while the app is open (permission-gated, quiet-hours-aware)
+  AND Web Push via `/sw.js` for background delivery (Phase D).
+- **Scheduling:** the backend owns scheduling — `/api/notifications/dispatch`
+  (Render Cron or external pinger) sends due reminders by Web Push and marks
+  `delivered` only on successful send. A client-side engine still polls
+  (~30 s + focus) for in-app delivery while the app is open.

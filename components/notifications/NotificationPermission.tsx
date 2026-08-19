@@ -6,22 +6,42 @@ import {
   requestNotificationPermission,
   type PermissionState,
 } from "@/lib/notifications/permission";
+import {
+  isPushSupported,
+  isPushSubscribed,
+  subscribeToPush,
+  unsubscribeFromPush,
+} from "@/lib/notifications/push";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 
 /**
- * Shows the current browser notification permission state and lets the user
- * request it via an explicit action. Honest about web-platform limits
- * (specs/notifications.md §4, §11): browser notifications cannot ring the
- * device alarm or bypass Do Not Disturb.
+ * Notification controls (specs/notifications.md §4, §11; Phase D).
+ *
+ * Two layers, both permission-first and honest about web-platform limits:
+ * 1. Browser notifications — while the NEXA tab is open.
+ * 2. Web Push — background delivery even when the NEXA webpage is NOT open,
+ *    subject to browser/device permissions and platform/network availability.
+ * NEXA is NOT a native alarm clock and never claims to be one.
  */
 export function NotificationPermission() {
   const [state, setState] = useState<PermissionState>("default");
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushSubscribed, setPushSubscribed] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  async function refreshPush() {
+    setPushSupported(isPushSupported());
+    setPushSubscribed(await isPushSubscribed());
+  }
 
   useEffect(() => {
     setState(getPermissionState());
-    const onFocus = () => setState(getPermissionState());
+    refreshPush();
+    const onFocus = () => {
+      setState(getPermissionState());
+      refreshPush();
+    };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, []);
@@ -30,6 +50,26 @@ export function NotificationPermission() {
     setBusy(true);
     try {
       setState(await requestNotificationPermission());
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onEnablePush() {
+    setBusy(true);
+    try {
+      await subscribeToPush();
+      await refreshPush();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onDisablePush() {
+    setBusy(true);
+    try {
+      await unsubscribeFromPush();
+      await refreshPush();
     } finally {
       setBusy(false);
     }
@@ -76,6 +116,57 @@ export function NotificationPermission() {
             inside NEXA only.
           </p>
         ) : null}
+      </div>
+
+      {/* Background push (Phase D) */}
+      <div className="mt-5 border-t border-slate-200 pt-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h4 className="text-sm font-semibold text-slate-900">
+              Background push
+            </h4>
+            <p className="mt-1 text-xs text-slate-500">
+              When enabled, NEXA can deliver push notifications in the
+              background even when the NEXA webpage is not open — subject to
+              browser/device permissions and platform/network availability. It
+              is not a native alarm clock and delivery is best-effort.
+            </p>
+          </div>
+          {pushSupported ? (
+            <Badge
+              className={
+                pushSubscribed
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "bg-amber-100 text-amber-700"
+              }
+            >
+              {pushSubscribed ? "Subscribed" : "Not subscribed"}
+            </Badge>
+          ) : (
+            <Badge className="bg-slate-100 text-slate-500">Unavailable</Badge>
+          )}
+        </div>
+
+        <div className="mt-3">
+          {!pushSupported ? (
+            <p className="text-xs text-slate-500">
+              Background push is unavailable here (it requires HTTPS and a
+              browser with service-worker + push support).
+            </p>
+          ) : state !== "granted" ? (
+            <p className="text-xs text-slate-500">
+              Allow browser notifications first, then enable background push.
+            </p>
+          ) : pushSubscribed ? (
+            <Button size="sm" variant="secondary" loading={busy} onClick={onDisablePush}>
+              Disable background push
+            </Button>
+          ) : (
+            <Button size="sm" loading={busy} onClick={onEnablePush}>
+              Enable background push
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

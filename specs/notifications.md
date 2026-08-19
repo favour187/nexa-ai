@@ -4,11 +4,18 @@
 > **Platform reality:** the MVP is a **web application**. Web apps cannot ring
 > the device's native alarm or guarantee delivery. This spec is intentionally
 > honest about those limits.
-> **MVP delivery scope (shipped):** reminders are delivered **while the app is
-> open** via in-app toasts and the browser Notification API (permission-gated,
-> quiet-hours-aware). Web Push, a server-side scheduler, snooze, and
-> sound/vibration are **documented future work — not part of the MVP build**
-> (marked as such throughout this spec, in line with principle 2).
+> **MVP delivery scope (shipped):**
+> - **In-app toasts + browser notifications** while the app is open
+>   (permission-gated, quiet-hours-aware).
+> - **Web Push background delivery** (Phase D) via a service worker, per-device
+>   push subscriptions stored server-side, and a backend dispatch endpoint
+>   (`/api/notifications/dispatch`) that fires due reminders even when the
+>   NEXA webpage is closed — subject to browser/device permissions and
+>   platform/network availability. Correct capability wording: "NEXA can
+>   deliver push notifications in the background even when the NEXA webpage is
+>   not open, subject to browser/device permissions and platform/network
+>   availability." NEXA is NOT a native alarm clock.
+> - Snooze and sound/vibration remain out of MVP scope.
 
 ## 1. Principles
 
@@ -34,14 +41,15 @@
 |---|---|---|
 | **In-app toast** | App tab is open (engine polls ~30 s) | Silent when closed. |
 | **Web Notification** | Permission granted; tab open | Requires explicit permission; delivery depends on browser/OS; may be silenced by OS focus modes. |
-| **Web Push** *(future — NOT in MVP)* | Would require a service worker, VAPID keys, and stored subscriptions | Best-effort via the browser push service; not delivered if push is disabled, in battery-saver, or under OS restrictions; no guaranteed latency. Out of MVP scope — see §4, §5. |
+| **Web Push (Phase D)** | Permission granted, service worker registered, device subscribed; delivery happens via the backend dispatch endpoint even when the NEXA page is closed | Best-effort via the browser push service; not delivered if push is disabled, in battery-saver, under OS restrictions, or when the server scheduler does not run; no guaranteed latency. |
 
 **What the web app CANNOT do (and we will not claim it can):**
 
 - Set or ring the phone's **native alarm clock**.
 - Override **Do Not Disturb / Focus / quiet modes**.
-- Guarantee delivery when the app/tab is closed (push is best-effort — and
-  the MVP does not ship push at all).
+- Guarantee delivery when the app/tab is closed (push is best-effort and
+  requires the backend scheduler to run, browser/device permissions, and
+  platform/network availability).
 - Access SMS, the system calendar, or other apps' notifications.
 - Reliably wake a sleeping device.
 
@@ -52,10 +60,14 @@
 
 - The app requests `Notification.permission` only in response to an explicit
   user action (e.g., tapping "Enable reminders"), **never** on page load.
-- Push subscription (service worker + VAPID + server-side subscription storage)
-  is **future work, not in MVP**. If it is added later, it must follow this
-  section: request permission on user action only, store the subscription
-  server-side scoped to the user, and never claim guaranteed delivery.
+- For push (Phase D): after notification permission, the app registers the
+  service worker (`/sw.js`), creates a Web Push subscription with the VAPID
+  public key, and stores the subscription server-side (`push_subscriptions`,
+  scoped to the user, RLS-protected). Multiple devices are supported (one row
+  per endpoint); a device can be removed via the unsubscribe endpoint.
+- The VAPID **private** key and contact subject live only in server env vars
+  (`VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`); the public key is shipped to the
+  browser (public by design). Never commit private VAPID credentials.
 - If permission is denied or revoked, the app falls back to **in-app only**
   reminders and clearly tells the user that reminders will only work while the
   app is open.
@@ -65,13 +77,23 @@
 
 - Reminders are derived from a task's `due_at` and the user's
   `default_lead_minutes` (e.g., remind 15 min before).
-- **MVP scheduling authority is client-side and open-tab-only:** the reminder
-  engine polls `reminder_schedules` every ~30 s (and on window focus) while the
-  app is open, fires due reminders, and marks them `delivered`. When the tab is
-  closed nothing fires — this is an honest, documented MVP limit.
-- **Future work (not in MVP):** a server-side scheduler (e.g., Render Cron /
-  queue) reading `reminder_schedules` at due time and dispatching push
-  notifications. If added, the browser engine stops being the sole scheduler.
+- **The backend owns scheduling (Phase D).** A dispatch endpoint
+  (`/api/notifications/dispatch`) scans `reminder_schedules` for due, enabled,
+  undelivered reminders and sends Web Push to the user's subscribed devices. It
+  is triggered by a scheduler (Render Cron or an external pinger, e.g.
+  UptimeRobot, every few minutes) — it does NOT depend on any browser being
+  open.
+- **While the app is open:** the client-side reminder engine still polls
+  (~30 s, plus on focus) for instant in-app toasts + browser notifications.
+- Dispatch honesty rules: `delivered` is set ONLY when a push actually
+  succeeded to at least one device; disabled reminders, disabled settings,
+  push-disabled channels, completed/skipped tasks, and quiet-hours windows are
+  skipped; dead endpoints (HTTP 404/410) are removed; nothing else is
+  modified. No reminder is falsely marked delivered.
+- Timezone: `remind_at` is stored as the UTC instant the user intended
+  (computed client-side in the user's local time). Quiet hours are applied by
+  the server in UTC during dispatch; the in-app engine applies them in the
+  browser's local time.
 
 ## 6. Alarm / reminder behavior
 
@@ -119,9 +141,10 @@
 
 ## 10. Privacy requirements
 
-- (Future) push subscription endpoints/keys must be stored server-side, scoped
-  to the user, and used only to deliver the user's own reminders. Not
-  applicable to the MVP build, which ships no push.
+- Push subscription endpoints/keys are stored server-side
+  (`push_subscriptions`), scoped to the user, RLS-protected, and used only to
+  deliver that user's own reminders. The dispatch endpoint never exposes one
+  user's subscriptions to another.
 - Reminder content is derived from the user's own task data; no cross-user data.
 - No analytics/tracking pixels in notifications.
 - Notification settings (and any future subscriptions) are deleted when the
@@ -134,7 +157,8 @@
 
 - Web Notifications: permission-gated, OS/browser-dependent, may be silenced;
   work only while the app is open.
-- Web Push: **future work** (out of MVP scope) — best-effort, subscription-based,
-  not guaranteed.
+- Web Push (Phase D): best-effort, subscription-based, not guaranteed; requires
+  HTTPS, service-worker + push support, granted permission, a stored
+  subscription, and the backend scheduler running.
 - No native alarms, no Do-Not-Disturb override, no SMS/calendar access, no
   reliable wake-from-sleep. Any feature depending on these is out of MVP scope.

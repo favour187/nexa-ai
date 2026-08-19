@@ -119,10 +119,16 @@ Implemented:
 The AI always **proposes**; the user **disposes** — it never silently changes a
 deadline or deletes data (`specs/ai.md`).
 
-**Not yet built (documented in `specs/` as out of MVP scope):** closed-tab Web
-Push (needs VAPID + a service worker), a server-side reminder scheduler,
-snooze/audio reminders, the final login animation, and the final visual
-redesign.
+**Not yet built (documented in `specs/` as out of MVP scope):** snooze/audio
+reminders, the final login animation, and the final visual redesign.
+
+**Background push (built, needs two env vars):** Web Push works through a
+service worker (`/sw.js`) + the backend dispatch endpoint
+(`/api/notifications/dispatch`). Set `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT`
+(server env only) and point a scheduler at the dispatch endpoint — Render
+Cron (e.g. every 5 min) or an external pinger such as UptimeRobot:
+`GET https://nexa-ai-t1ce.onrender.com/api/notifications/dispatch`. Set
+`DISPATCH_TOKEN` to require an `x-dispatch-token` header on that endpoint.
 
 ## 🛠️ Getting started (local)
 
@@ -164,3 +170,17 @@ The Supabase service-role key is used server-side only (guarded by the
 ## 📜 License
 
 [MIT](./LICENSE) © 2026 NEXA Contributors.
+
+
+## 🔐 Environment variables (deployment)
+
+| Variable | Where | Notes |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Build-time (hardcoded fallbacks in `scripts/write-env.mjs` + `lib/env.ts`) | Public — RLS-protected |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server env only | **Secret** — used by the push dispatcher |
+| `FEATHERLESS_API_KEY` | Server env only | **Secret** — AI routes |
+| `NEXA_FEATHERLESS_MODEL` | Optional | Default `Qwen/Qwen3-32B` |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Build-time (hardcoded fallback in `lib/push/vapid.ts`) | Public by design |
+| `VAPID_PRIVATE_KEY` | Server env only | **Secret** — Web Push signing |
+| `VAPID_SUBJECT` | Server env only | `mailto:you@example.com` — Web Push contact |
+| `DISPATCH_TOKEN` | Optional, server env only | Protects `/api/notifications/dispatch` |

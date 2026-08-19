@@ -89,7 +89,7 @@ The default landing screen always answers: **"What should I do right now?"**
 | F7 | AI mentor | Context-aware chat scoped to the user's current task and plan. |
 | F8 | What-if simulation | Explore alternative plans/scenarios without changing the real plan. |
 | F9 | Behind-awareness & recovery | Surface missed tasks in context; a requested replan proposes a recovery plan (never silently). |
-| F10 | Notifications & reminders | Reminders within platform limits and user permissions — in-app + browser notifications while the app is open (see notifications.md). |
+| F10 | Notifications & reminders | Reminders within platform limits and user permissions — in-app + browser notifications, plus background Web Push when the NEXA page is closed (Phase D; see notifications.md). |
 | F11 | Natural-language command | Talk to NEXA in plain language ("I only have an hour tomorrow", "move the hard work to Saturday"); NEXA routes the message to the right existing capability and confirms before changing anything (Phase C/E). |
 
 All AI-driven changes to user data are **proposals requiring explicit user
@@ -173,8 +173,10 @@ human in authority over every important decision.
 - F9 Behind-awareness + recovery — missed tasks are surfaced in context
   (mentor, next-action) and a requested replan produces a recovery plan
   proposal (never a silent rewrite).
-- F10 In-app reminders + browser notifications while the app is open, within
-  browser limits (Web Push is future work; see notifications.md).
+- F10 In-app reminders + browser notifications while the app is open, plus
+  background Web Push (service worker + backend dispatch) when the page is
+  closed — subject to browser/device permissions and platform/network
+  availability (see notifications.md).
 - F11 Natural-language command bar (dashboard + goal pages) routing free-form
   messages to the existing next-action / what-if / replan / mentor engines;
   plan changes always require explicit confirmation.

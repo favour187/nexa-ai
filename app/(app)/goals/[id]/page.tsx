@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { AcceptPlanButton } from "@/components/plans/AcceptPlanButton";
 import { ReplanPanel } from "@/components/plans/ReplanPanel";
 import { NlCommandBar } from "@/components/nl/NlCommandBar";
+import { TaskDeepLink } from "@/components/plans/TaskDeepLink";
 import { TaskStatusControl } from "@/components/tasks/TaskStatusControl";
 import { formatDate } from "@/lib/utils";
 import type { MilestoneWithTasks, Plan } from "@/types/db";
@@ -64,6 +65,7 @@ export default async function GoalDetailPage({
 
   return (
     <div className="mx-auto max-w-3xl">
+      <TaskDeepLink />
       <Link
         href="/goals"
         className="text-sm font-medium text-brand-600 hover:underline"
@@ -168,7 +170,8 @@ export default async function GoalDetailPage({
                   {milestone.tasks.map((task) => (
                     <li
                       key={task.id}
-                      className="rounded-lg border border-slate-200 bg-slate-50 p-3"
+                      id={`task-${task.id}`}
+                      className="rounded-lg border border-slate-200 bg-slate-50 p-3 transition-shadow"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="text-sm font-medium text-slate-800">

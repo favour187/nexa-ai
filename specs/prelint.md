@@ -67,11 +67,16 @@ match them.
 
 ### 3.3 Notifications (from notifications.md)
 
-- Never claim native **alarm** or guaranteed delivery for the web app.
+- Never claim native **alarm** or guaranteed delivery for the web app; the
+  correct capability wording for background push is "…subject to
+  browser/device permissions and platform/network availability".
 - No notification without explicit permission; respect `quiet_hours` and the
   master `enabled` switch; the AI/system never overrides them.
 - AI-suggested reminder times require `allow_ai_suggested_times` and user
   acceptance.
+- Push dispatch must never mark undelivered reminders as `delivered`, never
+  notify about deleted/disabled reminders, and never expose one user's
+  subscriptions to another. VAPID **private** keys are server-env-only.
 
 ### 3.4 Architecture (from architecture.md)
 
