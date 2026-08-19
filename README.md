@@ -119,16 +119,20 @@ Implemented:
 The AI always **proposes**; the user **disposes** — it never silently changes a
 deadline or deletes data (`specs/ai.md`).
 
-**Not yet built (documented in `specs/` as out of MVP scope):** snooze/audio
-reminders, the final login animation, and the final visual redesign.
+**Not in MVP (documented in `specs/`):** snooze and sound/vibration reminders,
+native mobile alarms, collaboration, and calendar/email/SMS integrations.
 
-**Background push (built, needs two env vars):** Web Push works through a
-service worker (`/sw.js`) + the backend dispatch endpoint
-(`/api/notifications/dispatch`). Set `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT`
-(server env only) and point a scheduler at the dispatch endpoint — Render
-Cron (e.g. every 5 min) or an external pinger such as UptimeRobot:
-`GET https://nexa-ai-t1ce.onrender.com/api/notifications/dispatch`. Set
-`DISPATCH_TOKEN` to require an `x-dispatch-token` header on that endpoint.
+**Background push (built — two production steps remain):** Web Push works
+through a service worker (`/sw.js`) + `/api/notifications/dispatch`.
+
+1. Apply `supabase/migrations/0005_push_notifications.sql` in the Supabase SQL
+   editor (creates `push_subscriptions`). `/api/health` reports
+   `services.push.tableReady`.
+2. Set `VAPID_PRIVATE_KEY` + `VAPID_SUBJECT` (server env only) and point an
+   external pinger at `GET https://nexa-ai-t1ce.onrender.com/api/notifications/dispatch`
+   every 5 minutes. Optional `DISPATCH_TOKEN` requires `x-dispatch-token`.
+
+See [`DEPLOYMENT.md`](./DEPLOYMENT.md).
 
 ## 🛠️ Getting started (local)
 
@@ -140,13 +144,14 @@ npm install
 npm run dev                       # http://localhost:3000
 ```
 
-Apply the database schema in your Supabase project using
-[`supabase/migrations/0001_init.sql`](./supabase/migrations/0001_init.sql) (via
-the SQL editor or `supabase db push`). The public Supabase URL + anon key are
-baked into the client bundle as fallbacks (the anon key is RLS-protected, not
-secret), so auth/database features boot configured everywhere; the server-only
-keys (`SUPABASE_SERVICE_ROLE_KEY`, `FEATHERLESS_API_KEY`) must be provided in
-the deployment environment for AI planning and admin operations.
+Apply the database schema in your Supabase project using the SQL files in
+[`supabase/migrations/`](./supabase/migrations) **in order** (`0001`–`0005`)
+via the SQL editor or `supabase db push`. The public Supabase URL + anon key
+are baked into the client bundle as fallbacks (the anon key is RLS-protected,
+not secret), so auth/database features boot configured everywhere; the
+server-only keys (`SUPABASE_SERVICE_ROLE_KEY`, `FEATHERLESS_API_KEY`,
+`VAPID_PRIVATE_KEY`) must be provided in the deployment environment for AI
+planning, admin operations, and background push.
 
 Useful scripts:
 
@@ -184,3 +189,5 @@ The Supabase service-role key is used server-side only (guarded by the
 | `VAPID_PRIVATE_KEY` | Server env only | **Secret** — Web Push signing |
 | `VAPID_SUBJECT` | Server env only | `mailto:you@example.com` — Web Push contact |
 | `DISPATCH_TOKEN` | Optional, server env only | Protects `/api/notifications/dispatch` |
+
+Full production guide: [`DEPLOYMENT.md`](./DEPLOYMENT.md) · Blueprint: [`render.yaml`](./render.yaml).

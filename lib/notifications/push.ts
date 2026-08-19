@@ -97,7 +97,12 @@ export async function subscribeToPush(): Promise<PushSubscription | null> {
       navigator.userAgent,
     );
     return subscription;
-  } catch {
+  } catch (error) {
+    // Re-throw so the settings UI can show a specific reason (e.g. migration
+    // 0005 not applied). Permission / platform failures still return null.
+    if (error && typeof error === "object" && "status" in error) {
+      throw error;
+    }
     return null;
   }
 }

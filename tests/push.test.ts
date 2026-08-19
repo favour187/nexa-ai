@@ -63,6 +63,21 @@ describe("classifyReminder (Phase D dispatch rules)", () => {
   });
 });
 
+describe("getServerVapidConfig", () => {
+  it("returns null when the private key or subject is missing", async () => {
+    const { getServerVapidConfig } = await import("@/lib/push/vapid");
+    const previousPrivate = process.env.VAPID_PRIVATE_KEY;
+    const previousSubject = process.env.VAPID_SUBJECT;
+    delete process.env.VAPID_PRIVATE_KEY;
+    delete process.env.VAPID_SUBJECT;
+    expect(getServerVapidConfig()).toBeNull();
+    if (previousPrivate === undefined) delete process.env.VAPID_PRIVATE_KEY;
+    else process.env.VAPID_PRIVATE_KEY = previousPrivate;
+    if (previousSubject === undefined) delete process.env.VAPID_SUBJECT;
+    else process.env.VAPID_SUBJECT = previousSubject;
+  });
+});
+
 describe("urlBase64ToUint8Array", () => {
   it("decodes standard base64url back to the original bytes", async () => {
     const { urlBase64ToUint8Array } = await import("@/lib/notifications/push");

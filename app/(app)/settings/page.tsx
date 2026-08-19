@@ -93,8 +93,10 @@ export default function SettingsPage() {
               Notifications
             </h2>
             <p className="mt-1 text-xs text-slate-500">
-              NEXA delivers reminders as browser notifications while the app is
-              open. It cannot ring your device alarm or bypass Do Not Disturb.
+              In-app toasts and browser notifications work while NEXA is open.
+              Background Web Push (below) can fire when the page is closed —
+              best-effort, permission-gated. NEXA cannot ring a device alarm or
+              bypass Do Not Disturb.
             </p>
 
             <label className="mt-4 flex items-center justify-between text-sm">

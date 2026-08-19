@@ -27,4 +27,23 @@ describe("parseEnv", () => {
     expect(parseEnv({ NODE_ENV: "production" }).NODE_ENV).toBe("production");
     expect(() => parseEnv({ NODE_ENV: "staging" })).toThrow();
   });
+
+  it("defaults Web Push / dispatch fields to empty strings", () => {
+    const e = parseEnv({});
+    expect(e.NEXT_PUBLIC_VAPID_PUBLIC_KEY).toBe("");
+    expect(e.VAPID_PRIVATE_KEY).toBe("");
+    expect(e.VAPID_SUBJECT).toBe("");
+    expect(e.DISPATCH_TOKEN).toBe("");
+  });
+
+  it("trims VAPID and dispatch values", () => {
+    const e = parseEnv({
+      VAPID_PRIVATE_KEY: "  secret  ",
+      VAPID_SUBJECT: "  mailto:ops@example.com  ",
+      DISPATCH_TOKEN: "  token  ",
+    });
+    expect(e.VAPID_PRIVATE_KEY).toBe("secret");
+    expect(e.VAPID_SUBJECT).toBe("mailto:ops@example.com");
+    expect(e.DISPATCH_TOKEN).toBe("token");
+  });
 });

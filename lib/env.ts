@@ -67,6 +67,10 @@ export function parseEnv(input: Record<string, string | undefined>): Env {
 const PUBLIC_SUPABASE_URL = "https://hugjfbppjquhvhypkrwa.supabase.co";
 const PUBLIC_SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1Z2pmYnBwanF1aHZoeXBrcndhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwODE0NDksImV4cCI6MjEwMjY1NzQ0OX0.4CV49UqGCknrisHXUTYFTT9NfUWtF6Q_QkLcA3cJTFE";
+// Public by design (pairs with server-only VAPID_PRIVATE_KEY). Keep in sync
+// with lib/push/vapid.ts PUBLIC_VAPID_KEY_FALLBACK.
+const PUBLIC_VAPID_KEY_FALLBACK =
+  "BOZsh4z9G0ikDvTdd5ccgQK7V-TNiG4EsKCU_egYpwNSGBRqnGHnZ5jCWdDMLGdNVACHVzj8pifyKqjL41E3XQg";
 
 export const env: Env = parseEnv({
   // Direct property access — REQUIRED for Next.js to inline NEXT_PUBLIC_*
@@ -75,10 +79,15 @@ export const env: Env = parseEnv({
     process.env.NEXT_PUBLIC_SUPABASE_URL || PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY:
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || PUBLIC_SUPABASE_ANON_KEY,
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY:
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || PUBLIC_VAPID_KEY_FALLBACK,
   // Non-public keys: never inlined into client bundles; server-only.
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   FEATHERLESS_API_KEY: process.env.FEATHERLESS_API_KEY,
   NEXA_FEATHERLESS_MODEL: process.env.NEXA_FEATHERLESS_MODEL,
+  VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY,
+  VAPID_SUBJECT: process.env.VAPID_SUBJECT,
+  DISPATCH_TOKEN: process.env.DISPATCH_TOKEN,
   NODE_ENV: process.env.NODE_ENV,
 });
 
@@ -90,3 +99,6 @@ export const isServiceRoleConfigured = Boolean(env.SUPABASE_SERVICE_ROLE_KEY);
 
 /** Featherless AI is configured. Server-only; gates the /api/ai/* routes. */
 export const isAiConfigured = Boolean(env.FEATHERLESS_API_KEY);
+
+/** Web Push signing is configured (private key + subject). Server-only. */
+export const isPushConfigured = Boolean(env.VAPID_PRIVATE_KEY && env.VAPID_SUBJECT);

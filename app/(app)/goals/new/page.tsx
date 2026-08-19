@@ -6,6 +6,7 @@ import Link from "next/link";
 import { api, ApiError } from "@/lib/api/client";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { fieldClass, textareaClass } from "@/lib/ui/field";
 import type { Priority } from "@/types/db";
 
 const priorities: Priority[] = ["low", "medium", "high"];
@@ -45,9 +46,6 @@ export default function NewGoalPage() {
     }
   }
 
-  const inputClass =
-    "h-11 w-full rounded-lg border border-slate-300 px-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500";
-
   return (
     <div className="mx-auto max-w-2xl">
       <Link
@@ -73,7 +71,7 @@ export default function NewGoalPage() {
               maxLength={200}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className={inputClass}
+              className={fieldClass}
               placeholder="e.g. Run a half-marathon"
             />
           </label>
@@ -85,7 +83,7 @@ export default function NewGoalPage() {
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 p-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className={textareaClass}
               placeholder="Optional details about the goal"
             />
           </label>
@@ -99,7 +97,7 @@ export default function NewGoalPage() {
               rows={2}
               value={constraints}
               onChange={(e) => setConstraints(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 p-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className={textareaClass}
               placeholder="e.g. 3 hours per week, weekends only"
             />
           </label>
@@ -110,7 +108,7 @@ export default function NewGoalPage() {
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as Priority)}
-                className={inputClass}
+                className={fieldClass}
               >
                 {priorities.map((p) => (
                   <option key={p} value={p}>
@@ -128,7 +126,7 @@ export default function NewGoalPage() {
                 type="datetime-local"
                 value={targetDeadline}
                 onChange={(e) => setTargetDeadline(e.target.value)}
-                className={inputClass}
+                className={fieldClass}
               />
             </label>
           </div>
@@ -139,9 +137,13 @@ export default function NewGoalPage() {
             </p>
           ) : null}
 
-          <p className="text-xs text-slate-500">
+          <p
+            className={`text-xs text-slate-500 ${
+              loading ? "animate-pulse-soft" : ""
+            }`}
+          >
             {loading
-              ? "Generating your plan with AI. This can take a few seconds…"
+              ? "NEXA is thinking — generating your plan…"
               : "On submit, NEXA calls Featherless AI to draft a plan, then saves it as a draft."}
           </p>
 

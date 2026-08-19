@@ -29,6 +29,7 @@ export function NotificationPermission() {
   const [pushSupported, setPushSupported] = useState(false);
   const [pushSubscribed, setPushSubscribed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [pushError, setPushError] = useState<string | null>(null);
 
   async function refreshPush() {
     setPushSupported(isPushSupported());
@@ -57,9 +58,21 @@ export function NotificationPermission() {
 
   async function onEnablePush() {
     setBusy(true);
+    setPushError(null);
     try {
-      await subscribeToPush();
+      const sub = await subscribeToPush();
+      if (!sub) {
+        setPushError(
+          "Could not subscribe this device. Check notification permission and that you are on HTTPS.",
+        );
+      }
       await refreshPush();
+    } catch (error) {
+      setPushError(
+        error instanceof Error
+          ? error.message
+          : "Could not enable background push",
+      );
     } finally {
       setBusy(false);
     }
@@ -166,6 +179,11 @@ export function NotificationPermission() {
               Enable background push
             </Button>
           )}
+          {pushError ? (
+            <p role="alert" className="mt-2 text-xs text-red-700">
+              {pushError}
+            </p>
+          ) : null}
         </div>
       </div>
     </div>
