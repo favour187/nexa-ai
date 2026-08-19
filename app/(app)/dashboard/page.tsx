@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getUser } from "@/lib/auth/session";
 import { tryCreateClient } from "@/lib/supabase/server";
 import { loadDashboardData } from "@/lib/db/dashboard";
+import { ensureDueReminders } from "@/lib/db/autoReminders";
 import { NextActionCard } from "@/components/mentor/NextActionCard";
 import { MentorChat } from "@/components/mentor/MentorChat";
 import { NlCommandBar } from "@/components/nl/NlCommandBar";
@@ -42,6 +43,11 @@ export default async function DashboardPage() {
     loadError = "The database is not configured.";
   } else {
     try {
+      try {
+        await ensureDueReminders(supabase, user.id);
+      } catch {
+        /* dashboard still loads without a fresh backfill */
+      }
       data = await loadDashboardData(supabase, user.id);
     } catch (error) {
       loadError = error instanceof Error ? error.message : "Failed to load overview";
@@ -239,7 +245,7 @@ export default async function DashboardPage() {
             {data && data.upcomingReminders.length === 0 ? (
               <EmptyState
                 title="No upcoming reminders"
-                description="Remind yourself before a task is due — in-app or via browser notification."
+                description="Every scheduled task gets a reminder when it is due. Accept a plan or wait for the next sync."
               >
                 <Link href="/reminders">
                   <Button size="sm" variant="secondary">

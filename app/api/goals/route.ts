@@ -7,6 +7,7 @@ import { createGoalSchema } from "@/lib/validation/goals";
 import { getGoal, listGoals } from "@/lib/db/goals";
 import { getPlan } from "@/lib/db/plans";
 import { createGoalWithPlan } from "@/lib/db/goalPlan";
+import { ensureDueReminders } from "@/lib/db/autoReminders";
 import { generatePlan } from "@/lib/ai/planner";
 import { describeAiError } from "@/lib/ai/errors";
 import {
@@ -108,6 +109,11 @@ export async function POST(request: NextRequest) {
 
   // 3) Read back the created goal + plan (RLS-scoped to this user).
   try {
+    try {
+      await ensureDueReminders(supabase, user.id);
+    } catch {
+      /* plan is saved; reminders backfill on next dispatch / visit */
+    }
     const goal = await getGoal(supabase, user.id, created.goal_id);
     const planRow = await getPlan(supabase, created.plan_id);
     return NextResponse.json({ goal, plan: planRow }, { status: 201 });

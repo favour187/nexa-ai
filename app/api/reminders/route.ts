@@ -3,6 +3,7 @@ import { getUser } from "@/lib/auth/session";
 import { tryCreateClient } from "@/lib/supabase/server";
 import { createReminderSchema } from "@/lib/validation/reminders";
 import { createReminder, listReminders } from "@/lib/db/reminders";
+import { ensureDueReminders } from "@/lib/db/autoReminders";
 import {
   notFound,
   serverError,

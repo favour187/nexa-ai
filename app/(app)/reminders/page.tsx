@@ -134,8 +134,9 @@ export default function RemindersPage() {
         Reminders
       </h1>
       <p className="mt-1 text-slate-500">
-        Turn scheduled tasks into reminders. Reminders are delivered as browser
-        notifications while NEXA is open.
+        Every task with a due time gets a reminder automatically. Extra custom
+        times are optional. Delivery is in-app while NEXA is open, and as a
+        background push when you have allowed notifications.
       </p>
 
       {error ? (
@@ -239,7 +240,7 @@ export default function RemindersPage() {
           <div className="mt-3">
             <EmptyState
               title="No reminders yet"
-              description="Create a reminder above to get a nudge before a task."
+              description="Scheduled tasks get a reminder at due time automatically. You can still add an extra custom time above."
             />
           </div>
         ) : (

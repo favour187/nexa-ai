@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getUser } from "@/lib/auth/session";
 import { tryCreateClient } from "@/lib/supabase/server";
 import { acceptPlan } from "@/lib/db/plans";
+import { ensureDueReminders } from "@/lib/db/autoReminders";
 import { NotFoundError } from "@/lib/db/errors";
 import {
   notFound,
@@ -28,6 +29,11 @@ export async function POST(
 
   try {
     const plan = await acceptPlan(supabase, params.id);
+    try {
+      await ensureDueReminders(supabase, user.id);
+    } catch {
+      /* reminders are best-effort; the plan is already active */
+    }
     return NextResponse.json({ plan });
   } catch (error) {
     if (error instanceof NotFoundError) {

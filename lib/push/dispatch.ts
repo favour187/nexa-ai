@@ -7,6 +7,7 @@ import {
   removeSubscriptionByEndpoint,
 } from "@/lib/push/subscriptions";
 import { classifyReminder, type ReminderForDispatch } from "@/lib/push/rules";
+import { ensureDueRemindersForAllUsers } from "@/lib/db/autoReminders";
 import type { NotificationSettings, PushSubscriptionRow } from "@/types/db";
 
 /**
@@ -60,6 +61,12 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
     return result;
   }
   webpush.setVapidDetails(vapid.subject, vapid.publicKey, vapid.privateKey);
+
+  try {
+    await ensureDueRemindersForAllUsers(admin);
+  } catch {
+    // Best-effort backfill — still send whatever reminder rows already exist.
+  }
 
   const now = new Date();
   const { data: reminders, error } = await admin
@@ -126,7 +133,11 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
 
     const decision = classifyReminder(
       reminder,
-      settingsByUser.get(row.user_id) ?? null,
+      settingsByUser.get(row.user_id) ?? {
+        enabled: true,
+        channels: {},
+        quiet_hours: null,
+      },
       now,
     );
     if (decision !== "send") {

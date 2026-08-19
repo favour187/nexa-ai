@@ -4,6 +4,7 @@ import { tryCreateClient } from "@/lib/supabase/server";
 import { getProposal } from "@/lib/db/proposals";
 import { applyReplan } from "@/lib/db/replan";
 import { applyReminderProposal } from "@/lib/db/reminders";
+import { ensureDueReminders } from "@/lib/db/autoReminders";
 import {
   badRequest,
   notFound,
@@ -37,6 +38,11 @@ export async function POST(
   try {
     if (proposal.kind === "replan") {
       const result = await applyReplan(supabase, params.id);
+      try {
+        await ensureDueReminders(supabase, user.id);
+      } catch {
+        /* plan already applied */
+      }
       return NextResponse.json(result);
     }
     if (proposal.kind === "reminder_time") {
