@@ -4,19 +4,18 @@ import { MobileNav } from "@/components/layout/MobileNav";
 
 export function Topbar({ userEmail }: { userEmail: string | null }) {
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-slate-200/80 bg-white/90 px-4 backdrop-blur md:px-6">
-      <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-20 flex h-14 min-w-0 items-center justify-between gap-2 border-b border-slate-200/80 bg-white/90 px-3 backdrop-blur sm:px-4 md:px-6">
+      <div className="flex min-w-0 items-center gap-1.5">
         {/* Hamburger + wordmark on mobile (Phase B); desktop keeps the
             persistent sidebar and shows the brand there. */}
         <MobileNav />
-        <div className="md:hidden">
+        <div className="min-w-0 md:hidden">
           <Brand />
         </div>
       </div>
-      <div className="hidden md:block" />
-      <div className="flex items-center gap-4">
+      <div className="flex shrink-0 items-center gap-2">
         {userEmail ? (
-          <span className="hidden max-w-[40vw] truncate text-sm text-slate-500 sm:inline">
+          <span className="hidden max-w-[28vw] truncate text-sm text-slate-500 lg:inline">
             {userEmail}
           </span>
         ) : null}

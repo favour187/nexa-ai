@@ -60,10 +60,10 @@ export default async function DashboardPage() {
   ).length ?? 0;
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto w-full min-w-0 max-w-4xl">
       {/* Header */}
-      <div className="animate-fade-up flex flex-wrap items-end justify-between gap-4">
-        <div>
+      <div className="animate-fade-up flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-4">
+        <div className="min-w-0">
           <p className="text-sm font-medium text-brand-600">
             {now.toLocaleDateString(undefined, {
               weekday: "long",
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
               day: "numeric",
             })}
           </p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+          <h1 className="mt-1 break-words text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
             {greeting(now)}, {user.email?.split("@")[0] ?? "friend"}
           </h1>
           <p className="mt-1 text-sm text-slate-500">
@@ -82,7 +82,7 @@ export default async function DashboardPage() {
               : "Here is your execution overview."}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex shrink-0 gap-2">
           <Link href="/goals/new">
             <Button size="sm">New plan</Button>
           </Link>
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
           What should I do now?
         </h2>
         <div className="mt-3">
-          <NextActionCard />
+          <NextActionCard hideHeading />
         </div>
       </section>
 
@@ -137,9 +137,9 @@ export default async function DashboardPage() {
           ) : (
             <div className="flex flex-col gap-2">
               {data?.overdueTasks.map((task) => (
-                <Card key={task.id} className="flex items-center justify-between gap-3 p-4">
+                <Card key={task.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-slate-800">
+                    <p className="break-words text-sm font-medium text-slate-800">
                       {task.title}
                     </p>
                     <p className="mt-0.5 text-xs text-red-600">
@@ -150,9 +150,9 @@ export default async function DashboardPage() {
                 </Card>
               ))}
               {data?.todayTasks.map((task) => (
-                <Card key={task.id} className="flex items-center justify-between gap-3 p-4">
+                <Card key={task.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-slate-800">
+                    <p className="break-words text-sm font-medium text-slate-800">
                       {task.title}
                     </p>
                     <p className="mt-0.5 text-xs text-slate-500">

@@ -19,7 +19,7 @@ import { formatDate } from "@/lib/utils";
  */
 export function NlCommandBar({
   goalId,
-  placeholder = "Tell NEXA what changed, what you're worried about, or what you want to try…",
+  placeholder = "Tell NEXA what changed…",
 }: {
   goalId?: string;
   placeholder?: string;
@@ -68,8 +68,11 @@ export function NlCommandBar({
   }
 
   return (
-    <Card className="p-5">
-      <form onSubmit={onSubmit} className="flex items-center gap-2">
+    <Card className="min-w-0 p-4 sm:p-5">
+      <form
+        onSubmit={onSubmit}
+        className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center"
+      >
         <label htmlFor="nl-input" className="sr-only">
           Talk to NEXA
         </label>
@@ -80,15 +83,14 @@ export function NlCommandBar({
           onChange={(e) => setInput(e.target.value)}
           placeholder={placeholder}
           autoComplete="off"
-          className="h-11 flex-1 rounded-lg border border-slate-300 px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          className="h-11 w-full min-w-0 rounded-lg border border-slate-300 px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
         />
-        <Button type="submit" loading={loading}>
+        <Button type="submit" loading={loading} className="w-full shrink-0 sm:w-auto">
           Ask NEXA
         </Button>
       </form>
-      <p className="mt-2 text-xs text-slate-400">
-        Try: “I only have an hour tomorrow” · “Move the hard tasks to Saturday”
-        · “What if I skip Python today?” · “Am I falling behind?”
+      <p className="mt-2 text-pretty text-xs leading-relaxed text-slate-400">
+        Try: “I only have an hour tomorrow” or “Am I falling behind?”
       </p>
 
       {error ? (

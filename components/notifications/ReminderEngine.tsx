@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api/client";
 import { isWithinQuietHours } from "@/lib/notifications/quietHours";
 import { showReminderNotification } from "@/lib/notifications/permission";
+import { vibrateReminder } from "@/lib/notifications/haptics";
 
 /**
  * In-app + browser-notification delivery engine. Runs only while the app is
@@ -25,6 +26,7 @@ export function ReminderEngine() {
 
     const fire = (message: string) => {
       showReminderNotification("NEXA reminder", message);
+      vibrateReminder();
       if (!active) return;
       setToast(message);
       if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -78,7 +80,7 @@ export function ReminderEngine() {
   return (
     <div
       role="status"
-      className="fixed bottom-4 right-4 z-50 max-w-xs rounded-lg border border-brand-200 bg-white p-4 shadow-lg"
+      className="fixed inset-x-3 bottom-4 z-50 mx-auto max-w-sm rounded-lg border border-brand-200 bg-white p-4 shadow-lg sm:inset-x-auto sm:right-4 sm:mx-0"
     >
       <p className="text-sm font-medium text-slate-900">NEXA reminder</p>
       <p className="mt-1 text-sm text-slate-600">{toast}</p>

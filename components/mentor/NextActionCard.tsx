@@ -19,7 +19,7 @@ const urgencyStyles: Record<string, string> = {
   high: "bg-red-100 text-red-700",
 };
 
-export function NextActionCard() {
+export function NextActionCard({ hideHeading = false }: { hideHeading?: boolean }) {
   const router = useRouter();
   const [minutes, setMinutes] = useState<number | null>(null);
   const [custom, setCustom] = useState("");
@@ -70,13 +70,14 @@ export function NextActionCard() {
   }
 
   return (
-    <Card className="p-6">
-      <h2 className="text-base font-semibold text-slate-900">
-        What should I do now?
-      </h2>
-      <p className="mt-1 text-xs text-slate-500">
-        Optionally tell NEXA how much time you have, then get a single
-        recommendation.
+    <Card className="min-w-0 p-4 sm:p-6">
+      {hideHeading ? null : (
+        <h2 className="text-base font-semibold text-slate-900">
+          What should I do now?
+        </h2>
+      )}
+      <p className={`${hideHeading ? "" : "mt-1 "}text-pretty text-xs leading-relaxed text-slate-500`}>
+        How much time do you have? Then get one recommendation.
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -89,7 +90,7 @@ export function NextActionCard() {
               setCustom("");
             }}
             className={
-              "rounded-full border px-3 py-1 text-xs " +
+              "rounded-full border px-3 py-1.5 text-xs " +
               (minutes === t
                 ? "border-brand-500 bg-brand-50 text-brand-700"
                 : "border-slate-300 text-slate-600 hover:border-brand-400")
@@ -108,12 +109,12 @@ export function NextActionCard() {
             setCustom(e.target.value);
             setMinutes(null);
           }}
-          className="h-8 w-24 rounded-md border border-slate-300 px-2 text-xs"
+          className="h-8 w-20 min-w-0 rounded-md border border-slate-300 px-2 text-xs"
         />
       </div>
 
       <div className="mt-4">
-        <Button onClick={onAsk} loading={loading}>
+        <Button onClick={onAsk} loading={loading} className="w-full sm:w-auto">
           Get recommendation
         </Button>
       </div>

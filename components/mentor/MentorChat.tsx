@@ -47,7 +47,7 @@ export function MentorChat() {
   }
 
   return (
-    <Card className="p-6">
+    <Card className="min-w-0 p-4 sm:p-6">
       <h2 className="text-base font-semibold text-slate-900">Ask the mentor</h2>
       <p className="mt-1 text-xs text-slate-500">
         Answers are grounded in your actual plan. The mentor will not invent
@@ -97,15 +97,23 @@ export function MentorChat() {
         </p>
       ) : null}
 
-      <form onSubmit={onSubmit} className="mt-4 flex gap-2">
+      <form
+        onSubmit={onSubmit}
+        className="mt-4 flex min-w-0 flex-col gap-2 sm:flex-row"
+      >
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           aria-label="Ask the mentor"
           placeholder="Ask anything about your plan…"
-          className="h-11 flex-1 rounded-lg border border-slate-300 px-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          className="h-11 w-full min-w-0 rounded-lg border border-slate-300 px-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
         />
-        <Button type="submit" loading={loading} disabled={!input.trim()}>
+        <Button
+          type="submit"
+          loading={loading}
+          disabled={!input.trim()}
+          className="w-full shrink-0 sm:w-auto"
+        >
           Send
         </Button>
       </form>

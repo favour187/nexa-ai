@@ -30,6 +30,7 @@ self.addEventListener("push", function (event) {
     tag: data.tag || "nexa-reminder",
     icon: "/icon-192.png",
     badge: "/favicon-32.png",
+    vibrate: [180, 80, 180],
     data: { url: data.url || "/dashboard" },
   };
 

@@ -129,7 +129,7 @@ export default function RemindersPage() {
     "h-11 w-full rounded-lg border border-slate-300 px-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500";
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto w-full min-w-0 max-w-3xl">
       <h1 className="text-2xl font-bold tracking-tight text-slate-900">
         Reminders
       </h1>

@@ -15,7 +15,11 @@
 >   deliver push notifications in the background even when the NEXA webpage is
 >   not open, subject to browser/device permissions and platform/network
 >   availability." NEXA is NOT a native alarm clock.
-> - Snooze and sound/vibration remain out of MVP scope.
+> - A **short vibration pulse** is attempted when a reminder fires (Vibration
+>   API while the tab is open; `vibrate` on the Web Notification / push payload
+>   on supporting Android browsers). iOS Safari, Focus/DND, and many desktops
+>   ignore it. This is **not** a native alarm and is not guaranteed.
+> - Snooze and custom sound remain out of MVP scope.
 
 ## 1. Principles
 
