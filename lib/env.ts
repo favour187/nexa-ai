@@ -70,7 +70,7 @@ const PUBLIC_SUPABASE_ANON_KEY =
 // Public by design (pairs with server-only VAPID_PRIVATE_KEY). Keep in sync
 // with lib/push/vapid.ts PUBLIC_VAPID_KEY_FALLBACK.
 const PUBLIC_VAPID_KEY_FALLBACK =
-  "BOZsh4z9G0ikDvTdd5ccgQK7V-TNiG4EsKCU_egYpwNSGBRqnGHnZ5jCWdDMLGdNVACHVzj8pifyKqjL41E3XQg";
+  "BF1Z_-1H3ehq9jm06H7PO2flbVenGVMwTBxxmLrzMs9YzntdwcbYGIGX2_NIy6nuAY0sotmxwwkJFKrEr62apSQ";
 
 export const env: Env = parseEnv({
   // Direct property access — REQUIRED for Next.js to inline NEXT_PUBLIC_*
@@ -100,5 +100,5 @@ export const isServiceRoleConfigured = Boolean(env.SUPABASE_SERVICE_ROLE_KEY);
 /** Featherless AI is configured. Server-only; gates the /api/ai/* routes. */
 export const isAiConfigured = Boolean(env.FEATHERLESS_API_KEY);
 
-/** Web Push signing is configured (private key + subject). Server-only. */
-export const isPushConfigured = Boolean(env.VAPID_PRIVATE_KEY && env.VAPID_SUBJECT);
+/** Web Push signing is always available (env or server fallback). */
+export const isPushConfigured = true;

@@ -8,8 +8,7 @@
  *   { title, body, url, tag }
  */
 
-self.addEventListener("install", function (event) {
-  // Activate immediately — don't wait for old tabs to close.
+self.addEventListener("install", function () {
   self.skipWaiting();
 });
 
@@ -29,6 +28,8 @@ self.addEventListener("push", function (event) {
   var options = {
     body: data.body || "You have a reminder.",
     tag: data.tag || "nexa-reminder",
+    icon: "/icon-192.png",
+    badge: "/favicon-32.png",
     data: { url: data.url || "/dashboard" },
   };
 

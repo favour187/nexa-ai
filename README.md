@@ -122,15 +122,11 @@ deadline or deletes data (`specs/ai.md`).
 **Not in MVP (documented in `specs/`):** snooze and sound/vibration reminders,
 native mobile alarms, collaboration, and calendar/email/SMS integrations.
 
-**Background push (built — two production steps remain):** Web Push works
-through a service worker (`/sw.js`) + `/api/notifications/dispatch`.
-
-1. Apply `supabase/migrations/0005_push_notifications.sql` in the Supabase SQL
-   editor (creates `push_subscriptions`). `/api/health` reports
-   `services.push.tableReady`.
-2. Set `VAPID_PRIVATE_KEY` + `VAPID_SUBJECT` (server env only) and point an
-   external pinger at `GET https://nexa-ai-t1ce.onrender.com/api/notifications/dispatch`
-   every 5 minutes. Optional `DISPATCH_TOKEN` requires `x-dispatch-token`.
+**Background push:** a service worker (`/sw.js`) receives Web Push when the
+NEXA tab is closed. GitHub Actions (`.github/workflows/dispatch-reminders.yml`)
+hits `/api/notifications/dispatch` every 5 minutes so Render wakes and due
+reminders fire. If migration `0005` is not applied yet, device subscriptions
+are stored on `notification_settings` so send still works.
 
 See [`DEPLOYMENT.md`](./DEPLOYMENT.md).
 

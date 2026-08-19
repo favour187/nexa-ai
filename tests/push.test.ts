@@ -1,5 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
 import { classifyReminder, type ReminderForDispatch } from "@/lib/push/rules";
+import {
+  isMissingPushTableError,
+  readStoredDevices,
+  upsertStoredDevice,
+  removeStoredDevice,
+} from "@/lib/push/devices";
 
 function reminder(over: Partial<ReminderForDispatch> = {}): ReminderForDispatch {
   return {
@@ -63,14 +71,56 @@ describe("classifyReminder (Phase D dispatch rules)", () => {
   });
 });
 
+describe("fallback push device store", () => {
+  it("detects a missing push_subscriptions table", () => {
+    expect(isMissingPushTableError({ code: "PGRST205", message: "x" })).toBe(
+      true,
+    );
+    expect(
+      isMissingPushTableError({
+        message: "Could not find the table 'public.push_subscriptions' in the schema cache",
+      }),
+    ).toBe(true);
+    expect(isMissingPushTableError({ message: "permission denied" })).toBe(
+      false,
+    );
+  });
+
+  it("upserts and removes devices without dropping other channel flags", () => {
+    const first = upsertStoredDevice({ in_app: true }, {
+      endpoint: "https://push.example/a",
+      p256dh: "p",
+      auth: "s",
+    });
+    expect(first.in_app).toBe(true);
+    expect(first.push).toBe(true);
+    expect(readStoredDevices(first)).toHaveLength(1);
+
+    const second = upsertStoredDevice(first, {
+      endpoint: "https://push.example/b",
+      p256dh: "p2",
+      auth: "s2",
+    });
+    expect(readStoredDevices(second)).toHaveLength(2);
+
+    const removed = removeStoredDevice(second, "https://push.example/a");
+    const left = readStoredDevices(removed);
+    expect(left).toHaveLength(1);
+    expect(left[0].endpoint).toBe("https://push.example/b");
+  });
+});
+
 describe("getServerVapidConfig", () => {
-  it("returns null when the private key or subject is missing", async () => {
-    const { getServerVapidConfig } = await import("@/lib/push/vapid");
+  it("returns signing material even when env vars are unset", async () => {
+    const { getServerVapidConfig } = await import("@/lib/push/vapid-server");
     const previousPrivate = process.env.VAPID_PRIVATE_KEY;
     const previousSubject = process.env.VAPID_SUBJECT;
     delete process.env.VAPID_PRIVATE_KEY;
     delete process.env.VAPID_SUBJECT;
-    expect(getServerVapidConfig()).toBeNull();
+    const cfg = getServerVapidConfig();
+    expect(cfg.privateKey.length).toBeGreaterThan(10);
+    expect(cfg.subject.startsWith("mailto:")).toBe(true);
+    expect(cfg.publicKey.length).toBeGreaterThan(20);
     if (previousPrivate === undefined) delete process.env.VAPID_PRIVATE_KEY;
     else process.env.VAPID_PRIVATE_KEY = previousPrivate;
     if (previousSubject === undefined) delete process.env.VAPID_SUBJECT;

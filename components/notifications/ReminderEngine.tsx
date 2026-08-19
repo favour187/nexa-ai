@@ -12,7 +12,8 @@ import { showReminderNotification } from "@/lib/notifications/permission";
  *
  * Honors the master `enabled` switch and `quiet_hours` (never fires during quiet
  * hours). Does NOT change task status — completing/postponing/missing is a user
- * action handled elsewhere. Closed-tab delivery (Web Push) is out of MVP scope.
+ * action handled elsewhere. Closed-tab delivery is handled by Web Push
+ * (`/sw.js` + `/api/notifications/dispatch`).
  */
 export function ReminderEngine() {
   const [toast, setToast] = useState<string | null>(null);

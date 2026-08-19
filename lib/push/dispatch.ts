@@ -1,8 +1,11 @@
 import "server-only";
 import webpush from "web-push";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getServerVapidConfig } from "@/lib/push/vapid";
-import { removeSubscriptionByEndpoint } from "@/lib/push/subscriptions";
+import { getServerVapidConfig } from "@/lib/push/vapid-server";
+import {
+  listSubscriptionsForUsers,
+  removeSubscriptionByEndpoint,
+} from "@/lib/push/subscriptions";
 import { classifyReminder, type ReminderForDispatch } from "@/lib/push/rules";
 import type { NotificationSettings, PushSubscriptionRow } from "@/types/db";
 
@@ -48,8 +51,7 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
   };
 
   const vapid = getServerVapidConfig();
-  if (!vapid) return result; // push not configured — no-op, honest status
-  result.pushConfigured = true;
+  result.pushConfigured = Boolean(vapid.privateKey && vapid.subject);
 
   let admin;
   try {
@@ -89,29 +91,15 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
 
   const userIds = [...new Set(rows.map((r) => r.user_id))];
 
-  const [settingsRows, subRows] = await Promise.all([
+  const [settingsRows, listed] = await Promise.all([
     admin
       .from("notification_settings")
       .select("user_id, enabled, channels, quiet_hours")
       .in("user_id", userIds),
-    admin
-      .from("push_subscriptions")
-      .select("*")
-      .in("user_id", userIds),
+    listSubscriptionsForUsers(admin, userIds),
   ]);
-  if (subRows.error) {
-    const msg = subRows.error.message ?? "";
-    if (
-      subRows.error.code === "PGRST205" ||
-      msg.includes("schema cache") ||
-      msg.includes("push_subscriptions")
-    ) {
-      // Migration 0005 not applied — honest no-op, do not mark delivered.
-      return result;
-    }
-    throw subRows.error;
-  }
-  result.tableReady = true;
+  if (settingsRows.error) throw settingsRows.error;
+  result.tableReady = listed.tableReady;
   const settingsByUser = new Map<string, NotificationSettings>(
     ((settingsRows.data ?? []) as NotificationSettings[]).map((s) => [
       s.user_id,
@@ -119,7 +107,7 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
     ]),
   );
   const subsByUser = new Map<string, PushSubscriptionRow[]>();
-  for (const sub of (subRows.data ?? []) as PushSubscriptionRow[]) {
+  for (const sub of listed.rows) {
     const list = subsByUser.get(sub.user_id) ?? [];
     list.push(sub);
     subsByUser.set(sub.user_id, list);

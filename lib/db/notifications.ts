@@ -54,14 +54,18 @@ export async function updateNotificationSettings(
 ): Promise<NotificationSettings> {
   await getNotificationSettings(supabase, userId);
 
-  const patch = {
+  const patch: Record<string, unknown> = {
     enabled: input.enabled,
-    channels: input.channels ?? {},
     quiet_hours: input.quiet_hours ?? null,
     default_lead_minutes: input.default_lead_minutes,
     allow_ai_suggested_times: input.allow_ai_suggested_times,
-    // push_subscribed is managed only by the push subscribe/unsubscribe endpoints.
+    // push_subscribed and stored push devices are managed only by the
+    // subscribe/unsubscribe endpoints. Do not wipe channels unless the
+    // caller explicitly sent a new map.
   };
+  if (input.channels !== undefined) {
+    patch.channels = input.channels;
+  }
 
   const { data, error } = await supabase
     .from("notification_settings")

@@ -74,8 +74,12 @@ Supabase Auth issues/signs JWTs internally, so no separate auth secret is needed
 
 ## 5. Background push scheduler
 
-The dispatch endpoint does **not** run by itself. Point an external pinger
-(UptimeRobot, cron-job.org, or a paid Render Cron Job) at:
+A GitHub Actions workflow (`.github/workflows/dispatch-reminders.yml`) already
+POSTs `/api/notifications/dispatch` every 5 minutes on `main`. That wakes the
+Render service and sends due reminders even when no browser has NEXA open.
+
+You can also point an extra pinger (UptimeRobot, cron-job.org, or a paid
+Render Cron Job) at:
 
 ```
 GET https://nexa-ai-t1ce.onrender.com/api/notifications/dispatch

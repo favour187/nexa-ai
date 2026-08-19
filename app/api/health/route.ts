@@ -3,8 +3,8 @@ import {
   isSupabaseConfigured,
   isServiceRoleConfigured,
   isAiConfigured,
-  isPushConfigured,
 } from "@/lib/env";
+import { getServerVapidConfig } from "@/lib/push/vapid-server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { pingDatabase } from "@/lib/db/ping";
 
@@ -25,8 +25,9 @@ export async function GET() {
     error: null as string | null,
   };
 
+  const vapid = getServerVapidConfig();
   const push = {
-    configured: isPushConfigured,
+    configured: Boolean(vapid.privateKey && vapid.subject),
     tableReady: false as boolean | null,
   };
 

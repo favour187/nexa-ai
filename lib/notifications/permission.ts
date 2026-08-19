@@ -24,8 +24,21 @@ export async function requestNotificationPermission(): Promise<PermissionState> 
 export function showReminderNotification(title: string, body: string): void {
   if (typeof Notification === "undefined") return;
   if (Notification.permission !== "granted") return;
+  const options = { body, tag: "nexa-reminder", icon: "/icon-192.png" };
+  if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+    void navigator.serviceWorker.ready
+      .then((reg) => reg.showNotification(title, options))
+      .catch(() => {
+        try {
+          new Notification(title, options);
+        } catch {
+          /* best-effort */
+        }
+      });
+    return;
+  }
   try {
-    new Notification(title, { body, tag: "nexa-reminder" });
+    new Notification(title, options);
   } catch {
     /* best-effort; some browsers require a service worker */
   }

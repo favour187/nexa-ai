@@ -1,0 +1,27 @@
+# Wakes the Render service and fires due Web Push reminders even when no
+# browser has NEXA open. GitHub's schedule can drift a few minutes.
+name: Dispatch reminders
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: POST /api/notifications/dispatch
+        env:
+          TOKEN: ${{ secrets.DISPATCH_TOKEN }}
+        run: |
+          set -euo pipefail
+          url="https://nexa-ai-t1ce.onrender.com/api/notifications/dispatch"
+          if [ -n "${TOKEN}" ]; then
+            curl -fsS --retry 3 --retry-delay 5 -X POST \
+              -H "x-dispatch-token: ${TOKEN}" \
+              "$url"
+          else
+            curl -fsS --retry 3 --retry-delay 5 -X POST "$url"
+          fi

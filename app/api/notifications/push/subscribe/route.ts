@@ -60,20 +60,7 @@ export async function POST(request: NextRequest) {
       auth: parsed.data.keys.auth,
       userAgent: parsed.data.user_agent,
     });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "";
-    if (
-      message.includes("schema cache") ||
-      message.includes("push_subscriptions")
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Background push is not set up yet. Apply supabase/migrations/0005_push_notifications.sql.",
-        },
-        { status: 503 },
-      );
-    }
+  } catch {
     return NextResponse.json(
       { error: "Could not save the push subscription" },
       { status: 500 },

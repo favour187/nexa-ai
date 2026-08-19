@@ -49,8 +49,22 @@ export function NotificationPermission() {
 
   async function onEnable() {
     setBusy(true);
+    setPushError(null);
     try {
-      setState(await requestNotificationPermission());
+      const next = await requestNotificationPermission();
+      setState(next);
+      if (next === "granted") {
+        try {
+          await subscribeToPush();
+          await refreshPush();
+        } catch (error) {
+          setPushError(
+            error instanceof Error
+              ? error.message
+              : "Notifications are on, but background push could not subscribe.",
+          );
+        }
+      }
     } finally {
       setBusy(false);
     }
