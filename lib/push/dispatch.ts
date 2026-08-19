@@ -33,6 +33,7 @@ export interface DispatchResult {
   skipped: number;
   removedEndpoints: number;
   pushConfigured: boolean;
+  tableReady: boolean;
 }
 
 export async function dispatchDueReminders(): Promise<DispatchResult> {
@@ -43,10 +44,12 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
     skipped: 0,
     removedEndpoints: 0,
     pushConfigured: false,
+    tableReady: false,
   };
 
   const vapid = getServerVapidConfig();
   if (!vapid) return result; // push not configured — no-op, honest status
+  result.pushConfigured = true;
 
   let admin;
   try {
@@ -79,7 +82,10 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
   }>;
 
   result.checked = rows.length;
-  if (rows.length === 0) return result;
+  if (rows.length === 0) {
+    result.tableReady = true;
+    return result;
+  }
 
   const userIds = [...new Set(rows.map((r) => r.user_id))];
 
@@ -93,6 +99,19 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
       .select("*")
       .in("user_id", userIds),
   ]);
+  if (subRows.error) {
+    const msg = subRows.error.message ?? "";
+    if (
+      subRows.error.code === "PGRST205" ||
+      msg.includes("schema cache") ||
+      msg.includes("push_subscriptions")
+    ) {
+      // Migration 0005 not applied — honest no-op, do not mark delivered.
+      return result;
+    }
+    throw subRows.error;
+  }
+  result.tableReady = true;
   const settingsByUser = new Map<string, NotificationSettings>(
     ((settingsRows.data ?? []) as NotificationSettings[]).map((s) => [
       s.user_id,

@@ -4,6 +4,7 @@
 
 :root {
   color-scheme: light;
+  --nexa-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 html,
@@ -16,4 +17,135 @@ body {
   font-family:
     ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Soft indigo mesh used on marketing + auth surfaces. */
+.nexa-mesh {
+  background:
+    radial-gradient(1100px 560px at 8% -12%, rgba(99, 102, 241, 0.2), transparent 58%),
+    radial-gradient(900px 480px at 100% 0%, rgba(14, 165, 233, 0.12), transparent 52%),
+    radial-gradient(700px 360px at 70% 110%, rgba(79, 70, 229, 0.1), transparent 55%);
+}
+
+.nexa-grid {
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at center, black 25%, transparent 78%);
+}
+
+/* ----------------------------------------------------------------------------
+   NEXA motion — transform/opacity only (no layout thrash, no JS loops)
+   ---------------------------------------------------------------------------- */
+@keyframes nexa-mark-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nexa-mark-in-big {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes nexa-ring {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+@keyframes nexa-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nexa-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nexa-pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.animate-mark-in {
+  animation: nexa-mark-in 0.6s var(--nexa-ease) both;
+}
+.animate-mark-in-big {
+  animation: nexa-mark-in-big 0.7s var(--nexa-ease) both;
+}
+.animate-nexa-ring {
+  animation: nexa-ring 1.4s ease-out infinite;
+}
+.animate-fade-up {
+  animation: nexa-fade-up 0.6s var(--nexa-ease) both;
+}
+.animate-fade-in {
+  animation: nexa-fade-in 0.5s ease both;
+}
+.animate-fade-up-delayed {
+  animation: nexa-fade-up 0.6s var(--nexa-ease) both;
+  animation-delay: 0.18s;
+}
+.animate-fade-up-delayed-2 {
+  animation: nexa-fade-up 0.6s var(--nexa-ease) both;
+  animation-delay: 0.36s;
+}
+.animate-fade-up-delayed-3 {
+  animation: nexa-fade-up 0.6s var(--nexa-ease) both;
+  animation-delay: 0.52s;
+}
+.animate-pulse-soft {
+  animation: nexa-pulse-soft 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-mark-in,
+  .animate-mark-in-big,
+  .animate-nexa-ring,
+  .animate-fade-up,
+  .animate-fade-in,
+  .animate-fade-up-delayed,
+  .animate-fade-up-delayed-2,
+  .animate-fade-up-delayed-3,
+  .animate-pulse-soft {
+    animation: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }

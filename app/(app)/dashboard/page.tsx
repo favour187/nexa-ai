@@ -56,7 +56,7 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto max-w-4xl">
       {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="animate-fade-up flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-brand-600">
             {now.toLocaleDateString(undefined, {
@@ -95,7 +95,7 @@ export default async function DashboardPage() {
       ) : null}
 
       {/* Natural-language command bar (Phase C/E) */}
-      <section className="mt-8" aria-labelledby="nl-heading">
+      <section className="animate-fade-up-delayed mt-8" aria-labelledby="nl-heading">
         <h2 id="nl-heading" className="sr-only">
           Talk to NEXA
         </h2>
@@ -103,7 +103,7 @@ export default async function DashboardPage() {
       </section>
 
       {/* Recommended next action */}
-      <section className="mt-8" aria-labelledby="next-action-heading">
+      <section className="animate-fade-up-delayed-2 mt-8" aria-labelledby="next-action-heading">
         <h2 id="next-action-heading" className="text-lg font-semibold text-slate-900">
           What should I do now?
         </h2>
@@ -113,7 +113,7 @@ export default async function DashboardPage() {
       </section>
 
       {/* Today's tasks */}
-      <section id="today" className="mt-8 scroll-mt-20" aria-labelledby="today-heading">
+      <section id="today" className="animate-fade-up-delayed-3 mt-8 scroll-mt-20" aria-labelledby="today-heading">
         <div className="flex items-center justify-between">
           <h2 id="today-heading" className="text-lg font-semibold text-slate-900">
             Today&apos;s tasks
