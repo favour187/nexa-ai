@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Brand } from "@/components/Brand";
 import { Button } from "@/components/ui/Button";
-import { ProductPreview } from "@/components/marketing/ProductPreview";
 import { getUser } from "@/lib/auth/session";
 
 // Render per request so the CTA reflects the live auth state.
@@ -32,13 +31,13 @@ export default async function HomePage() {
   const user = await getUser();
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
+    <main className="relative flex min-h-dvh flex-col overflow-x-hidden">
       <div aria-hidden className="nexa-mesh pointer-events-none absolute inset-0" />
       <div aria-hidden className="nexa-grid pointer-events-none absolute inset-0" />
 
-      <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+      <header className="relative mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-6">
         <Brand />
-        <nav className="flex items-center gap-2">
+        <nav className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           {user ? (
             <Link href="/dashboard">
               <Button size="sm">Open app</Button>
@@ -46,7 +45,7 @@ export default async function HomePage() {
           ) : (
             <>
               <Link href="/login">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="px-2.5 sm:px-3">
                   Sign in
                 </Button>
               </Link>
@@ -58,48 +57,49 @@ export default async function HomePage() {
         </nav>
       </header>
 
-      <section className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 pb-8 pt-8 lg:grid-cols-2 lg:pb-16 lg:pt-12">
+      <section className="relative mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-4 py-10 text-center sm:px-6 sm:py-14">
         <div className="animate-fade-up">
-          <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-600 sm:text-sm sm:tracking-wide">
             AI-powered personal execution system
           </p>
-          <h1 className="mt-3 max-w-xl text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+          <h1 className="mt-3 text-balance text-3xl font-bold tracking-tight text-slate-900 sm:mt-4 sm:text-5xl">
             {tagline}
           </h1>
-          <p className="mt-4 max-w-xl text-lg text-slate-600">
+          <p className="mx-auto mt-4 max-w-xl text-pretty text-base leading-relaxed text-slate-600 sm:mt-5 sm:text-lg">
             NEXA turns a goal into a concrete, scheduled plan, keeps that plan
             alive as circumstances change, and always tells you the single best
             thing to do right now.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-7 flex flex-col items-stretch justify-center gap-3 sm:mt-8 sm:flex-row sm:items-center">
             {user ? (
-              <Link href="/dashboard">
-                <Button>Go to dashboard</Button>
+              <Link href="/dashboard" className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto">Go to dashboard</Button>
               </Link>
             ) : (
-              <Link href="/signup">
-                <Button>Get started</Button>
-              </Link>
+              <>
+                <Link href="/signup" className="w-full sm:w-auto">
+                  <Button className="w-full sm:w-auto">Get started</Button>
+                </Link>
+                <Link href="/login" className="w-full sm:w-auto">
+                  <Button variant="secondary" className="w-full sm:w-auto">
+                    Sign in
+                  </Button>
+                </Link>
+              </>
             )}
-            <Link href="/login">
-              <Button variant="secondary">I already have an account</Button>
-            </Link>
           </div>
           <p className="mt-5 text-xs text-slate-400">
             The AI proposes. You dispose. No silent deadline changes.
           </p>
         </div>
-        <div className="animate-fade-up-delayed">
-          <ProductPreview />
-        </div>
       </section>
 
-      <section className="relative mx-auto max-w-6xl px-6 pb-20">
-        <ul className="grid gap-4 sm:grid-cols-2">
+      <section className="relative mx-auto w-full max-w-5xl px-4 pb-12 sm:px-6 sm:pb-16">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
           {features.map((feature, i) => (
             <li
               key={feature.title}
-              className={`rounded-2xl border border-slate-200/80 bg-white/80 p-5 shadow-card backdrop-blur ${
+              className={`rounded-2xl border border-slate-200/80 bg-white/80 p-4 text-left shadow-card backdrop-blur sm:p-5 ${
                 i === 0
                   ? "animate-fade-up"
                   : i === 1
@@ -120,7 +120,7 @@ export default async function HomePage() {
         </ul>
       </section>
 
-      <footer className="relative border-t border-slate-200/80 py-6 text-center text-sm text-slate-400">
+      <footer className="relative mt-auto border-t border-slate-200/80 px-4 py-5 text-center text-xs text-slate-400 sm:text-sm">
         NEXA · Pixel Forge AI Hackathon 2026
       </footer>
     </main>
