@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { api, ApiError } from "@/lib/api/client";
 import { Button } from "@/components/ui/Button";
+import { SpeakButton } from "@/components/ui/SpeakButton";
 import { Card } from "@/components/ui/Card";
 import { Spinner } from "@/components/ui/Spinner";
 
@@ -80,6 +81,9 @@ export function MentorChat() {
               }
             >
               {m.text}
+              {m.role === "mentor" ? (
+                <SpeakButton text={m.text} className="mt-1.5" />
+              ) : null}
             </div>
           ))}
         </div>

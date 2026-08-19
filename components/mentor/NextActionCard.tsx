@@ -8,6 +8,7 @@ import type { NextActionResponse } from "@/lib/ai/next-action-schema";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { SpeakButton } from "@/components/ui/SpeakButton";
 import { Spinner } from "@/components/ui/Spinner";
 import { formatDate } from "@/lib/utils";
 
@@ -137,6 +138,7 @@ export function NextActionCard({ hideHeading = false }: { hideHeading?: boolean 
             <span className="text-xs font-semibold uppercase text-brand-700">
               Do this now
             </span>
+            <SpeakButton text={`Do this now: ${rec.recommended_task_title}. ${rec.reason}`} />
             <Badge className={urgencyStyles[rec.urgency]}>
               {rec.urgency} urgency
             </Badge>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api/client";
 import { isWithinQuietHours } from "@/lib/notifications/quietHours";
 import { showReminderNotification } from "@/lib/notifications/permission";
+import { speak } from "@/lib/voice/speech";
 import { vibrateReminder } from "@/lib/notifications/haptics";
 
 /**
@@ -26,6 +27,7 @@ export function ReminderEngine() {
 
     const fire = (message: string) => {
       showReminderNotification("NEXA reminder", message);
+      speak(message);
       vibrateReminder();
       if (!active) return;
       setToast(message);
