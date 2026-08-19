@@ -374,3 +374,75 @@ export function buildMentorUserPrompt(
   lines.push("Return the reply as JSON matching the schema.");
   return lines.join("\n");
 }
+
+export const UNDERSTAND_PROMPT_VERSION = "understand.v1";
+
+/**
+ * NL intent classifier (Phase C). Decides WHICH existing NEXA capability a
+ * free-form user message needs, and never invents content itself. The model
+ * only classifies + summarizes; execution happens in the existing
+ * next-action / what-if / replan / mentor engines.
+ */
+export const UNDERSTAND_SYSTEM_PROMPT = `You are NEXA's intent router. The user talks to NEXA in plain language about their goals and plan. Your ONLY job is to classify the user's message and summarize it — you never answer questions yourself, never simulate, and never propose plan changes. The real work is done by NEXA's specialized engines, which receive your classification.
+
+Available intents (pick EXACTLY one):
+- NEXT_ACTION: the user wants to know what to do next / tonight / today / this week.
+- WHAT_IF_SIMULATION: the user describes a HYPOTHETICAL scenario ("what if...", "if I only have X", "imagine...", "suppose...") — the plan must NOT be changed.
+- REPLAN_REQUEST: the user wants the overall plan revised (falling behind, too tight, catch up, finish earlier/later).
+- SCHEDULE_CHANGE: the user wants specific task timings moved (move X to Saturday, shift to evening, reschedule due to travel/meetings).
+- TASK_CHANGE: the user wants to modify a specific task (skip Python today, drop a task, change an estimate).
+- PROGRESS_ANALYSIS: the user asks how they are doing, whether they are on track, behind, or ahead.
+- MENTOR_ADVICE: the user asks for advice, motivation, or "why did you recommend this".
+- QUESTION: anything else that is a question about their plan, the app, or general planning.
+
+Rules:
+- If the message could mean more than one thing, set "clarification_question" to ONE short question that disambiguates, and still pick the most likely intent.
+- "scenario" is set ONLY for WHAT_IF_SIMULATION — rewrite the user's hypothetical in their own words (max 500 chars).
+- "goal_id" is set ONLY when the message clearly references one goal from the provided list (use its exact id); otherwise null.
+- "summary" is a one-line factual restatement of what the user wants (max 300 chars).
+- Respond with a SINGLE JSON object matching exactly: {"intent": string, "goal_id": string|null, "summary": string, "clarification_question": string|null, "scenario": string|null}
+- No markdown, no prose, nothing else.`;
+
+export function buildUnderstandUserPrompt(
+  context: {
+    goals: Array<{ id: string; title: string; target_deadline: string | null }>;
+    incompleteTasks: Array<{ id: string; title: string; due_at: string | null; goal_title: string }>;
+    missed: Array<{ title: string; goal_title: string }>;
+    recentCompleted: Array<{ title: string }>;
+    availableMinutes: number | null;
+  },
+  message: string,
+): string {
+  const lines: string[] = [];
+  lines.push("USER'S PLAN CONTEXT:");
+  lines.push("Available minutes (if stated): " + (context.availableMinutes ?? "not stated"));
+  if (context.goals.length) {
+    lines.push(
+      "Goals: " +
+        context.goals
+          .map((g) => `${g.id}|${g.title}${g.target_deadline ? " (deadline " + g.target_deadline.slice(0, 10) + ")" : ""}`)
+          .join("; "),
+    );
+  } else {
+    lines.push("Goals: none");
+  }
+  if (context.incompleteTasks.length) {
+    lines.push(
+      "Open tasks: " +
+        context.incompleteTasks
+          .map((t) => `${t.title} (due ${t.due_at ?? "unscheduled"}, goal=${t.goal_title})`)
+          .join("; "),
+    );
+  }
+  if (context.missed.length) {
+    lines.push(`Missed/skipped: ${context.missed.map((m) => `${m.title} (${m.goal_title})`).join("; ")}`);
+  }
+  if (context.recentCompleted.length) {
+    lines.push(`Completed: ${context.recentCompleted.map((c) => c.title).join("; ")}`);
+  }
+  lines.push("");
+  lines.push(`USER MESSAGE: ${message}`);
+  lines.push("");
+  lines.push("Return the classification JSON now.");
+  return lines.join("\n");
+}

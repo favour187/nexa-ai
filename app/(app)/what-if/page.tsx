@@ -41,7 +41,12 @@ export default function WhatIfPage() {
       try {
         const list = await api.listGoals();
         setGoals(list);
-        if (list[0]) setGoalId(list[0].id);
+        // Allow deep-linking from the NL command bar: /what-if?goal=<id>
+        const fromQuery = new URLSearchParams(window.location.search).get(
+          "goal",
+        );
+        const initial = list.find((g) => g.id === fromQuery) ?? list[0];
+        if (initial) setGoalId(initial.id);
       } catch {
         /* ignore */
       }

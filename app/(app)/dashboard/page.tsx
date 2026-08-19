@@ -4,6 +4,7 @@ import { tryCreateClient } from "@/lib/supabase/server";
 import { loadDashboardData } from "@/lib/db/dashboard";
 import { NextActionCard } from "@/components/mentor/NextActionCard";
 import { MentorChat } from "@/components/mentor/MentorChat";
+import { NlCommandBar } from "@/components/nl/NlCommandBar";
 import { GoalCard } from "@/components/goals/GoalCard";
 import { TaskStatusControl } from "@/components/tasks/TaskStatusControl";
 import { Card } from "@/components/ui/Card";
@@ -92,6 +93,14 @@ export default async function DashboardPage() {
           <p className="text-sm text-red-700">{loadError}</p>
         </Card>
       ) : null}
+
+      {/* Natural-language command bar (Phase C/E) */}
+      <section className="mt-8" aria-labelledby="nl-heading">
+        <h2 id="nl-heading" className="sr-only">
+          Talk to NEXA
+        </h2>
+        <NlCommandBar />
+      </section>
 
       {/* Recommended next action */}
       <section className="mt-8" aria-labelledby="next-action-heading">

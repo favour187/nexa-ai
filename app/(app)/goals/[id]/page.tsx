@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { AcceptPlanButton } from "@/components/plans/AcceptPlanButton";
 import { ReplanPanel } from "@/components/plans/ReplanPanel";
+import { NlCommandBar } from "@/components/nl/NlCommandBar";
 import { TaskStatusControl } from "@/components/tasks/TaskStatusControl";
 import { formatDate } from "@/lib/utils";
 import type { MilestoneWithTasks, Plan } from "@/types/db";
@@ -212,6 +213,14 @@ export default async function GoalDetailPage({
               <ReplanPanel goalId={goal.id} />
             </div>
           ) : null}
+
+          {/* Natural-language changes (Phase C) — scoped to this goal */}
+          <div className="mt-6">
+            <NlCommandBar
+              goalId={goal.id}
+              placeholder="Tell NEXA what changed for this goal — “I only have an hour tomorrow”, “move the hard tasks to Saturday”…"
+            />
+          </div>
 
           <div className="mt-6">
             <Link href="/dashboard">

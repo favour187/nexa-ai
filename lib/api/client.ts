@@ -184,4 +184,14 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ message, goal_id: goalId }),
     }),
+
+  // Natural-language command bar (Phase C)
+  understand: (message: string, goalId?: string) =>
+    request<import("@/lib/ai/understand-schema").UnderstandResponse>(
+      "/api/ai/understand",
+      {
+        method: "POST",
+        body: JSON.stringify({ message, goal_id: goalId }),
+      },
+    ),
 };

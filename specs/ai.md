@@ -138,3 +138,26 @@ not applied.
 - Empty / ambiguous goal → ask one clarifying question instead of guessing.
 - Infeasible deadline → return options (tighten scope, extend the deadline as a
   proposal, reduce cadence); never silently drop tasks.
+
+## 10. Natural-language intent routing (Phase C/E)
+
+- A single entry point (`POST /api/ai/understand`) accepts free-form user
+  messages. A classifier (the SAME Featherless client — no second AI system)
+  maps the message to an internal intent:
+  `QUESTION | WHAT_IF_SIMULATION | REPLAN_REQUEST | SCHEDULE_CHANGE |
+  PROGRESS_ANALYSIS | NEXT_ACTION | MENTOR_ADVICE | TASK_CHANGE`.
+- The intent is internal; the user never fills out a form or picks a category.
+- Routing is strict:
+  - `NEXT_ACTION` → the existing next-action engine (read-only).
+  - `WHAT_IF_SIMULATION` → the existing what-if engine (read-only projection;
+    applying still goes through the replan proposal flow — ai.md §8).
+  - `REPLAN_REQUEST` / `SCHEDULE_CHANGE` / `TASK_CHANGE` → the existing replan
+    engine; the result is stored as a **pending** `ai_proposal` that the user
+    must accept (ai.md §6). Never applied silently.
+  - `QUESTION` / `MENTOR_ADVICE` / `PROGRESS_ANALYSIS` → the existing grounded
+    mentor chat.
+- If the message is ambiguous, NEXA asks ONE short clarification question
+  instead of guessing. If no goal can be resolved for a plan change, NEXA asks
+  which goal.
+- The classifier output is strictly validated (zod) with one retry, then fails
+  safe — it never fabricates an intent or a response.
