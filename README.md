@@ -17,17 +17,18 @@ Built for the **Pixel Forge AI Hackathon 2026**.
 - **Goals → Plans** — capture a goal in plain language; NEXA drafts milestones
   and scheduled tasks.
 - **Adaptive replanning** — when tasks are missed or life changes, NEXA proposes
-  an updated plan (never silently).
+  an updated plan (never silently); recovery plans arrive through the same
+  proposal flow.
 - **"What should I do now?"** — a single, context-aware next action with a
   one-line rationale.
 - **AI mentor** — a chat that already knows your current task and deadline
   pressure.
 - **What-if simulations** — rehearse alternative plans safely, without touching
   your real plan.
-- **Behind-detection & recovery** — NEXA notices when you're slipping and
-  proposes a recovery plan.
-- **Deadline tracking & reminders** — track progress and get reminders within
-  your device/browser's permissions.
+- **Behind-awareness** — missed tasks are surfaced in context and a requested
+  replan produces a recovery proposal, never a silent rewrite.
+- **Deadline tracking & reminders** — track progress and get in-app + browser
+  reminders while the app is open, within your device/browser's permissions.
 
 > The AI **proposes**; the user **disposes**. NEXA never silently changes a
 > deadline or deletes your data. See [`specs/ai.md`](./specs/ai.md).
@@ -43,12 +44,14 @@ A deliberately narrow stack chosen for a fast hackathon build
 | Database + Auth | **Supabase** (PostgreSQL, Row-Level Security, Auth) |
 | AI inference | **Featherless AI** (OpenAI-compatible, server-side) |
 | Spec guardrails | **Prelint** (product review on every PR) |
-| Hosting | Vercel + Supabase |
+| Hosting | **Render** (web service) + **Supabase** (DB/auth) |
+
+Live demo: <https://nexa-ai-t1ce.onrender.com> · Health: `/api/health`
 
 ```
 Browser (Next.js) ──HTTPS──▶ Next.js API ──▶ Supabase Postgres (RLS)
                                    └───────▶ Featherless AI (server-only)
-                            Service worker ◀── Web Push (best-effort)
+              In-app toasts + browser notifications while the app is open
 ```
 
 ## 🔌 Featherless AI's role
@@ -58,8 +61,8 @@ a serverless, OpenAI-compatible API (`https://api.featherless.ai/v1`) giving
 access to open-source models with no GPU management. NEXA calls it
 **server-side only** (the API key never reaches the browser or the repo) to:
 understand goals, break them into milestones/tasks, schedule and replan, pick the
-next action, explain decisions, run what-ifs, detect slippage, and propose
-recovery plans. Details: [`specs/ai.md`](./specs/ai.md).
+next action, explain decisions, run what-ifs, and propose replans/recovery
+plans. Details: [`specs/ai.md`](./specs/ai.md).
 
 ## 🛡️ Prelint's role
 
@@ -116,8 +119,10 @@ Implemented:
 The AI always **proposes**; the user **disposes** — it never silently changes a
 deadline or deletes data (`specs/ai.md`).
 
-**Not yet built:** closed-tab Web Push (needs VAPID), the final login animation,
-and the final visual redesign.
+**Not yet built (documented in `specs/` as out of MVP scope):** closed-tab Web
+Push (needs VAPID + a service worker), a server-side reminder scheduler,
+snooze/audio reminders, the final login animation, and the final visual
+redesign.
 
 ## 🛠️ Getting started (local)
 
@@ -131,9 +136,11 @@ npm run dev                       # http://localhost:3000
 
 Apply the database schema in your Supabase project using
 [`supabase/migrations/0001_init.sql`](./supabase/migrations/0001_init.sql) (via
-the SQL editor or `supabase db push`). The app boots even without Supabase keys
-(in a "not configured" mode); authentication and data features require the keys
-and the applied migration.
+the SQL editor or `supabase db push`). The public Supabase URL + anon key are
+baked into the client bundle as fallbacks (the anon key is RLS-protected, not
+secret), so auth/database features boot configured everywhere; the server-only
+keys (`SUPABASE_SERVICE_ROLE_KEY`, `FEATHERLESS_API_KEY`) must be provided in
+the deployment environment for AI planning and admin operations.
 
 Useful scripts:
 

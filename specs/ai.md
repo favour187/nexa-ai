@@ -42,8 +42,9 @@ The AI MUST be able to:
    (e.g., feasibility vs. deadline) **read-only**, without touching real data.
 8. **Detect when the user is falling behind** — identify schedule slippage /
    accumulating missed tasks and flag it.
-9. **Create recovery plans** — propose a concrete recovery plan (draft) to get
-   back on track, with rationale.
+9. **Create recovery plans** — when the user requests a replan after
+   disruptions, propose a concrete recovery plan (draft) to get back on track,
+   with rationale, via the standard replan proposal flow (§3.4, §6).
 
 ## 4. Required behaviors (quality bars)
 
@@ -72,8 +73,8 @@ The AI MUST be able to:
 - Generate **draft** plans, replans, and recovery plans.
 - Suggest the next action, reminder times, and explanations.
 - Run **read-only** what-if projections.
-- Mark a task `missed` **only** via the explicit, logged, non-destructive system
-  rule in §7 (reversible).
+- Surface slippage (missed/overdue tasks) in context — without changing any
+  data (see §7).
 
 **The AI is NOT ALLOWED to:**
 
@@ -102,16 +103,17 @@ as an `ai_proposal` with `status: pending`; the change is applied **only** when
 the user accepts it via the accept endpoint. Rejected proposals are logged but
 not applied.
 
-## 7. Falling-behind detection (non-destructive)
+## 7. Falling-behind awareness (non-destructive)
 
 - The system computes slippage from `tasks` whose `due_at` has passed without a
-  `completed_at`.
-- A task may be marked `missed` by a **system rule** once `due_at` passes; this
-  is reversible, logged in `ai_events`, and **does not delete or reschedule
-  anything**.
-- When slippage crosses a threshold, the AI generates a **recovery plan
-  proposal** (§3.9). Extending a deadline is **never** automatic — it appears as
-  a proposal requiring acceptance.
+  `completed_at` and surfaces it in the mentor context and next-action
+  recommendation (lib/db/mentor-context.ts).
+- Marking a task `missed` is a **user action** in the MVP. There is no
+  auto-marking system rule; nothing is deleted or rescheduled automatically.
+- When the user requests a replan (e.g., after disruptions), the AI generates a
+  **recovery plan proposal** (§3.9) through the standard proposal flow.
+  Extending a deadline is **never** automatic — it appears as a proposal
+  requiring acceptance.
 
 ## 8. What-if simulations
 

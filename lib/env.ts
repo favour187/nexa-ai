@@ -84,5 +84,5 @@ export const isSupabaseConfigured = Boolean(
 
 export const isServiceRoleConfigured = Boolean(env.SUPABASE_SERVICE_ROLE_KEY);
 
-/** Featherless AI is configured. Reserved for Phase 2 (not used yet). */
+/** Featherless AI is configured. Server-only; gates the /api/ai/* routes. */
 export const isAiConfigured = Boolean(env.FEATHERLESS_API_KEY);

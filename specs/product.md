@@ -82,8 +82,8 @@ The default landing screen always answers: **"What should I do right now?"**
 | F6 | "What should I do now?" | Context-aware recommendation of the single best next action + rationale. |
 | F7 | AI mentor | Context-aware chat scoped to the user's current task and plan. |
 | F8 | What-if simulation | Explore alternative plans/scenarios without changing the real plan. |
-| F9 | Behind-detection & recovery | Detect when the user is falling behind and propose a recovery plan. |
-| F10 | Notifications & reminders | Reminders/alarms within platform limits and user permissions (see notifications.md). |
+| F9 | Behind-awareness & recovery | Surface missed tasks in context; a requested replan proposes a recovery plan (never silently). |
+| F10 | Notifications & reminders | Reminders within platform limits and user permissions — in-app + browser notifications while the app is open (see notifications.md). |
 
 All AI-driven changes to user data are **proposals requiring explicit user
 confirmation** unless explicitly marked auto-apply (see §8 and ai.md §6).
@@ -123,9 +123,10 @@ architecture.md §4.
    (_"Easy 5 km run — it's your base-building week and you have 40 min today."_).
 5. **Execute.** User does it and marks it `done`. Progress recorded.
 6. **Interruption.** User misses two tasks due to a busy week.
-7. **Detect & recover.** NEXA detects the user is behind and proposes a
-   **Recovery Plan** (e.g., consolidate runs, shift the long run). It does
-   **not** silently change the target deadline — it asks.
+7. **Recover.** The user marks the tasks missed (or simply leaves them) and
+   requests a replan; NEXA proposes a **Recovery Plan** (e.g., consolidate runs,
+   shift the long run) as a draft. It does **not** silently change the target
+   deadline — it asks.
 8. **What-if.** Before accepting, the user simulates: _"What if I drop one short
    run per week?"_ NEXA shows the projected impact without touching the real
    plan.
@@ -162,8 +163,11 @@ human in authority over every important decision.
 - F6 "What should I do now?" recommendation + rationale.
 - F7 AI mentor chat (task-scoped).
 - F8 What-if simulation (read-only projection; an approved simulation may be applied via the replan proposal flow).
-- F9 Behind-detection + recovery plan proposal.
-- F10 In-app reminders + Web Notifications/Push within browser limits.
+- F9 Behind-awareness + recovery — missed tasks are surfaced in context
+  (mentor, next-action) and a requested replan produces a recovery plan
+  proposal (never a silent rewrite).
+- F10 In-app reminders + browser notifications while the app is open, within
+  browser limits (Web Push is future work; see notifications.md).
 - Single-user accounts with auth.
 
 **Explicitly NOT in MVP (future features):**
@@ -192,6 +196,7 @@ human in authority over every important decision.
   minutes.
 - "What should I do now?" returns a single actionable recommendation with a
   one-line rationale.
-- Missing tasks reliably triggers a recovery proposal — never a silent plan
-  rewrite.
-- Reminders work within documented web-platform limits, with clear user control.
+- Missed tasks are surfaced and a requested replan reliably produces a
+  recovery proposal — never a silent plan rewrite.
+- Reminders work within documented web-platform limits (in-app + browser
+  notifications while the app is open), with clear user control.

@@ -27,7 +27,7 @@
 | Auth | **Supabase Auth** (email/password + OAuth) | Pairs with the DB on one platform; reduces vendors; battle-tested. |
 | AI inference | **Featherless AI** (OpenAI-compatible) | Serverless, no GPU management; OpenAI SDK reuse; broad open-model catalog (see ai.md). |
 | Spec guardrails | **Prelint** (GitHub app) | Enforces product intent on every PR (see prelint.md). |
-| Hosting | **Vercel** (Next.js) + **Supabase** (DB/auth) | Zero-config deploys; generous free tiers; fast to stand up. |
+| Hosting | **Render** (Next.js web service) + **Supabase** (DB/auth) | Auto-deploys from `main`; live at https://nexa-ai-t1ce.onrender.com |
 
 > This stack is intentionally narrow: **Next.js + Supabase + Featherless**
 > (+ Prelint). Nothing else is introduced unless a spec requirement demands it.
@@ -42,15 +42,17 @@
 │   • Goal / plan / task UI                                       │
 │   • "What should I do now?" surface                             │
 │   • AI mentor chat                                              │
-│   • Service worker (notifications; see notifications.md)        │
-└───────────────▲───────────────────────────────────▲────────────┘
-                │ HTTPS (REST/JSON)                  │ Web Push (best-effort)
-                │ (same-origin API routes)           │
-┌───────────────┴───────────────────────────────────┴────────────┐
+│   • Reminder engine (in-app toasts + browser notifications      │
+│     while the app is open — see notifications.md)               │
+└───────────────▲─────────────────────────────────────────────────┘
+                │ HTTPS (REST/JSON)
+                │ (same-origin API routes)
+┌───────────────┴────────────────────────────────────────────────┐
 │  Next.js server (Route Handlers) — the API edge                 │
 │   • Auth-aware request handling                                 │
 │   • AI Service (orchestration; propose/apply boundary)          │
-│   • Notification scheduler                                      │
+│   • Reminder CRUD + delivery metadata (delivery itself is       │
+│     client-side while the app is open; see notifications.md)    │
 └───────▲───────────────────────────────────────────▲────────────┘
         │ Supabase JS (service role, server only)    │ OpenAI-compatible HTTPS
         │                                            │ (baseURL api.featherless.ai/v1)
@@ -121,44 +123,62 @@ to the authenticated user.
 ## 6. API structure
 
 REST/JSON over Next.js Route Handlers, grouped by resource. All mutating AI
-endpoints return **proposals**, not applied changes (except where noted).
+endpoints return **proposals**, not applied changes (except where noted). This
+is the **actual route inventory** of the shipped app (kept in sync with
+`app/api/`).
 
 **Goals & plans**
 
 - `POST /api/goals` — create goal; triggers plan generation as a **draft**.
-- `GET /api/goals`, `GET /api/goals/:id`
-- `POST /api/goals/:id/plan` — regenerate a **draft** plan.
+- `GET /api/goals`, `GET /api/goals/:id` (goal detail includes pending
+  proposals), `PATCH /api/goals/:id`, `DELETE /api/goals/:id`.
 - `POST /api/plans/:id/accept` — promote a draft to active (**user action**).
-- `POST /api/goals/:id/recover` — request a **recovery plan** (draft).
 
 **Tasks & progress**
 
 - `GET /api/tasks?goal_id=…`
-- `PATCH /api/tasks/:id` — update status (**user action**; `missed` may also be
-  set by the system rule in ai.md §7).
+- `PATCH /api/tasks/:id` — update status (**user action**).
 
 **AI (return proposals/explanations unless noted)**
 
 - `POST /api/ai/next-action` — "What should I do now?" (recommendation +
   rationale).
 - `POST /api/ai/what-if` — read-only projection; changes nothing.
-- `POST /api/ai/explain` — explain a decision/proposal.
 - `POST /api/ai/replan` — propose an updated plan (draft).
 - `POST /api/ai/chat` — mentor chat, scoped to a task/goal context.
+- `POST /api/ai/reminder-time` — propose a reminder time for a task (only when
+  `allow_ai_suggested_times` is on; see notifications.md §8).
 
 **Proposals**
 
-- `GET /api/proposals` — list pending proposals.
-- `POST /api/proposals` — create a pending proposal (e.g., stage a what-if
-  simulation's change set as a `replan` proposal); applied via `accept`.
+- `POST /api/proposals` — stage a validated change set as a pending `replan`
+  proposal (e.g., applying a what-if simulation's change set).
 - `POST /api/proposals/:id/accept` | `/reject` — **user action** that applies
-  or discards the proposed change.
+  or discards the proposed change. Pending proposals are surfaced with goal
+  detail (`GET /api/goals/:id`); there is no separate list endpoint in MVP.
 
-**Notifications**
+**Notifications & reminders**
 
-- `GET` / `PUT /api/notifications/settings`
-- `POST /api/notifications/push/subscribe` — store a Web Push subscription.
-- `DELETE /api/notifications/push/subscribe`
+- `GET` / `PUT /api/notifications/settings` — user-controlled settings.
+- `GET` / `POST /api/reminders` — list / create reminder schedules.
+- `GET` / `PATCH` / `DELETE /api/reminders/:id` — read, update (e.g., mark
+  `delivered`), delete.
+
+**Auth & health**
+
+- `POST /api/auth/signout`, `GET /api/health`.
+
+**Deliberately out of MVP scope (documented honestly, not silently dropped):**
+
+- `POST /api/ai/explain` — explanations are delivered as `rationale` stored
+  with every proposal and shown inline; the mentor chat also explains
+  context. No separate endpoint.
+- `POST /api/goals/:id/plan` (regenerate a draft) and
+  `POST /api/goals/:id/recover` — regeneration and recovery go through the
+  standard replan proposal flow (`POST /api/ai/replan` → accept), which keeps
+  "propose, don't apply" intact.
+- `POST` / `DELETE /api/notifications/push/subscribe` — Web Push is **not** in
+  MVP scope (no service worker, no VAPID); see notifications.md.
 
 Every response that changes user data references the `ai_proposal` it relied on
 and its `rationale`, so the UI can show "why" and request confirmation.
@@ -183,10 +203,15 @@ Detailed AI responsibilities and boundaries: ai.md.
 
 ## 8. Notification / reminder architecture (summary)
 
-- **While the app is open:** in-app timers fire visible + audible reminders.
-- **While closed:** a server scheduler enqueues reminders; at due time it sends a
-  Web Push notification **if** the user granted notification permission **and**
-  subscribed to push. This is best-effort and platform/browser-dependent.
+- **While the app is open:** a client-side reminder engine (in `components/
+  notifications/ReminderEngine.tsx`) polls due reminders every ~30 s and fires
+  an in-app toast plus a browser notification **if** the user granted
+  notification permission. It honors the master `enabled` switch and
+  `quiet_hours`, and never changes task status.
+- **While closed:** nothing fires — the MVP ships no Web Push, no service
+  worker, and no server-side scheduler. This is a deliberate, documented
+  scope decision (honest platform limits — the web cannot guarantee closed-tab
+  delivery without push infra such as VAPID keys, which are future work).
 - **No native phone alarms.** The web app cannot set the device's native alarm
   clock or bypass Do Not Disturb. Full details and limits: notifications.md.
 
@@ -211,8 +236,10 @@ Detailed AI responsibilities and boundaries: ai.md.
 - **Browser ↔ Next.js API:** HTTPS REST/JSON, same-origin; JWT in session.
 - **Next.js API ↔ Postgres:** Supabase JS, service-role server-side, RLS on.
 - **Next.js API ↔ Featherless:** HTTPS, OpenAI-compatible, server-only.
-- **Next.js API ↔ Browser (push):** Web Push via the browser push service +
-  service worker; subscription stored server-side.
-- **Scheduling:** a lightweight server-side scheduler (e.g., Vercel Cron or a
-  queue) scans `reminder_schedules` at due time and dispatches push/in-app
-  notifications per notifications.md.
+- **Next.js API ↔ Browser (notifications):** browser Notification API +
+  in-app toasts while the app is open; permission-gated and quiet-hours-aware
+  (see notifications.md). No Web Push in MVP.
+- **Scheduling:** a client-side engine polls `reminder_schedules` while the app
+  is open (30 s cadence, plus on window focus) and marks reminders `delivered`
+  after firing. A server-side scheduler (e.g., Render Cron) is future work,
+  not part of the MVP.

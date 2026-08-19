@@ -4,6 +4,11 @@
 > **Platform reality:** the MVP is a **web application**. Web apps cannot ring
 > the device's native alarm or guarantee delivery. This spec is intentionally
 > honest about those limits.
+> **MVP delivery scope (shipped):** reminders are delivered **while the app is
+> open** via in-app toasts and the browser Notification API (permission-gated,
+> quiet-hours-aware). Web Push, a server-side scheduler, snooze, and
+> sound/vibration are **documented future work — not part of the MVP build**
+> (marked as such throughout this spec, in line with principle 2).
 
 ## 1. Principles
 
@@ -27,15 +32,16 @@
 
 | Channel | When it works | Limitations |
 |---|---|---|
-| **In-app** | App tab is open | None while open; silent when closed. |
-| **Web Notification** | Permission granted; tab open or service worker registered | Requires explicit permission; delivery depends on browser/OS; may be silenced by OS focus modes. |
-| **Web Push** | Permission granted **and** push subscription stored | Best-effort via the browser push service; not delivered if push is disabled, in battery-saver, or under OS restrictions; no guaranteed latency. |
+| **In-app toast** | App tab is open (engine polls ~30 s) | Silent when closed. |
+| **Web Notification** | Permission granted; tab open | Requires explicit permission; delivery depends on browser/OS; may be silenced by OS focus modes. |
+| **Web Push** *(future — NOT in MVP)* | Would require a service worker, VAPID keys, and stored subscriptions | Best-effort via the browser push service; not delivered if push is disabled, in battery-saver, or under OS restrictions; no guaranteed latency. Out of MVP scope — see §4, §5. |
 
 **What the web app CANNOT do (and we will not claim it can):**
 
 - Set or ring the phone's **native alarm clock**.
 - Override **Do Not Disturb / Focus / quiet modes**.
-- Guarantee delivery when the app/tab is closed (push is best-effort).
+- Guarantee delivery when the app/tab is closed (push is best-effort — and
+  the MVP does not ship push at all).
 - Access SMS, the system calendar, or other apps' notifications.
 - Reliably wake a sleeping device.
 
@@ -46,8 +52,10 @@
 
 - The app requests `Notification.permission` only in response to an explicit
   user action (e.g., tapping "Enable reminders"), **never** on page load.
-- For push: after notification permission, register a service worker and create
-  a Web Push subscription; store the subscription server-side.
+- Push subscription (service worker + VAPID + server-side subscription storage)
+  is **future work, not in MVP**. If it is added later, it must follow this
+  section: request permission on user action only, store the subscription
+  server-side scoped to the user, and never claim guaranteed delivery.
 - If permission is denied or revoked, the app falls back to **in-app only**
   reminders and clearly tells the user that reminders will only work while the
   app is open.
@@ -57,21 +65,22 @@
 
 - Reminders are derived from a task's `due_at` and the user's
   `default_lead_minutes` (e.g., remind 15 min before).
-- **Scheduling authority lives server-side:** a lightweight scheduler (Vercel
-  Cron / queue) reads `reminder_schedules` at due time and dispatches push/in-app
-  notifications. The browser is **not** trusted as the sole scheduler (tabs
-  close).
-- **While the app is open:** client-side timers may fire reminders immediately
-  for responsiveness, but the server scheduler is the source of truth for push
-  delivery.
+- **MVP scheduling authority is client-side and open-tab-only:** the reminder
+  engine polls `reminder_schedules` every ~30 s (and on window focus) while the
+  app is open, fires due reminders, and marks them `delivered`. When the tab is
+  closed nothing fires — this is an honest, documented MVP limit.
+- **Future work (not in MVP):** a server-side scheduler (e.g., Render Cron /
+  queue) reading `reminder_schedules` at due time and dispatching push
+  notifications. If added, the browser engine stops being the sole scheduler.
 
 ## 6. Alarm / reminder behavior
 
-- Reminders are **visual + optional sound/vibration** via the Web Notifications
-  API, subject to OS/browser behavior.
+- Reminders are **visual**: an in-app toast plus a browser notification (if
+  permission granted). MVP has no sound/vibration — those are future work.
 - There is **no native alarm**. The product copy must say "reminder," not
   "alarm," where the capability is web-based.
-- Snooze / repeat is supported in-app only (the app must be open to repeat).
+- Snooze / repeat is **future work, not in MVP** (the MVP reminder engine
+  fires a due reminder once and marks it delivered).
 
 ## 7. User-controlled settings (`notification_settings`)
 
@@ -99,27 +108,33 @@
 
 - Missing a **reminder** (it didn't fire / wasn't seen) does **not** change any
   data by itself.
-- The underlying rule (ai.md §7) may mark a task `missed` once `due_at` passes;
-  this is logged and reversible.
-- When the user returns, NEXA surfaces missed items and, if slippage is
-  significant, a **recovery plan proposal** (never an automatic deadline change).
-- Repeated non-delivery should prompt the app to re-verify push/permission and
-  inform the user that web delivery is best-effort.
+- Marking a task `missed` is a **user action** in the MVP (the system never
+  auto-marks tasks; see ai.md §7). It is logged and reversible via the task
+  status control.
+- When the user returns, NEXA surfaces missed items in the mentor context and
+  next-action recommendation; if the user requests a replan, NEXA proposes an
+  updated/recovery plan (never an automatic deadline change).
+- If the user denied notification permission, the app clearly states reminders
+  work only while the app is open and stays in-app-only.
 
 ## 10. Privacy requirements
 
-- Push subscription endpoints/keys are stored server-side, scoped to the user,
-  and used only to deliver the user's own reminders.
+- (Future) push subscription endpoints/keys must be stored server-side, scoped
+  to the user, and used only to deliver the user's own reminders. Not
+  applicable to the MVP build, which ships no push.
 - Reminder content is derived from the user's own task data; no cross-user data.
 - No analytics/tracking pixels in notifications.
-- Notification settings and subscriptions are deleted when the user deletes their
-  data (future "delete my data" flow — hard requirement before broad release).
+- Notification settings (and any future subscriptions) are deleted when the
+  user deletes their data (future "delete my data" flow — hard requirement
+  before broad release).
 - Compliance note: because delivery/permissions vary by platform, the UI must
   set accurate expectations rather than implying guaranteed contact.
 
 ## 11. Platform limitations summary
 
-- Web Notifications: permission-gated, OS/browser-dependent, may be silenced.
-- Web Push: best-effort, subscription-based, not guaranteed.
+- Web Notifications: permission-gated, OS/browser-dependent, may be silenced;
+  work only while the app is open.
+- Web Push: **future work** (out of MVP scope) — best-effort, subscription-based,
+  not guaranteed.
 - No native alarms, no Do-Not-Disturb override, no SMS/calendar access, no
   reliable wake-from-sleep. Any feature depending on these is out of MVP scope.
