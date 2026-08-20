@@ -10,8 +10,8 @@ export function EmptyState({
   children?: ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-dashed border-slate-300 bg-white/80 p-10 text-center">
-      <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-600">
+    <div className="rounded-2xl border border-dashed border-slate-300 bg-white/70 p-10 text-center">
+      <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-gradient-soft text-base font-bold text-brand-600">
         N
       </div>
       <h3 className="text-base font-semibold text-slate-900">{title}</h3>

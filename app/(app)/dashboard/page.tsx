@@ -213,7 +213,7 @@ export default async function DashboardPage() {
                     </div>
                     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100">
                       <div
-                        className="h-full rounded-full bg-brand-500"
+                        className="h-full rounded-full bg-brand-gradient"
                         style={{
                           width: `${goal.total ? Math.round((goal.done / goal.total) * 100) : 0}%`,
                         }}

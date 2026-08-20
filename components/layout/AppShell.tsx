@@ -10,7 +10,7 @@ export function AppShell({
   userEmail: string | null;
 }) {
   return (
-    <div className="flex min-h-dvh min-w-0 bg-slate-50">
+    <div className="flex min-h-dvh min-w-0">
       <Sidebar />
       <div className="flex min-h-dvh min-w-0 flex-1 flex-col overflow-x-hidden">
         <Topbar userEmail={userEmail} />

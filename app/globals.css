@@ -14,18 +14,20 @@ body {
 
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
-  font-family:
-    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
-  overflow-x: hidden;
+  /* Subtle, premium layered background instead of flat slate-50. */
+  background-image:
+    radial-gradient(820px 460px at 100% -8%, rgba(124, 58, 237, 0.06), transparent 60%),
+    radial-gradient(760px 420px at -8% 0%, rgba(99, 102, 241, 0.07), transparent 58%);
+  background-attachment: fixed;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-/* Soft indigo mesh used on marketing + auth surfaces. */
+/* Soft indigo/violet mesh used on marketing + auth surfaces. */
 .nexa-mesh {
   background:
-    radial-gradient(1100px 560px at 8% -12%, rgba(99, 102, 241, 0.2), transparent 58%),
-    radial-gradient(900px 480px at 100% 0%, rgba(14, 165, 233, 0.12), transparent 52%),
-    radial-gradient(700px 360px at 70% 110%, rgba(79, 70, 229, 0.1), transparent 55%);
+    radial-gradient(1100px 560px at 8% -12%, rgba(99, 102, 241, 0.22), transparent 58%),
+    radial-gradient(900px 480px at 100% 0%, rgba(124, 58, 237, 0.16), transparent 52%),
+    radial-gradient(700px 360px at 70% 110%, rgba(79, 70, 229, 0.12), transparent 55%);
 }
 
 .nexa-grid {
@@ -34,6 +36,48 @@ body {
     linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
   background-size: 44px 44px;
   mask-image: radial-gradient(ellipse at center, black 25%, transparent 78%);
+}
+
+/* Gradient-clipped text — use for emphasis words / accents. */
+.text-gradient {
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Thin gradient top accent for cards / panels. */
+.nexa-card-accent::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6366f1, #7c3aed);
+  opacity: 0;
+  transition: opacity 0.25s var(--nexa-ease);
+}
+.nexa-card-accent:hover::before {
+  opacity: 1;
+}
+
+/* Custom scrollbar (desktop) for a more app-like feel. */
+@media (pointer: fine) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.35) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 116, 139, 0.35);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
 }
 
 /* ----------------------------------------------------------------------------
