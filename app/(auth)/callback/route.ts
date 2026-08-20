@@ -8,12 +8,17 @@ export async function GET(request: NextRequest) {
   const code = url.searchParams.get("code");
   const next = url.searchParams.get("next") ?? "/dashboard";
 
+  let sessionReady = false;
   if (code) {
     const supabase = await tryCreateClient();
     if (supabase) {
-      await supabase.auth.exchangeCodeForSession(code);
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      sessionReady = !error;
     }
   }
 
-  return NextResponse.redirect(`${url.origin}${next}`);
+  // If the code exchange failed (expired/already-used link, or the PKCE
+  // verifier cookie isn't present), send the user to sign in rather than to a
+  // guarded page that would just bounce them anyway.
+  return NextResponse.redirect(`${url.origin}${sessionReady ? next : "/login"}`);
 }

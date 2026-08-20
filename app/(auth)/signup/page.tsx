@@ -59,6 +59,19 @@ export default function SignupPage() {
 
         <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
           <label className="flex flex-col gap-1 text-sm">
+            <span className="font-medium text-slate-700">
+              Phone number <span className="font-normal text-slate-400">(optional)</span>
+            </span>
+            <input
+              type="tel"
+              autoComplete="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className={fieldClass}
+              placeholder="+234 800 000 0000"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
             <span className="font-medium text-slate-700">Email</span>
             <input
               type="email"
