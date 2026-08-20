@@ -10,7 +10,7 @@ import {
 import type { FeatherlessChatClient } from "./planner";
 import type { MentorContext } from "@/lib/db/mentor-context";
 
-const DEFAULT_MODEL = "Qwen/Qwen3-32B";
+const DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
 export interface MentorDeps {
   client?: FeatherlessChatClient;
@@ -58,7 +58,7 @@ export async function generateMentorReply(
     try {
       const completion = await client.chat.completions.create({
         model,
-        temperature: 0.4,
+        temperature: 0.2,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: MENTOR_SYSTEM_PROMPT },

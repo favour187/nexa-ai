@@ -17,7 +17,7 @@ import {
 import type { FeatherlessChatClient } from "./planner";
 import type { MentorContext } from "@/lib/db/mentor-context";
 
-const DEFAULT_MODEL = "Qwen/Qwen3-32B";
+const DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
 export interface UnderstandDeps {
   client?: FeatherlessChatClient;

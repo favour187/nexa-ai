@@ -14,7 +14,7 @@ import {
 } from "./errors";
 import type { FeatherlessChatClient } from "./planner";
 
-const DEFAULT_MODEL = "Qwen/Qwen3-32B";
+const DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
 export interface ReplannerDeps {
   client?: FeatherlessChatClient;
@@ -64,7 +64,7 @@ export async function generateReplan(
     try {
       const completion = await client.chat.completions.create({
         model,
-        temperature: 0.4,
+        temperature: 0.2,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: REPLANNER_SYSTEM_PROMPT },

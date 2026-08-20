@@ -15,7 +15,7 @@ import { buildReplanDiff } from "./replanner";
 import type { FeatherlessChatClient } from "./planner";
 import type { ReplanContext } from "./replan-schema";
 
-const DEFAULT_MODEL = "Qwen/Qwen3-32B";
+const DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
 export interface WhatIfDeps {
   client?: FeatherlessChatClient;
@@ -63,7 +63,7 @@ export async function generateSimulation(
     try {
       const completion = await client.chat.completions.create({
         model,
-        temperature: 0.4,
+        temperature: 0.2,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: WHATIF_SYSTEM_PROMPT },

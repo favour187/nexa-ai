@@ -13,7 +13,7 @@ import { AiConfigurationError } from "./errors";
  */
 
 export const FEATHERLESS_BASE_URL = "https://api.featherless.ai/v1";
-export const DEFAULT_FEATHERLESS_MODEL = "Qwen/Qwen3-32B";
+export const DEFAULT_FEATHERLESS_MODEL = "Qwen/Qwen2.5-7B-Instruct";
 export const FEATHERLESS_TIMEOUT_MS = 30_000;
 
 export function getFeatherlessModel(): string {

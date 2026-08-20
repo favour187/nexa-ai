@@ -16,7 +16,7 @@ import {
 } from "./errors";
 import type { FeatherlessChatClient } from "./planner";
 
-const DEFAULT_MODEL = "Qwen/Qwen3-32B";
+const DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
 export interface ReminderRecommenderDeps {
   client?: FeatherlessChatClient;
@@ -64,7 +64,7 @@ export async function generateReminderRecommendation(
     try {
       const completion = await client.chat.completions.create({
         model,
-        temperature: 0.3,
+        temperature: 0.2,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: REMINDER_RECOMMENDER_SYSTEM_PROMPT },
