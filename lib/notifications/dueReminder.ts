@@ -59,6 +59,7 @@ export function planAutoReminders(
   existing: ExistingReminder[],
   leadByUser: Map<string, number>,
   defaultLead = 15,
+  now: Date = new Date(),
 ): { inserts: AutoReminderInsert[]; updates: AutoReminderUpdate[] } {
   const open = existing.filter((r) => !r.delivered);
   const byTask = new Map<string, ExistingReminder[]>();
@@ -77,6 +78,9 @@ export function planAutoReminders(
     const remindAt = computeRemindAt(task.due_at, lead);
     const rows = byTask.get(task.id) ?? [];
     if (rows.length === 0) {
+      // The reminder window has already passed — don't create a stale reminder
+      // (also prevents recreate → fire → delete loops for overdue tasks).
+      if (new Date(remindAt).getTime() < now.getTime()) continue;
       inserts.push({
         user_id: task.user_id,
         task_id: task.id,

@@ -191,9 +191,12 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
     }
 
     if (delivered) {
+      // One-shot: delete after a successful push (mirrors the in-app engine),
+      // so fired reminders don't pile up. Safe because planAutoReminders no
+      // longer recreates reminders whose window has already passed.
       await admin
         .from("reminder_schedules")
-        .update({ delivered: true })
+        .delete()
         .eq("id", row.id);
       result.sent += 1;
     }

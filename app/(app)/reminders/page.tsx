@@ -128,6 +128,12 @@ export default function RemindersPage() {
   const inputClass =
     "h-11 w-full rounded-lg border border-slate-300 px-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500";
 
+  // Only show reminders still ahead of us — nothing past its time lingers here.
+  const nowMs = Date.now();
+  const upcoming = reminders.filter(
+    (r) => new Date(r.remind_at).getTime() >= nowMs,
+  );
+
   return (
     <div className="mx-auto w-full min-w-0 max-w-3xl">
       <h1 className="text-2xl font-bold tracking-tight text-slate-900">
@@ -236,7 +242,7 @@ export default function RemindersPage() {
           <div className="mt-4 flex justify-center">
             <Spinner className="h-7 w-7 text-brand-600" />
           </div>
-        ) : reminders.length === 0 ? (
+        ) : upcoming.length === 0 ? (
           <div className="mt-3">
             <EmptyState
               title="No reminders yet"
@@ -245,7 +251,7 @@ export default function RemindersPage() {
           </div>
         ) : (
           <div className="mt-3 flex flex-col gap-3">
-            {reminders.map((r) => (
+            {upcoming.map((r) => (
               <Card key={r.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>
                   <p className="text-sm font-medium text-slate-900">

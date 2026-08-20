@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getNotificationSettings } from "@/lib/db/notifications";
+import { deletePastReminders } from "@/lib/db/reminders";
 import {
   isOpenScheduledTask,
   planAutoReminders,
@@ -52,8 +53,9 @@ async function persistPlan(
   tasks: OpenScheduledTask[],
   existing: ExistingReminder[],
   leadByUser: Map<string, number>,
+  now: Date,
 ): Promise<{ created: number; updated: number }> {
-  const { inserts, updates } = planAutoReminders(tasks, existing, leadByUser);
+  const { inserts, updates } = planAutoReminders(tasks, existing, leadByUser, 15, now);
   if (inserts.length > 0) {
     const { error } = await supabase.from("reminder_schedules").insert(inserts);
     if (error) throw error;
@@ -73,6 +75,9 @@ export async function ensureDueReminders(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<{ created: number; updated: number }> {
+  const now = new Date();
+  // Prune reminders whose time has already passed so nothing stale lingers.
+  await deletePastReminders(supabase, userId, now).catch(() => undefined);
   const settings = await getNotificationSettings(supabase, userId);
   const lead = settings.default_lead_minutes ?? 15;
 
@@ -102,6 +107,7 @@ export async function ensureDueReminders(
     tasks,
     (reminderRows ?? []) as ExistingReminder[],
     new Map([[userId, lead]]),
+    now,
   );
 }
 
@@ -149,5 +155,6 @@ export async function ensureDueRemindersForAllUsers(
     }>),
     (reminderRows ?? []) as ExistingReminder[],
     leadByUser,
+    new Date(),
   );
 }

@@ -116,6 +116,25 @@ export async function deleteReminder(
   if (error) throw error;
 }
 
+/**
+ * Delete every reminder whose scheduled time has already passed — so nothing
+ * stale lingers in lists or fires as a burst later. (Auto reminders for tasks
+ * whose window passed are not recreated, because planAutoReminders skips
+ * past-due windows.)
+ */
+export async function deletePastReminders(
+  supabase: SupabaseClient,
+  userId: string,
+  now: Date = new Date(),
+): Promise<void> {
+  const { error } = await supabase
+    .from("reminder_schedules")
+    .delete()
+    .eq("user_id", userId)
+    .lt("remind_at", now.toISOString());
+  if (error) throw error;
+}
+
 /** Apply a pending reminder_time proposal atomically (migration 0004). */
 export async function applyReminderProposal(
   supabase: SupabaseClient,

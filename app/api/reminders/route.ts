@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getUser } from "@/lib/auth/session";
 import { tryCreateClient } from "@/lib/supabase/server";
 import { createReminderSchema } from "@/lib/validation/reminders";
-import { createReminder, listReminders } from "@/lib/db/reminders";
+import { createReminder, deletePastReminders, listReminders } from "@/lib/db/reminders";
 import { ensureDueReminders } from "@/lib/db/autoReminders";
 import {
   notFound,
@@ -24,6 +24,11 @@ export async function GET(request: NextRequest) {
   const due = request.nextUrl.searchParams.get("due") === "true";
 
   try {
+    if (!due) {
+      // Listing all reminders (NOT the engine's due-only query): prune
+      // anything past its time first so the list never shows stale entries.
+      await deletePastReminders(supabase, user.id);
+    }
     const reminders = await listReminders(supabase, user.id, { due });
     return NextResponse.json(reminders);
   } catch (error) {

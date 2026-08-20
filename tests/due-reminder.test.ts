@@ -44,12 +44,31 @@ describe("planAutoReminders", () => {
   const lead = new Map([["u1", 15]]);
 
   it("inserts a reminder when the task has none", () => {
-    const { inserts, updates } = planAutoReminders([task], [], lead);
+    // `now` is before the remind_at window, so the reminder is still upcoming.
+    const { inserts, updates } = planAutoReminders(
+      [task],
+      [],
+      lead,
+      15,
+      new Date("2026-08-19T11:00:00.000Z"),
+    );
     expect(updates).toEqual([]);
     expect(inserts).toHaveLength(1);
     expect(inserts[0].task_id).toBe("t1");
     expect(inserts[0].remind_at).toBe("2026-08-19T11:45:00.000Z");
     expect(inserts[0].lead_minutes).toBe(15);
+  });
+
+  it("does not create a reminder whose window has already passed", () => {
+    const { inserts, updates } = planAutoReminders(
+      [task],
+      [],
+      lead,
+      15,
+      new Date("2026-08-19T12:30:00.000Z"),
+    );
+    expect(updates).toEqual([]);
+    expect(inserts).toEqual([]);
   });
 
   it("updates an auto reminder when due_at / lead drifted", () => {
