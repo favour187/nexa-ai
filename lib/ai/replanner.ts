@@ -66,6 +66,7 @@ export async function generateReplan(
         model,
         temperature: 0.2,
         response_format: { type: "json_object" },
+        max_tokens: 1000,
         messages: [
           { role: "system", content: REPLANNER_SYSTEM_PROMPT },
           { role: "user", content: buildReplanUserPrompt(context) },

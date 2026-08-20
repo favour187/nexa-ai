@@ -76,6 +76,7 @@ export async function classifyUserRequest(
         ],
         temperature: 0,
         response_format: { type: "json_object" },
+        max_tokens: 1000,
       });
       raw = completion.choices?.[0]?.message?.content ?? null;
     } catch (error) {

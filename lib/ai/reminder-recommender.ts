@@ -66,6 +66,7 @@ export async function generateReminderRecommendation(
         model,
         temperature: 0.2,
         response_format: { type: "json_object" },
+        max_tokens: 1000,
         messages: [
           { role: "system", content: REMINDER_RECOMMENDER_SYSTEM_PROMPT },
           { role: "user", content: buildReminderUserPrompt(context) },

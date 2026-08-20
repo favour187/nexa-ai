@@ -60,6 +60,7 @@ export async function generateMentorReply(
         model,
         temperature: 0.2,
         response_format: { type: "json_object" },
+        max_tokens: 1000,
         messages: [
           { role: "system", content: MENTOR_SYSTEM_PROMPT },
           { role: "user", content: buildMentorUserPrompt(context, message) },

@@ -65,6 +65,7 @@ export async function generateSimulation(
         model,
         temperature: 0.2,
         response_format: { type: "json_object" },
+        max_tokens: 1000,
         messages: [
           { role: "system", content: WHATIF_SYSTEM_PROMPT },
           { role: "user", content: buildWhatifUserPrompt(context, scenario) },
