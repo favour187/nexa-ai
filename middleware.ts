@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import { publicOrigin } from "@/lib/url";
 
 /**
  * Runs on every matched request to refresh the Supabase auth session.
@@ -13,8 +14,10 @@ export async function middleware(request: NextRequest) {
   // the session is exchanged server-side and the user lands on the right page
   // (dashboard for signup, /reset-password for recovery).
   if (url.searchParams.has("code") && url.pathname !== "/callback") {
-    const callbackUrl = url.clone();
-    callbackUrl.pathname = "/callback";
+    const callbackUrl = new URL("/callback", publicOrigin(request));
+    url.searchParams.forEach((value, key) => {
+      callbackUrl.searchParams.set(key, value);
+    });
     return NextResponse.redirect(callbackUrl);
   }
   return await updateSession(request);

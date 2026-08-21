@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { tryCreateClient } from "@/lib/supabase/server";
+import { publicOrigin } from "@/lib/url";
 
 export const dynamic = "force-dynamic";
 
@@ -27,5 +28,7 @@ export async function GET(request: NextRequest) {
   // If the code exchange failed (expired/already-used link, or the PKCE
   // verifier cookie isn't present), send the user to sign in rather than to a
   // guarded page that would just bounce them anyway.
-  return NextResponse.redirect(`${url.origin}${sessionReady ? dest : "/login"}`);
+  return NextResponse.redirect(
+    new URL(sessionReady ? dest : "/login", publicOrigin(request)),
+  );
 }
