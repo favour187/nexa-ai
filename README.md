@@ -46,7 +46,7 @@ A deliberately narrow stack chosen for a fast hackathon build
 | Spec guardrails | **Prelint** (product review on every PR) |
 | Hosting | **Render** (web service) + **Supabase** (DB/auth) |
 
-Live demo: <https://nexa-ai-t1ce.onrender.com> · Health: `/api/health`
+Live demo: <https://thenexa-ai.xyz/> · Health: `/api/health`
 
 ```
 Browser (Next.js) ──HTTPS──▶ Next.js API ──▶ Supabase Postgres (RLS)
