@@ -18,6 +18,17 @@ export async function middleware(request: NextRequest) {
     url.searchParams.forEach((value, key) => {
       callbackUrl.searchParams.set(key, value);
     });
+    const recoveryPath =
+      url.pathname === "/reset-password" ||
+      url.pathname === "/forgot-password" ||
+      url.searchParams.get("type") === "recovery" ||
+      url.searchParams.get("next") === "/reset-password";
+    if (recoveryPath) {
+      callbackUrl.searchParams.set("next", "/reset-password");
+      callbackUrl.searchParams.set("type", "recovery");
+    } else if (!callbackUrl.searchParams.get("next") && url.pathname !== "/") {
+      callbackUrl.searchParams.set("next", url.pathname);
+    }
     return NextResponse.redirect(callbackUrl);
   }
   return await updateSession(request);

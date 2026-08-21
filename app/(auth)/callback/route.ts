@@ -13,7 +13,8 @@ export async function GET(request: NextRequest) {
   // Password-reset links are "recovery" — route them to the reset page rather
   // than the dashboard. Works whether Supabase sent `type=recovery` or our own
   // `next=/reset-password` marker survived.
-  const isRecovery = type === "recovery" || next === "/reset-password";
+  const isRecovery =
+    type === "recovery" || next === "/reset-password" || next === "recovery";
   const dest = isRecovery ? "/reset-password" : next ?? "/dashboard";
 
   let sessionReady = false;
@@ -25,10 +26,9 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // If the code exchange failed (expired/already-used link, or the PKCE
-  // verifier cookie isn't present), send the user to sign in rather than to a
-  // guarded page that would just bounce them anyway.
-  return NextResponse.redirect(
-    new URL(sessionReady ? dest : "/login", publicOrigin(request)),
-  );
+  // Recovery must land on the reset form even if PKCE exchange failed here —
+  // the browser may still have tokens in the URL hash. Other failed exchanges
+  // go to sign in.
+  const path = sessionReady || isRecovery ? dest : "/login";
+  return NextResponse.redirect(new URL(path, publicOrigin(request)));
 }

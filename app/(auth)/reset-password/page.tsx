@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
@@ -9,25 +8,43 @@ import { Card } from "@/components/ui/Card";
 import { fieldClass } from "@/lib/ui/field";
 
 export default function ResetPasswordPage() {
-  const router = useRouter();
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [ready, setReady] = useState(false);
+  const [expired, setExpired] = useState(false);
 
   useEffect(() => {
-    createClient()
-      .auth.getUser()
-      .then(({ data: { user } }) => {
-        if (!user) {
-          router.push("/login");
-        } else {
-          setReady(true);
-        }
-      })
-      .catch(() => router.push("/login"));
-  }, [router]);
+    const supabase = createClient();
+    let settled = false;
+
+    const markReady = () => {
+      if (settled) return;
+      settled = true;
+      setReady(true);
+    };
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || session) markReady();
+    });
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) markReady();
+    });
+
+    const timer = window.setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      setExpired(true);
+      setReady(true);
+    }, 4000);
+
+    return () => {
+      listener.subscription.unsubscribe();
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,6 +62,31 @@ export default function ResetPasswordPage() {
     }
   }
 
+  if (!ready) {
+    return (
+      <div className="flex justify-center py-10">
+        <span className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (expired && !done) {
+    return (
+      <Card className="p-8 text-center">
+        <h1 className="text-xl font-semibold text-slate-900">Reset link expired</h1>
+        <p className="mt-2 text-sm text-slate-500">
+          This password reset link is missing or no longer valid. Request a new
+          one and open it in the same browser.
+        </p>
+        <div className="mt-6">
+          <Link href="/forgot-password">
+            <Button>Request a new link</Button>
+          </Link>
+        </div>
+      </Card>
+    );
+  }
+
   if (done) {
     return (
       <Card className="p-8 text-center">
@@ -58,14 +100,6 @@ export default function ResetPasswordPage() {
           </Link>
         </div>
       </Card>
-    );
-  }
-
-  if (!ready) {
-    return (
-      <div className="flex justify-center py-10">
-        <span className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
-      </div>
     );
   }
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/notifications/ServiceWorkerRegister";
+import { RecoveryForward } from "@/components/auth/RecoveryForward";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -43,6 +44,7 @@ export default function RootLayout({
       </head>
       <body>
         <ServiceWorkerRegister />
+        <RecoveryForward />
         {children}
       </body>
     </html>
