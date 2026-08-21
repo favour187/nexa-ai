@@ -179,10 +179,14 @@ export const api = {
         }),
       },
     ),
-  sendMentorMessage: (message: string, goalId?: string) =>
+  sendMentorMessage: (
+    message: string,
+    goalId?: string,
+    history?: Array<{ role: "user" | "assistant"; content: string }>,
+  ) =>
     request<import("@/lib/ai/mentor-schema").MentorReply>("/api/ai/chat", {
       method: "POST",
-      body: JSON.stringify({ message, goal_id: goalId }),
+      body: JSON.stringify({ message, goal_id: goalId, history }),
     }),
 
   // Natural-language command bar (Phase C)

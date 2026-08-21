@@ -14,6 +14,15 @@ export const dynamic = "force-dynamic";
 const bodySchema = z.object({
   message: z.string().trim().min(1, "Message is required").max(1000),
   goal_id: z.string().uuid().optional(),
+  history: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().max(4000),
+      }),
+    )
+    .max(20)
+    .optional(),
 });
 
 /**
@@ -52,7 +61,9 @@ export async function POST(request: NextRequest) {
   });
 
   try {
-    const reply = await generateMentorReply(context, parsed.data.message);
+    const reply = await generateMentorReply(context, parsed.data.message, {
+      history: parsed.data.history,
+    });
     return NextResponse.json(reply);
   } catch (error) {
     const { status, message } = describeAiError(error);

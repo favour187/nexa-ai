@@ -276,17 +276,9 @@ export default async function DashboardPage() {
         </section>
       </div>
 
-      {/* AI Mentor */}
-      <section id="mentor" className="mt-8 scroll-mt-20" aria-labelledby="mentor-heading">
-        <h2 id="mentor-heading" className="text-lg font-semibold text-slate-900">
-          Ask the mentor
-        </h2>
-        <p className="mt-1 text-xs text-slate-500">
-          Talk to NEXA about your plan, progress, and what to do next.
-        </p>
-        <div className="mt-3">
-          <MentorChat />
-        </div>
+      {/* AI Assistant */}
+      <section id="mentor" className="mt-8 scroll-mt-20">
+        <MentorChat />
       </section>
     </div>
   );

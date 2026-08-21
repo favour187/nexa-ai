@@ -10,7 +10,7 @@ export const NAV_LINKS = [
   { href: "/dashboard#today", label: "Tasks" },
   { href: "/reminders", label: "Reminders" },
   { href: "/what-if", label: "What-If" },
-  { href: "/dashboard#mentor", label: "AI Mentor" },
+  { href: "/dashboard#mentor", label: "Assistant" },
   { href: "/settings", label: "Settings" },
 ] as const;
 

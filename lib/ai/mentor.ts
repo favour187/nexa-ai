@@ -1,6 +1,6 @@
 import { env, isAiConfigured } from "@/lib/env";
 import { mentorReplySchema, type MentorReply } from "./mentor-schema";
-import { MENTOR_SYSTEM_PROMPT, buildMentorUserPrompt } from "./prompts";
+import { MENTOR_SYSTEM_PROMPT, buildMentorContextBlock } from "./prompts";
 import {
   AiConfigurationError,
   AiResponseError,
@@ -16,6 +16,7 @@ export interface MentorDeps {
   client?: FeatherlessChatClient;
   model?: string;
   maxAttempts?: number;
+  history?: Array<{ role: "user" | "assistant"; content: string }>;
 }
 
 /**
@@ -60,10 +61,22 @@ export async function generateMentorReply(
         model,
         temperature: 0.2,
         response_format: { type: "json_object" },
-        max_tokens: 1000,
+        max_tokens: 2000,
         messages: [
-          { role: "system", content: MENTOR_SYSTEM_PROMPT },
-          { role: "user", content: buildMentorUserPrompt(context, message) },
+          {
+            role: "system",
+            content: `${MENTOR_SYSTEM_PROMPT}\n\n${buildMentorContextBlock(
+              context,
+            )}`,
+          },
+          ...(deps.history ?? []).map((h) => ({
+            role: h.role,
+            content: h.content,
+          })),
+          {
+            role: "user",
+            content: `${message}\n\nRespond with a single JSON object: {"reply": string}.`,
+          },
         ],
       });
       raw = completion.choices?.[0]?.message?.content ?? null;
