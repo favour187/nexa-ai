@@ -9,6 +9,12 @@ export async function GET(request: NextRequest) {
   const code = url.searchParams.get("code");
   const type = url.searchParams.get("type");
   const next = url.searchParams.get("next");
+  const err = url.searchParams.get("error_code") || url.searchParams.get("error");
+  if (err === "otp_expired" || err === "access_denied") {
+    return NextResponse.redirect(
+      new URL("/forgot-password?reason=expired", publicOrigin(request)),
+    );
+  }
 
   // Password-reset links are "recovery" — route them to the reset page rather
   // than the dashboard. Works whether Supabase sent `type=recovery` or our own

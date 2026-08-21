@@ -8,6 +8,12 @@ import { publicOrigin } from "@/lib/url";
  */
 export async function middleware(request: NextRequest) {
   const url = request.nextUrl;
+  const authError = url.searchParams.get("error_code") || url.searchParams.get("error");
+  if (authError === "otp_expired" || authError === "access_denied") {
+    const dest = new URL("/forgot-password", publicOrigin(request));
+    dest.searchParams.set("reason", "expired");
+    return NextResponse.redirect(dest);
+  }
   // Auth email links (signup confirmation + password reset) sometimes land on
   // the home page when Supabase falls back to the Site URL instead of the
   // requested redirect. Funnel any ?code= to the dedicated /callback route so

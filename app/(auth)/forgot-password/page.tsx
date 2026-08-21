@@ -2,12 +2,16 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { fieldClass } from "@/lib/ui/field";
+import { Suspense } from "react";
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordForm() {
+  const params = useSearchParams();
+  const expired = params.get("reason") === "expired";
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -38,7 +42,7 @@ export default function ForgotPasswordPage() {
         <h1 className="text-xl font-semibold text-slate-900">Check your email</h1>
         <p className="mt-2 text-sm text-slate-500">
           We sent a password reset link to <strong>{email}</strong>.
-          Click the link in the email to set a new password.
+          Open it on this same phone or browser — a different device will fail.
         </p>
         <div className="mt-6">
           <Link href="/login">
@@ -55,6 +59,12 @@ export default function ForgotPasswordPage() {
       <p className="mt-1 text-sm text-slate-500">
         Enter your email and we will send you a reset link.
       </p>
+      {expired ? (
+        <p role="alert" className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+          That reset link is invalid or expired. Request a new one and open it
+          in this same browser.
+        </p>
+      ) : null}
 
       <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm">
