@@ -128,7 +128,7 @@ export default function RemindersPage() {
   const inputClass =
     "h-11 w-full rounded-lg border border-slate-300 px-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500";
 
-  // Only show reminders still ahead of us — nothing past its time lingers here.
+
   const nowMs = Date.now();
   const upcoming = reminders.filter(
     (r) => new Date(r.remind_at).getTime() >= nowMs,

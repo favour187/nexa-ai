@@ -1,4 +1,4 @@
-/** Typed errors for the AI layer. Mapped from Featherless/OpenAI-SDK failures. */
+
 
 export class AiError extends Error {
   constructor(
@@ -58,10 +58,10 @@ export class AiServiceError extends AiError {
   }
 }
 
-/**
- * Map an OpenAI/Featherless SDK error to a typed AiError. Shared by the planner
- * and the replanner (no second AI client — same SDK, same error shapes).
- */
+
+
+
+
 export function mapSdkError(error: unknown): Error {
   const anyError = error as {
     constructor?: { name?: string };
@@ -87,10 +87,10 @@ export function mapSdkError(error: unknown): Error {
   return new AiServiceError(anyError?.message ?? "AI request failed", status);
 }
 
-/**
- * Map a thrown AiError (or unknown error) to an HTTP status + user-friendly
- * message. Never offers a fake/fallback plan — only a clear, retryable error.
- */
+
+
+
+
 export function describeAiError(error: unknown): {
   status: number;
   message: string;

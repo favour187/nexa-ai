@@ -7,23 +7,23 @@ import { showReminderNotification } from "@/lib/notifications/permission";
 import { speak } from "@/lib/voice/speech";
 import { vibrateReminder } from "@/lib/notifications/haptics";
 
-/**
- * In-app + browser-notification delivery engine. Runs only while the app is
- * open: polls due reminders, fires a browser notification + speaks aloud +
- * vibrates, then DELETES the reminder (one-shot). Also reads any ?speak=
- * param left by a push-notification tap so the message is read aloud on open.
- */
+
+
+
+
+
+
 export function ReminderEngine() {
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    // Speak text passed from a push notification tap (?speak=...).
+
     const params = new URLSearchParams(window.location.search);
     const speakText = params.get("speak");
     if (speakText) {
       speak(speakText);
-      // Clean the URL so it doesn't repeat on refresh.
+
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
@@ -60,15 +60,15 @@ export function ReminderEngine() {
             ? `Time to do: ${reminder.task.title}`
             : "You have a task reminder.";
           fire(message);
-          // Delete the reminder after firing (one-shot, auto-cleanup).
+
           try {
             await api.deleteReminder(reminder.id);
           } catch {
-            /* best-effort */
+
           }
         }
       } catch {
-        /* best-effort */
+
       } finally {
         running = false;
       }

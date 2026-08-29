@@ -29,23 +29,23 @@ const bodySchema = z.object({
   goal_id: z.string().uuid().optional(),
 });
 
-/**
- * Natural-language command (Phase C/E — specs/product.md F11, ai.md §10).
- *
- * ONE entry point for free-form user messages. The classifier picks an
- * INTERNAL intent, then this route delegates to the appropriate EXISTING
- * capability:
- *
- *   NEXT_ACTION        -> next-action engine (read-only)
- *   WHAT_IF_SIMULATION -> what-if engine (read-only projection)
- *   REPLAN/SCHEDULE/
- *   TASK_CHANGE        -> replan engine -> stored as a PENDING proposal
- *   QUESTION / MENTOR/
- *   PROGRESS_ANALYSIS  -> mentor chat (read-only, grounded)
- *
- * Nothing is ever changed silently: plan modifications always become pending
- * ai_proposals that require explicit user acceptance (ai.md §6).
- */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) return unauthorized();
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
   const intent = classification.intent;
   const goalHint = classification.goal_id ?? parsed.data.goal_id ?? null;
 
-  // 1) Ambiguous -> ask a short clarification question (never guess).
+
   if (classification.clarification_question) {
     return NextResponse.json({
       kind: "clarify",
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // 2) NEXT_ACTION -> existing next-action engine (read-only).
+
   if (intent === "NEXT_ACTION") {
     let recommendation;
     try {
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // 3) WHAT_IF_SIMULATION -> existing read-only what-if engine.
+
   if (intent === "WHAT_IF_SIMULATION") {
     const resolved = await resolveGoal(supabase, goalHint, context);
     if (!resolved) {
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // 4) Plan modifications -> replan engine -> PENDING proposal only.
+
   if (isProposalIntent(intent)) {
     const resolved = await resolveGoal(supabase, goalHint, context);
     if (!resolved) {
@@ -203,7 +203,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // 5) Everything else -> existing grounded mentor chat.
+
   let reply;
   try {
     reply = await generateMentorReply(context, message);
@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
   });
 }
 
-/** Pick the goal the user means: explicit id first, then the first active one. */
+
 async function resolveGoal(
   supabase: SupabaseClient,
   goalHint: string | null,
@@ -232,8 +232,8 @@ async function resolveGoal(
   ].filter((id): id is string => Boolean(id));
 
   for (const id of candidates) {
-    // fetchReplanContext is RLS-scoped: returns null for goals the user
-    // does not own, so this doubles as an authorization check.
+
+
     const fetched = await fetchReplanContext(supabase, id);
     if (fetched) {
       return { goal_id: fetched.goal.id, goal_title: fetched.goal.title };

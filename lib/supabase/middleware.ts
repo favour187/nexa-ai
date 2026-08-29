@@ -2,11 +2,11 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { env, isSupabaseConfigured } from "@/lib/env";
 
-/**
- * Supabase SSR "updateSession" pattern: refreshes the auth session on every
- * matched request and keeps the auth cookies in sync. If Supabase is not
- * configured, it no-ops so the app still boots locally.
- */
+
+
+
+
+
 export async function updateSession(request: NextRequest) {
   const response = NextResponse.next({ request });
 
@@ -33,7 +33,7 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Refresh the session (writes refreshed cookies onto `response`).
+
   await supabase.auth.getUser();
 
   return response;

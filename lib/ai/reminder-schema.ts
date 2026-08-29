@@ -1,10 +1,10 @@
 import { z } from "zod";
 
-/**
- * Strict schema for the AI reminder-time recommendation (specs/notifications.md
- * §8, specs/ai.md §6). The recommendation is a PROPOSAL the user accepts — never
- * applied automatically.
- */
+
+
+
+
+
 
 export const reminderRecommendationSchema = z.object({
   remind_at: z.string().datetime(),
@@ -14,7 +14,7 @@ export const reminderRecommendationSchema = z.object({
 
 export type ReminderRecommendation = z.infer<typeof reminderRecommendationSchema>;
 
-/** Context sent to the model — scoped to one task/goal, no secrets/PII. */
+
 export interface ReminderContext {
   task: {
     title: string;

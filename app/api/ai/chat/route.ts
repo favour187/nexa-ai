@@ -25,11 +25,11 @@ const bodySchema = z.object({
     .optional(),
 });
 
-/**
- * Grounded AI mentor chat (specs/product.md F7, architecture.md §6). Answers are
- * validated and grounded in the user's actual plan data; the model is instructed
- * never to invent progress. Read-only.
- */
+
+
+
+
+
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) return unauthorized();

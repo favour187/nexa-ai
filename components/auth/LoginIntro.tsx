@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { usePrefersReducedMotion } from "@/components/auth/usePrefersReducedMotion";
 
-/**
- * Branded login splash (~1.9s). Decorative only — skipped entirely when the
- * user prefers reduced motion. CSS animations live in app/globals.css.
- */
+
+
+
+
 export function LoginIntro() {
   const reduced = usePrefersReducedMotion();
   const [visible, setVisible] = useState(!reduced);

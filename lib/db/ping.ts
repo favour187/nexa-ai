@@ -6,13 +6,13 @@ export interface DatabaseProbe {
   error?: string;
 }
 
-/**
- * Lightweight database connectivity probe. Issues a minimal SELECT against the
- * `goals` table. Resolves within `timeoutMs` even if the network hangs.
- *
- * Pure with respect to its argument (the client is injected), so it is unit
- * testable with a mock.
- */
+
+
+
+
+
+
+
 export async function pingDatabase(
   client: Pick<SupabaseClient, "from">,
   timeoutMs = 3000,

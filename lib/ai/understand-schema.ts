@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-/**
- * Natural-language intent routing (Phase C — specs/product.md F11, ai.md §10).
- *
- * These are INTERNAL concepts used by the NL command bar to route a free-form
- * message to the appropriate EXISTING NEXA capability. The user never sees or
- * fills out this taxonomy — they just talk to NEXA.
- */
+
+
+
+
+
+
+
 export const USER_INTENTS = [
   "QUESTION",
   "WHAT_IF_SIMULATION",
@@ -20,11 +20,11 @@ export const USER_INTENTS = [
 
 export type UserIntent = (typeof USER_INTENTS)[number];
 
-/**
- * Strict output schema for the intent classifier. The model is instructed to
- * return `clarification_question` (instead of guessing) when the message is
- * genuinely ambiguous, and `scenario` when it is a hypothetical.
- */
+
+
+
+
+
 export const classifyOutputSchema = z.object({
   intent: z.enum(USER_INTENTS),
   goal_id: z.string().uuid().nullable().optional(),
@@ -35,7 +35,7 @@ export const classifyOutputSchema = z.object({
 
 export type ClassifyOutput = z.infer<typeof classifyOutputSchema>;
 
-/** Kind of a plan-modifying request (routes to the replan proposal flow). */
+
 export const PROPOSAL_INTENTS = [
   "REPLAN_REQUEST",
   "SCHEDULE_CHANGE",
@@ -49,11 +49,11 @@ export function isProposalIntent(intent: UserIntent): boolean {
 import type { WhatIfResponse } from "./whatif-schema";
 import type { ReplanDiffEntry } from "./replan-schema";
 
-/**
- * Unified response of POST /api/ai/understand. The NL command bar renders each
- * kind with the appropriate action (confirm for proposals, link for what-if,
- * plain text for answers).
- */
+
+
+
+
+
 export type UnderstandResponse =
   | {
       kind: "clarify";

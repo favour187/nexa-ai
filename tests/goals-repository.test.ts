@@ -8,12 +8,12 @@ import {
   deleteGoal,
 } from "@/lib/db/goals";
 
-/**
- * Builds a thenable, chainable mock of the Supabase query builder. Any method
- * call returns the same chain (so .from().select().eq().order()... works), and
- * awaiting the chain resolves to `value`. Method calls (with args) are recorded
- * in `calls` so tests can assert what was sent.
- */
+
+
+
+
+
+
 function mockSupabase(value: unknown) {
   const calls: { method: string; args: unknown[] }[] = [];
   const chain = new Proxy({} as Record<string, unknown>, {

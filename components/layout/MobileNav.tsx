@@ -19,8 +19,8 @@ const LINKS = [
   { href: "/settings", label: "Settings" },
 ];
 
-/** Dead-simple mobile menu: hamburger opens a full-screen overlay with stacked
- *  links. No transforms, no absolute positioning tricks. */
+
+
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -28,7 +28,7 @@ export function MobileNav() {
   if (open) {
     return (
       <div className="fixed inset-0 z-50 block bg-white md:hidden">
-        {/* Top bar with close */}
+        {}
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4">
           <Brand />
           <button
@@ -44,7 +44,7 @@ export function MobileNav() {
           </button>
         </div>
 
-        {/* Nav links */}
+        {}
         <nav className="px-4 py-4">
           <ul className="flex flex-col gap-1">
             {LINKS.map((link) => {
@@ -77,7 +77,7 @@ export function MobileNav() {
           </ul>
         </nav>
 
-        {/* Sign out */}
+        {}
         <div className="absolute bottom-0 left-0 right-0 border-t border-slate-200 px-4 py-4">
           <SignOutButton />
         </div>
@@ -85,7 +85,7 @@ export function MobileNav() {
     );
   }
 
-  // Hamburger button
+
   return (
     <button
       type="button"

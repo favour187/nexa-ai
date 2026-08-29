@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-/**
- * Deep-links from push notifications (Phase D): /goals/:id?task=<taskId>
- * scrolls to the referenced task row and highlights it briefly.
- */
+
+
+
+
 export function TaskDeepLink() {
   const [taskId, setTaskId] = useState<string | null>(null);
 

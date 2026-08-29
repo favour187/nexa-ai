@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { acceptPlan } from "@/lib/db/plans";
 import { NotFoundError } from "@/lib/db/errors";
 
-/** Chainable thenable mock of the Supabase query builder. */
+
 function mockChain(value: { data: unknown; error: unknown }) {
   const chain = new Proxy({} as Record<string, unknown>, {
     get(_target, prop: string) {

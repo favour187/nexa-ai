@@ -10,13 +10,13 @@ import { pingDatabase } from "@/lib/db/ping";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Liveness + readiness probe. Always returns 200 (the process is up) and
- * reports the status of dependent services. Used to verify the backend is
- * running (specs/architecture.md, Phase 1 requirement #9).
- *
- * Never includes secrets, keys, stack traces, or PII.
- */
+
+
+
+
+
+
+
 export async function GET() {
   const database = {
     configured: isSupabaseConfigured,

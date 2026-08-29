@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-/**
- * Strict schema for the AI-generated plan. The Featherless response is parsed
- * as JSON and MUST validate against this before it is allowed anywhere near the
- * database (specs/ai.md §4, §9; architecture.md §7). Invalid output is rejected
- * — never loosely parsed, never replaced with fake data.
- */
+
+
+
+
+
+
 
 export const planPriorityEnum = z.enum(["low", "medium", "high"]);
 export const planFeasibilityEnum = z.enum(["on_track", "at_risk"]);

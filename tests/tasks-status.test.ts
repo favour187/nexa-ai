@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { updateTaskStatus } from "@/lib/db/tasks";
 import { NotFoundError } from "@/lib/db/errors";
 
-/** Chainable thenable mock that captures the argument passed to `.update()`. */
+
 function mockChain(value: { data: unknown; error: unknown }) {
   let updateArg: Record<string, unknown> | undefined;
   const chain = new Proxy({} as Record<string, unknown>, {

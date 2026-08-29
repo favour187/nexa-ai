@@ -1,7 +1,7 @@
-/**
- * Helpers for storing Web Push devices inside notification_settings.channels
- * when the dedicated push_subscriptions table is not available yet.
- */
+
+
+
+
 
 export interface StoredPushDevice {
   endpoint: string;

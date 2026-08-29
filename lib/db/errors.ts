@@ -1,6 +1,6 @@
-/**
- * Domain error types used across the data/API layer.
- */
+
+
+
 
 export class ConfigurationError extends Error {
   constructor(message = "Required service is not configured") {

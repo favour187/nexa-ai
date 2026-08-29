@@ -1,9 +1,9 @@
 import { type SVGProps, type ReactNode } from "react";
 
-/**
- * Shared stroke icons for the navigation (desktop sidebar + mobile menu).
- * Lucide-style paths on a 24×24 viewBox, inheriting `currentColor`.
- */
+
+
+
+
 const PATHS: Record<string, React.ReactNode> = {
   "/dashboard": (
     <>

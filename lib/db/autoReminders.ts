@@ -8,10 +8,10 @@ import {
   type OpenScheduledTask,
 } from "@/lib/notifications/dueReminder";
 
-/**
- * Make sure every open, scheduled task has a reminder at due time.
- * Idempotent. Custom reminders (lead_minutes null) are never overwritten.
- */
+
+
+
+
 
 function first<T>(value: T | T[] | null | undefined): T | null {
   if (Array.isArray(value)) return value[0] ?? null;
@@ -70,13 +70,13 @@ async function persistPlan(
   return { created: inserts.length, updated: updates.length };
 }
 
-/** Authenticated user — RLS scopes tasks and reminders to them. */
+
 export async function ensureDueReminders(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<{ created: number; updated: number }> {
   const now = new Date();
-  // Prune reminders whose time has already passed so nothing stale lingers.
+
   await deletePastReminders(supabase, userId, now).catch(() => undefined);
   const settings = await getNotificationSettings(supabase, userId);
   const lead = settings.default_lead_minutes ?? 15;
@@ -111,7 +111,7 @@ export async function ensureDueReminders(
   );
 }
 
-/** Service-role dispatcher — covers every user so closed-tab send works. */
+
 export async function ensureDueRemindersForAllUsers(
   supabase: SupabaseClient,
 ): Promise<{ created: number; updated: number }> {

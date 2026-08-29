@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { getGoal, listGoals } from "@/lib/db/goals";
 
-/** Chainable thenable mock that records method calls. */
+
 function mockChain(value: { data: unknown; error: unknown }) {
   const calls: { method: string; args: unknown[] }[] = [];
   const chain = new Proxy({} as Record<string, unknown>, {

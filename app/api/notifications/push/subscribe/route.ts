@@ -27,11 +27,11 @@ const unsubscribeSchema = z.object({
   endpoint: z.string().url("Endpoint must be a valid URL").max(500),
 });
 
-/**
- * Web Push subscription management (Phase D — architecture.md §6).
- * Associate a device's push subscription with the authenticated user.
- * RLS scopes all writes to the user's own rows.
- */
+
+
+
+
+
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) return unauthorized();
@@ -67,13 +67,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Reflect the subscription in the user's notification settings.
+
   await setPushSubscribed(supabase, user.id, true);
 
   return NextResponse.json({ ok: true });
 }
 
-/** Remove a device's subscription (user-initiated or app cleanup). */
+
 export async function DELETE(request: NextRequest) {
   const user = await getUser();
   if (!user) return unauthorized();

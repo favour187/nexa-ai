@@ -1,18 +1,18 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AiPlan } from "@/lib/ai/schema";
 
-/**
- * Transactional persistence of a goal + its AI-generated draft plan.
- *
- * Delegates to the Postgres function `create_goal_with_plan`
- * (supabase/migrations/0002_ai_planning.sql), which inserts the goal, a DRAFT
- * plan, milestones and tasks in a SINGLE transaction. If anything fails, the
- * whole thing rolls back — no partial plan is ever written
- * (specs/ai.md §9, architecture.md §7).
- *
- * Called with the authenticated user's server client; the function validates
- * `auth.uid()` (SECURITY DEFINER) so a user can only create their own data.
- */
+
+
+
+
+
+
+
+
+
+
+
+
 
 export interface CreatedIds {
   goal_id: string;
@@ -27,7 +27,7 @@ export interface GoalPlanInput {
   constraints: string | null;
 }
 
-/** Shape the validated AI plan into the JSON the DB function expects. */
+
 export function buildMilestonesPayload(plan: AiPlan) {
   return plan.milestones.map((milestone) => ({
     title: milestone.title,

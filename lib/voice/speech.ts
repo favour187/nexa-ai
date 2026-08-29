@@ -1,5 +1,5 @@
-/** Client-side text-to-speech using the Web Speech API (SpeechSynthesis).
- *  No external dependencies. SSR-safe (guards window). */
+
+
 
 export function isSpeechSupported(): boolean {
   return typeof window !== "undefined" && "speechSynthesis" in window;

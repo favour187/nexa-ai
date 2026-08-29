@@ -9,11 +9,11 @@ import { Badge } from "@/components/ui/Badge";
 import type { ReplanResponse } from "@/lib/ai/replan-schema";
 import { formatDate } from "@/lib/utils";
 
-/**
- * Adaptive replanning surface. Requests a PROPOSED change set, shows a clear
- * current→proposed comparison with rationale, and only applies on explicit
- * approval. Nothing changes until the user approves.
- */
+
+
+
+
+
 export function ReplanPanel({ goalId }: { goalId: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);

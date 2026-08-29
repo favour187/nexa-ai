@@ -1,11 +1,11 @@
--- =============================================================================
--- NEXA Phase 3 — Adaptive replanning
--- Adds: 'postponed' task status + status_reason, and the ai_proposals/ai_events
--- tables (architecture.md §4) that implement the propose/apply boundary for
--- replanning. Aligns with specs/ai.md §3.4 / §6 / §7.
--- =============================================================================
 
--- ---- 'postponed' status + reason on tasks ----------------------------------
+
+
+
+
+
+
+
 alter table public.tasks drop constraint if exists tasks_status_check;
 alter table public.tasks
   add constraint tasks_status_check
@@ -13,7 +13,7 @@ alter table public.tasks
 
 alter table public.tasks add column if not exists status_reason text;
 
--- ---- ai_proposals (the propose/apply mechanism) ----------------------------
+
 create table if not exists public.ai_proposals (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references auth.users(id) on delete cascade,
@@ -28,7 +28,7 @@ create table if not exists public.ai_proposals (
 create index if not exists idx_ai_proposals_user_goal on public.ai_proposals (user_id, goal_id);
 create index if not exists idx_ai_proposals_pending on public.ai_proposals (status) where status = 'pending';
 
--- ---- ai_events (transparency / history log) --------------------------------
+
 create table if not exists public.ai_events (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references auth.users(id) on delete cascade,
@@ -42,7 +42,7 @@ create table if not exists public.ai_events (
 );
 create index if not exists idx_ai_events_user_goal on public.ai_events (user_id, goal_id);
 
--- ---- Row Level Security ----------------------------------------------------
+
 alter table public.ai_proposals enable row level security;
 alter table public.ai_events    enable row level security;
 
@@ -56,16 +56,16 @@ drop policy if exists "ai_events_owner_select" on public.ai_events;
 create policy "ai_events_owner_select" on public.ai_events
   for select using (user_id = auth.uid());
 
--- ---- Apply a replan proposal atomically ------------------------------------
--- Reads a pending 'replan' proposal owned by auth.uid(), applies its change set
--- (reschedule / reprioritize / add_task — NEVER deletes, NEVER changes the goal
--- deadline), captures the before-state into ai_events (history), and marks the
--- proposal accepted. All in one transaction; any error rolls everything back.
---
--- SECURITY: the proposal payload is user-editable via RLS, so it is UNTRUSTED.
--- Every referenced task/milestone is verified to belong to the caller's goal
--- before any write. A tampered payload referencing another user's data raises
--- and aborts the whole transaction.
+
+
+
+
+
+
+
+
+
+
 create or replace function public.apply_replan(p_proposal_id uuid)
 returns jsonb
 language plpgsql
@@ -95,7 +95,7 @@ begin
   v_goal_id := v_prop.goal_id;
   v_changes := coalesce(v_prop.payload->'changes', '[]'::jsonb);
 
-  -- SECURITY validation: confirm ownership of every referenced entity.
+
   for v_change in select * from jsonb_array_elements(v_changes) loop
     if v_change->>'type' in ('reschedule','reprioritize') then
       v_task_id := (v_change->>'task_id')::uuid;
@@ -120,7 +120,7 @@ begin
     end if;
   end loop;
 
-  -- Apply (now ownership-verified) and capture before-state for history.
+
   for v_change in select * from jsonb_array_elements(v_changes) loop
     if v_change->>'type' = 'reschedule' then
       v_task_id := (v_change->>'task_id')::uuid;

@@ -1,6 +1,6 @@
-// Standalone database connectivity check.
-// Run with:  npm run db:check
-// (uses Node 20's --env-file to load .env.local)
+
+
+
 import { createClient } from "@supabase/supabase-js";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

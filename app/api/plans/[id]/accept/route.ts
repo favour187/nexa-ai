@@ -13,10 +13,10 @@ import {
 
 export const dynamic = "force-dynamic";
 
-/**
- * Promote a draft plan to active. User action (specs/architecture.md §6).
- * Ownership is enforced by RLS via the authenticated user's server client.
- */
+
+
+
+
 export async function POST(
   _request: NextRequest,
   { params }: { params: { id: string } },
@@ -32,7 +32,7 @@ export async function POST(
     try {
       await ensureDueReminders(supabase, user.id);
     } catch {
-      /* reminders are best-effort; the plan is already active */
+
     }
     return NextResponse.json({ plan });
   } catch (error) {

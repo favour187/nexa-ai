@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { ZodError } from "zod";
 
-/** Small HTTP response helpers shared by API routes. */
+
 
 export function unauthorized(message = "Unauthorized") {
   return NextResponse.json({ error: message }, { status: 401 });

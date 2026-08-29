@@ -6,10 +6,10 @@ import type {
 } from "@/lib/validation/reminders";
 import { NotFoundError } from "@/lib/db/errors";
 
-/**
- * reminder_schedules data-access. Ownership is enforced by RLS
- * (user_id = auth.uid()); every query is additionally scoped by userId.
- */
+
+
+
+
 
 export async function listReminders(
   supabase: SupabaseClient,
@@ -55,7 +55,7 @@ export async function createReminder(
   userId: string,
   input: CreateReminderInput,
 ): Promise<Reminder> {
-  // Defense in depth: the task must belong to the user (RLS scopes the read).
+
   const { data: task } = await supabase
     .from("tasks")
     .select("id")
@@ -116,12 +116,12 @@ export async function deleteReminder(
   if (error) throw error;
 }
 
-/**
- * Delete every reminder whose scheduled time has already passed — so nothing
- * stale lingers in lists or fires as a burst later. (Auto reminders for tasks
- * whose window passed are not recreated, because planAutoReminders skips
- * past-due windows.)
- */
+
+
+
+
+
+
 export async function deletePastReminders(
   supabase: SupabaseClient,
   userId: string,
@@ -135,7 +135,7 @@ export async function deletePastReminders(
   if (error) throw error;
 }
 
-/** Apply a pending reminder_time proposal atomically (migration 0004). */
+
 export async function applyReminderProposal(
   supabase: SupabaseClient,
   proposalId: string,

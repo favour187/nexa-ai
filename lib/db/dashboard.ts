@@ -4,13 +4,13 @@ import { listTasksForUser } from "@/lib/db/tasks";
 import { listReminders } from "@/lib/db/reminders";
 import { listMilestonesForGoal } from "@/lib/db/milestones";
 
-/**
- * Dashboard overview aggregation (Phase A — authenticated home).
- *
- * Pure-ish read aggregation over the EXISTING data layer (no new tables, no
- * fabricated data). Every query is RLS-scoped to the authenticated user.
- * Kept separate from the page so it can be unit-tested with a mock client.
- */
+
+
+
+
+
+
+
 
 export interface DashboardTask {
   id: string;
@@ -47,7 +47,7 @@ export interface DashboardData {
   upcomingReminders: DashboardReminder[];
 }
 
-/** True when `iso` falls on the same LOCAL calendar day as `now`. */
+
 export function isTodayLocal(iso: string | null, now: Date = new Date()): boolean {
   if (!iso) return false;
   const d = new Date(iso);
@@ -59,7 +59,7 @@ export function isTodayLocal(iso: string | null, now: Date = new Date()): boolea
   );
 }
 
-/** True when `iso` is before the start of the local day of `now`. */
+
 export function isOverdueLocal(iso: string | null, now: Date = new Date()): boolean {
   if (!iso) return false;
   const d = new Date(iso);

@@ -21,11 +21,11 @@ export interface NextActionDeps {
   maxAttempts?: number;
 }
 
-/**
- * Generate the single best next action using the EXISTING Featherless client.
- * Output is validated against `recommendationSchema`. Retries once on a
- * transient error, then throws a typed AiError. Never fabricates a task.
- */
+
+
+
+
+
 export async function generateNextAction(
   context: MentorContext,
   deps: NextActionDeps = {},

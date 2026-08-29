@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-/**
- * Strict schema for the AI replanning proposal (specs/ai.md §3.4, §6).
- *
- * The AI returns a CHANGE SET — never prose, never a full plan, and never a
- * deletion or a goal-deadline change (those are forbidden by ai.md §6). The
- * backend applies these only after the user accepts the proposal.
- */
+
+
+
+
+
+
+
 
 const priority = z.enum(["low", "medium", "high"]);
 
@@ -48,7 +48,7 @@ export const replanProposalSchema = z.object({
 export type ReplanChange = z.infer<typeof replanChangeSchema>;
 export type ReplanProposal = z.infer<typeof replanProposalSchema>;
 
-/** The current plan state sent to the AI (scoped to one goal — no secrets/PII). */
+
 export interface ReplanContext {
   goal: {
     title: string;
@@ -76,7 +76,7 @@ export interface ReplanContext {
   triggerReason?: string | null;
 }
 
-/** UI-friendly diff derived from a proposal + the current plan. */
+
 export type ReplanDiffEntry =
   | {
       kind: "reschedule";

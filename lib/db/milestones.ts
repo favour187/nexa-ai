@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Milestone, MilestoneWithTasks, Task } from "@/types/db";
 
-/** Read access for milestones belonging to a goal (via its plans). */
+
 export async function listMilestonesForGoal(
   supabase: SupabaseClient,
   goalId: string,
@@ -26,7 +26,7 @@ export async function listMilestonesForGoal(
   return (data ?? []) as Milestone[];
 }
 
-/** Milestones for a plan, each with its nested tasks (ordered). */
+
 export async function listMilestonesWithTasks(
   supabase: SupabaseClient,
   planId: string,

@@ -35,14 +35,14 @@ export async function GET() {
   }
 }
 
-/**
- * Create a goal and generate a structured plan with Featherless AI.
- *
- * Flow: validate input → generate + validate plan (no writes yet) → persist
- * goal + DRAFT plan + milestones + tasks transactionally → return the goal and
- * its draft plan. The plan is a draft until the user accepts it
- * (specs/ai.md §6, architecture.md §6).
- */
+
+
+
+
+
+
+
+
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) return unauthorized();
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
   const parsed = createGoalSchema.safeParse(body);
   if (!parsed.success) return zodBadRequest(parsed.error);
 
-  // 1) Generate + strictly validate the plan BEFORE any database write.
+
   let plan;
   try {
     plan = await generatePlan({
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status });
   }
 
-  // 2) Persist atomically (goal + draft plan + milestones + tasks).
+
   let created;
   try {
     created = await createGoalWithPlan(
@@ -107,12 +107,12 @@ export async function POST(request: NextRequest) {
     return serverError("Could not save the plan. No data was changed.");
   }
 
-  // 3) Read back the created goal + plan (RLS-scoped to this user).
+
   try {
     try {
       await ensureDueReminders(supabase, user.id);
     } catch {
-      /* plan is saved; reminders backfill on next dispatch / visit */
+
     }
     const goal = await getGoal(supabase, user.id, created.goal_id);
     const planRow = await getPlan(supabase, created.plan_id);

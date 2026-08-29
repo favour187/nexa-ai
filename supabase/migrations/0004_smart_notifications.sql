@@ -1,8 +1,8 @@
--- =============================================================================
--- NEXA Phase 4 — Smart notifications & reminders
--- Creates notification_settings + reminder_schedules (architecture.md §4) and
--- apply_reminder_proposal. Aligns with specs/notifications.md and specs/ai.md §6.
--- =============================================================================
+
+
+
+
+
 
 create table if not exists public.notification_settings (
   user_id                 uuid primary key references auth.users(id) on delete cascade,
@@ -30,7 +30,7 @@ create table if not exists public.reminder_schedules (
 create index if not exists idx_reminders_user_due on public.reminder_schedules (user_id, remind_at);
 create index if not exists idx_reminders_task      on public.reminder_schedules (task_id);
 
--- ---- Row Level Security (user sees/edits only their own rows) --------------
+
 alter table public.notification_settings enable row level security;
 alter table public.reminder_schedules    enable row level security;
 
@@ -47,10 +47,10 @@ create trigger trg_notification_settings_updated_at
   before update on public.notification_settings
   for each row execute function public.set_updated_at();
 
--- ---- Apply a reminder_time proposal -> create a reminder (atomic) ----------
--- Accepts a pending 'reminder_time' ai_proposal owned by auth.uid(), validates
--- the referenced task belongs to the user, creates an enabled reminder, logs an
--- ai_event, and marks the proposal accepted — in one transaction.
+
+
+
+
 create or replace function public.apply_reminder_proposal(p_proposal_id uuid)
 returns jsonb
 language plpgsql

@@ -22,11 +22,11 @@ const bodySchema = z.object({
   scenario: z.string().trim().min(1, "Describe a hypothetical scenario").max(500),
 });
 
-/**
- * Read-only what-if projection (specs/ai.md §8, architecture.md §6). Generates a
- * VALIDATED simulation and returns a current -> proposed comparison. Performs
- * NO writes — applying happens via /api/ai/what-if/apply (a replan).
- */
+
+
+
+
+
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) return unauthorized();

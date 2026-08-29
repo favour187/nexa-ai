@@ -6,11 +6,11 @@ import {
   loadDashboardData,
 } from "@/lib/db/dashboard";
 
-/**
- * Chainable mock of the Supabase query builder that returns a per-table value.
- * Mirrors the pattern in goals-repository.test.ts but keyed by table so a
- * single client can answer goals / tasks / reminders / plans / milestones.
- */
+
+
+
+
+
 function mockSupabaseByTable(values: Record<string, unknown>) {
   const chainFor = (value: unknown) =>
     new Proxy({} as Record<string, unknown>, {
@@ -31,7 +31,7 @@ function mockSupabaseByTable(values: Record<string, unknown>) {
   return client;
 }
 
-const FIXED_NOW = new Date(2026, 7, 19, 12, 0, 0); // Wed 2026-08-19 12:00 local
+const FIXED_NOW = new Date(2026, 7, 19, 12, 0, 0);
 
 describe("dashboard date helpers", () => {
   it("isTodayLocal matches the same local calendar day", () => {
@@ -137,7 +137,7 @@ describe("loadDashboardData", () => {
     expect(data.todayTasks.map((t) => t.id)).toEqual(["t1"]);
     expect(data.overdueTasks.map((t) => t.id)).toEqual(["t3"]);
 
-    // only enabled, undelivered, future reminders
+
     expect(data.upcomingReminders.map((r) => r.id)).toEqual(["r1"]);
   });
 

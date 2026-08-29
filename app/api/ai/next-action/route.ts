@@ -19,12 +19,12 @@ const bodySchema = z
   })
   .optional();
 
-/**
- * "What should I do now?" — read-only recommendation (specs/ai.md §3.5,
- * architecture.md §6). Sends a compact context to Featherless, validates the
- * response, confirms any referenced task belongs to the user, and returns the
- * recommendation. Changes nothing.
- */
+
+
+
+
+
+
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) return unauthorized();
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status });
   }
 
-  // Defense in depth: the AI may only reference the user's own incomplete tasks.
+
   const knownIds = new Set(context.incompleteTasks.map((t) => t.id));
   const recId = recommendation.recommended_task_id;
   const altId = recommendation.alternative_task_id ?? null;

@@ -1,5 +1,5 @@
-# Wakes the Render service and fires due Web Push reminders even when no
-# browser has NEXA open. GitHub's schedule can drift a few minutes.
+
+
 name: Dispatch reminders
 
 on:

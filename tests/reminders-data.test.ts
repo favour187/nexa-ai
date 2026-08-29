@@ -12,7 +12,7 @@ import {
 } from "@/lib/db/notifications";
 import { NotFoundError } from "@/lib/db/errors";
 
-/** Single-value chainable thenable mock. */
+
 function chain(value: { data: unknown; error: unknown }) {
   const c = new Proxy({} as Record<string, unknown>, {
     get(_target, prop: string) {

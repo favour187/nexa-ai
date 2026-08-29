@@ -1,11 +1,11 @@
 import { type ReactNode, useState } from "react";
 
-/**
- * Minimal, safe Markdown renderer (no dangerouslySetInnerHTML).
- * Supports: fenced code blocks ```lang, inline `code`, **bold**, *italic*,
- * headings (#, ##, ###), unordered (-/*) and ordered (1.) lists, and paragraphs.
- * Kept tiny on purpose — enough for chat replies that include code.
- */
+
+
+
+
+
+
 
 type Block =
   | { type: "code"; lang?: string; code: string }
@@ -30,7 +30,7 @@ function parseBlocks(src: string): Block[] {
         code.push(lines[i]);
         i++;
       }
-      i++; // consume closing fence (if present)
+      i++;
       blocks.push({ type: "code", lang, code: code.join("\n") });
       continue;
     }
@@ -127,7 +127,7 @@ function CodeBlock({ code, lang }: { code: string; lang?: string }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      /* clipboard unavailable */
+
     }
   }
   return (

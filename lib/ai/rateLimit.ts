@@ -1,11 +1,11 @@
-/**
- * Simple in-memory, per-user rate limiter for AI endpoints
- * (specs/architecture.md §9: "rate limiting on AI endpoints (cost + abuse)").
- *
- * Suitable for a single-instance hackathon deploy. A multi-instance production
- * deployment should back this with a distributed store (e.g. Upstash Redis),
- * which would be a spec-reviewed addition (prelint.md §3.4).
- */
+
+
+
+
+
+
+
+
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 10;
@@ -14,7 +14,7 @@ const buckets = new Map<string, number[]>();
 
 export interface RateLimitResult {
   ok: boolean;
-  retryAfter: number; // seconds
+  retryAfter: number;
 }
 
 export function rateLimit(
@@ -41,7 +41,7 @@ export function rateLimit(
   return { ok: true, retryAfter: 0 };
 }
 
-/** Test-only helper to reset state between tests. */
+
 export function _resetRateLimiterForTests(): void {
   buckets.clear();
 }

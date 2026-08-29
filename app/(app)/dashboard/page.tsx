@@ -46,7 +46,7 @@ export default async function DashboardPage() {
       try {
         await ensureDueReminders(supabase, user.id);
       } catch {
-        /* dashboard still loads without a fresh backfill */
+
       }
       data = await loadDashboardData(supabase, user.id);
     } catch (error) {
@@ -61,7 +61,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto w-full min-w-0 max-w-4xl">
-      {/* Header */}
+      {}
       <div className="animate-fade-up flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-4">
         <div className="min-w-0">
           <p className="text-sm font-medium text-brand-600">
@@ -100,7 +100,7 @@ export default async function DashboardPage() {
         </Card>
       ) : null}
 
-      {/* Natural-language command bar (Phase C/E) */}
+      {}
       <section className="animate-fade-up-delayed mt-8" aria-labelledby="nl-heading">
         <h2 id="nl-heading" className="sr-only">
           Talk to NEXA
@@ -108,7 +108,7 @@ export default async function DashboardPage() {
         <NlCommandBar />
       </section>
 
-      {/* Recommended next action */}
+      {}
       <section className="animate-fade-up-delayed-2 mt-8" aria-labelledby="next-action-heading">
         <h2 id="next-action-heading" className="text-lg font-semibold text-slate-900">
           What should I do now?
@@ -118,7 +118,7 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      {/* Today's tasks */}
+      {}
       <section id="today" className="animate-fade-up-delayed-3 mt-8 scroll-mt-20" aria-labelledby="today-heading">
         <div className="flex items-center justify-between">
           <h2 id="today-heading" className="text-lg font-semibold text-slate-900">
@@ -169,7 +169,7 @@ export default async function DashboardPage() {
       </section>
 
       <div className="mt-8 grid gap-8 md:grid-cols-2">
-        {/* Active goals */}
+        {}
         <section aria-labelledby="goals-heading">
           <div className="flex items-center justify-between">
             <h2 id="goals-heading" className="text-lg font-semibold text-slate-900">
@@ -231,7 +231,7 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* Upcoming reminders */}
+        {}
         <section aria-labelledby="reminders-heading">
           <div className="flex items-center justify-between">
             <h2 id="reminders-heading" className="text-lg font-semibold text-slate-900">
@@ -276,7 +276,7 @@ export default async function DashboardPage() {
         </section>
       </div>
 
-      {/* AI Assistant */}
+      {}
       <section id="mentor" className="mt-8 scroll-mt-20">
         <MentorChat />
       </section>

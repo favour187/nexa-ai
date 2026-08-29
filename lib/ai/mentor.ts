@@ -19,11 +19,11 @@ export interface MentorDeps {
   history?: Array<{ role: "user" | "assistant"; content: string }>;
 }
 
-/**
- * Generate a grounded mentor reply using the EXISTING Featherless client. The
- * reply is validated and may never invent progress. Retries once on transient
- * errors, then throws a typed AiError.
- */
+
+
+
+
+
 export async function generateMentorReply(
   context: MentorContext,
   message: string,

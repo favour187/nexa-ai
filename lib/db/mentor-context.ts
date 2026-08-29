@@ -2,11 +2,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { listGoals } from "@/lib/db/goals";
 import { listTasksForUser, type TaskWithGoal } from "@/lib/db/tasks";
 
-/**
- * Compact context for the AI mentor / next-action (specs/ai.md §5, architecture
- * §9 "data minimization"). Sends ONLY what the model needs to reason about the
- * next action — never the whole database, never secrets/PII.
- */
+
+
+
+
+
 export interface MentorContext {
   availableMinutes: number | null;
   goals: Array<{
@@ -71,7 +71,7 @@ export async function buildMentorContext(
       .eq("type", "replan");
     recentReplanCount = count ?? 0;
   } catch {
-    /* best-effort indicator */
+
   }
 
   return {

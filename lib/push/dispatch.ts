@@ -10,25 +10,25 @@ import { classifyReminder, type ReminderForDispatch } from "@/lib/push/rules";
 import { ensureDueRemindersForAllUsers } from "@/lib/db/autoReminders";
 import type { NotificationSettings, PushSubscriptionRow } from "@/types/db";
 
-/**
- * Background reminder dispatch (Phase D — specs/notifications.md §5).
- *
- * Runs server-side (Render Cron or an external pinger hitting
- * /api/notifications/dispatch) and does NOT depend on the browser being open.
- *
- * Honesty rules implemented here:
- * - A reminder is marked `delivered` ONLY when a push was actually sent
- *   successfully to at least one of the user's devices (never pre-marked).
- * - Disabled reminders, users with notifications disabled, tasks already
- *   completed, and quiet-hours windows are skipped.
- * - Dead endpoints (HTTP 404/410 from the push service) are removed.
- * - Nothing else is modified: no task status, no plan changes.
- *
- * NOTE (timezone): `remind_at` is stored as the UTC instant the user intended
- * (computed client-side in their local time), so firing times respect the
- * user's timezone. Quiet hours are applied here using the server clock (UTC);
- * the in-app engine still applies them in the browser's local time.
- */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export interface DispatchResult {
   checked: number;
@@ -65,7 +65,7 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
   try {
     await ensureDueRemindersForAllUsers(admin);
   } catch {
-    // Best-effort backfill — still send whatever reminder rows already exist.
+
   }
 
   const now = new Date();
@@ -147,8 +147,8 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
 
     const subs = subsByUser.get(row.user_id) ?? [];
     if (subs.length === 0) {
-      // No device subscribed — nothing to send, do NOT mark delivered (the
-      // in-app engine may still show it while the app is open).
+
+
       result.skipped += 1;
       continue;
     }
@@ -181,7 +181,7 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
       } catch (err) {
         const status = (err as { statusCode?: number })?.statusCode;
         if (status === 404 || status === 410) {
-          // Push service says the subscription is gone — clean it up.
+
           await removeSubscriptionByEndpoint(admin, sub.endpoint);
           result.removedEndpoints += 1;
         } else {
@@ -191,9 +191,9 @@ export async function dispatchDueReminders(): Promise<DispatchResult> {
     }
 
     if (delivered) {
-      // One-shot: delete after a successful push (mirrors the in-app engine),
-      // so fired reminders don't pile up. Safe because planAutoReminders no
-      // longer recreates reminders whose window has already passed.
+
+
+
       await admin
         .from("reminder_schedules")
         .delete()

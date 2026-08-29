@@ -7,10 +7,10 @@ import { Brand } from "@/components/Brand";
 import { NavIcon } from "./navIcons";
 import { NAV_LINKS, isNavLinkActive } from "@/components/layout/navLinks";
 
-/**
- * Persistent desktop sidebar. Same route set as the mobile drawer — only
- * routes that actually exist (components/layout/navLinks.ts).
- */
+
+
+
+
 export function Sidebar() {
   const pathname = usePathname();
   return (

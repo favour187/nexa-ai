@@ -1,7 +1,7 @@
-/**
- * NEXA domain types. Mirror the database schema (migrations 0001–0003) and the
- * conceptual model in specs/product.md §6 / specs/architecture.md §4.
- */
+
+
+
+
 
 export type Priority = "low" | "medium" | "high";
 
@@ -13,7 +13,7 @@ export type PlanSource = "generated" | "recovery" | "edited";
 
 export type MilestoneStatus = "todo" | "in_progress" | "done" | "skipped";
 
-// Phase 3: added "postponed".
+
 export type TaskStatus =
   | "todo"
   | "in_progress"
@@ -71,12 +71,12 @@ export interface Task {
   completed_at: string | null;
 }
 
-/** A milestone with its nested tasks (used by the plan UI). */
+
 export interface MilestoneWithTasks extends Milestone {
   tasks: Task[];
 }
 
-/** Response shape for goal creation (goal + the generated draft plan). */
+
 export interface GoalCreateResponse {
   goal: Goal;
   plan: Pick<
@@ -92,7 +92,7 @@ export interface GoalCreateResponse {
   >;
 }
 
-/** A pending/accepted/rejected AI proposal (propose/apply mechanism). */
+
 export interface AiProposal {
   id: string;
   user_id: string;
@@ -105,7 +105,7 @@ export interface AiProposal {
   created_at: string;
 }
 
-/** Transparency / history log entry. */
+
 export interface AiEvent {
   id: string;
   user_id: string;
@@ -118,7 +118,7 @@ export interface AiEvent {
   created_at: string;
 }
 
-// ---- Phase 4: notifications & reminders -------------------------------------
+
 
 export interface NotificationChannels {
   in_app?: boolean;
@@ -127,8 +127,8 @@ export interface NotificationChannels {
 }
 
 export type QuietHours = {
-  start: string; // "HH:MM"
-  end: string; // "HH:MM"
+  start: string;
+  end: string;
   timezone?: string;
 } | null;
 
@@ -158,12 +158,12 @@ export interface Reminder {
   created_at: string;
 }
 
-/** A reminder with its task title resolved (for list UI). */
+
 export interface ReminderWithTask extends Reminder {
   task: { id: string; title: string } | null;
 }
 
-/** A stored Web Push subscription (Phase D — push_subscriptions table). */
+
 export interface PushSubscriptionRow {
   id: string;
   user_id: string;

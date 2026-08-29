@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-/** Tracks `prefers-reduced-motion` so decorative motion can be skipped. */
+
 export function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false);
   useEffect(() => {

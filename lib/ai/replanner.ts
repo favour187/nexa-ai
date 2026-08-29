@@ -22,13 +22,13 @@ export interface ReplannerDeps {
   maxAttempts?: number;
 }
 
-/**
- * Generate a PROPOSED replan (a change set) using the EXISTING Featherless
- * client — no second AI client. Output is validated against
- * `replanProposalSchema` before being returned. On invalid/empty output or a
- * transient error, retries once, then throws a typed AiError. NEVER fabricates
- * a change set (specs/ai.md §3.4, §6, §9).
- */
+
+
+
+
+
+
+
 export async function generateReplan(
   context: ReplanContext,
   deps: ReplannerDeps = {},
@@ -113,10 +113,10 @@ export async function generateReplan(
     : new AiServiceError("Replanning failed");
 }
 
-/**
- * Build a UI-friendly diff (current -> proposed) from a validated proposal and
- * the current plan context. Pure function — unit testable.
- */
+
+
+
+
 export function buildReplanDiff(
   proposal: ReplanProposal,
   context: ReplanContext,

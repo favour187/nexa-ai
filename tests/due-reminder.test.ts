@@ -44,7 +44,7 @@ describe("planAutoReminders", () => {
   const lead = new Map([["u1", 15]]);
 
   it("inserts a reminder when the task has none", () => {
-    // `now` is before the remind_at window, so the reminder is still upcoming.
+
     const { inserts, updates } = planAutoReminders(
       [task],
       [],

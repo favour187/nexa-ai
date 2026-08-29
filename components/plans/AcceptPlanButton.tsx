@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { api, ApiError } from "@/lib/api/client";
 import { Button } from "@/components/ui/Button";
 
-/** Promotes a draft plan to active (user action). */
+
 export function AcceptPlanButton({ planId }: { planId: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);

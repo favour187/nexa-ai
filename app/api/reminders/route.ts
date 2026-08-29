@@ -25,8 +25,8 @@ export async function GET(request: NextRequest) {
 
   try {
     if (!due) {
-      // Listing all reminders (NOT the engine's due-only query): prune
-      // anything past its time first so the list never shows stale entries.
+
+
       await deletePastReminders(supabase, user.id);
     }
     const reminders = await listReminders(supabase, user.id, { due });

@@ -3,7 +3,7 @@ import type { Task } from "@/types/db";
 import type { UpdateTaskInput } from "@/lib/validation/tasks";
 import { NotFoundError } from "@/lib/db/errors";
 
-/** Read access for tasks belonging to a milestone. */
+
 export async function listTasksForMilestone(
   supabase: SupabaseClient,
   milestoneId: string,
@@ -18,14 +18,14 @@ export async function listTasksForMilestone(
   return (data ?? []) as Task[];
 }
 
-/**
- * Update a task's status (user action — specs/architecture.md §6). Ownership is
- * enforced by RLS via the authenticated user's server client; a task that is not
- * the user's matches zero rows and throws NotFoundError.
- *
- * Never clears completed_at when leaving "done" (preserves history). The reason,
- * if provided, is stored on status_reason.
- */
+
+
+
+
+
+
+
+
 export async function updateTaskStatus(
   supabase: SupabaseClient,
   taskId: string,
@@ -51,14 +51,14 @@ export async function updateTaskStatus(
   return data as Task;
 }
 
-/** A task with its goal resolved (used by reminder/task selectors). */
+
 export type TaskWithGoal = Task & {
   milestone: {
     plan: { goal: { id: string; title: string } | null } | null;
   } | null;
 };
 
-/** All of the user's tasks (RLS-scoped) with the owning goal attached. */
+
 export async function listTasksForUser(
   supabase: SupabaseClient,
 ): Promise<TaskWithGoal[]> {

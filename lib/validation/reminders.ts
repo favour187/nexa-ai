@@ -1,10 +1,10 @@
 import { z } from "zod";
 
-/** Reminder request validation (specs/notifications.md §5). */
+
 
 const channelEnum = z.enum(["in_app", "web_notification", "push"]);
 
-// A new reminder must target a valid future point in time.
+
 const futureDatetime = z
   .string()
   .datetime()

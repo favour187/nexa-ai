@@ -15,11 +15,11 @@ import {
 
 export const dynamic = "force-dynamic";
 
-/**
- * Apply a pending proposal (user action — specs/architecture.md §6).
- * Currently only 'replan' proposals are applied; the change set runs in one
- * transaction (apply_replan), so a failure changes nothing.
- */
+
+
+
+
+
 export async function POST(
   _request: NextRequest,
   { params }: { params: { id: string } },
@@ -41,7 +41,7 @@ export async function POST(
       try {
         await ensureDueReminders(supabase, user.id);
       } catch {
-        /* plan already applied */
+
       }
       return NextResponse.json(result);
     }

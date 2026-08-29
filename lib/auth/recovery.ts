@@ -1,4 +1,4 @@
-/** True when this URL is a Supabase password-recovery callback. */
+
 export function isRecoveryUrl(pathname: string, search: string, hash = ""): boolean {
   const q = `${search} ${hash} ${pathname}`;
   if (/otp_expired|access_denied|error_code/i.test(q)) return false;

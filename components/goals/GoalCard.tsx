@@ -15,7 +15,7 @@ const priorityStyles: Record<Goal["priority"], string> = {
   high: "bg-red-100 text-red-700",
 };
 
-/** Goal card with quick-complete (deletes goal + all tasks via cascade). */
+
 export function GoalCard({ goal }: { goal: Goal }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -38,7 +38,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
 
   return (
     <Card className="overflow-hidden p-0">
-      {/* Clickable area — navigates to goal detail */}
+      {}
       <Link href={`/goals/${goal.id}`} className="block p-5">
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-base font-semibold text-slate-900">
@@ -58,7 +58,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
         </div>
       </Link>
 
-      {/* Quick actions */}
+      {}
       <div className="flex items-center justify-between border-t border-slate-100 px-5 py-2.5">
         <span className={"rounded-full px-2 py-0.5 text-xs font-medium " + priorityStyles[goal.priority]}>
           {goal.priority} priority

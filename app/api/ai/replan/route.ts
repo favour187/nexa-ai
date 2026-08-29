@@ -18,12 +18,12 @@ import {
 
 export const dynamic = "force-dynamic";
 
-/**
- * Propose a revised schedule (specs/architecture.md §6, ai.md §3.4/§6).
- * Generates a PROPOSAL (never applies it). The change set is validated, every
- * referenced id is confirmed to belong to this goal, and the proposal is stored
- * as pending. The user must accept it separately to apply anything.
- */
+
+
+
+
+
+
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) return unauthorized();
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status });
   }
 
-  // Defense in depth: the AI may only reference tasks/milestones in this plan.
+
   const taskIds = new Set(context.tasks.map((t) => t.id));
   const milestoneIds = new Set(context.milestones.map((m) => m.id));
   const referencesUnknown = proposal.changes.some((change) => {

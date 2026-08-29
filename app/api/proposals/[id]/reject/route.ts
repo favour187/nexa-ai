@@ -12,7 +12,7 @@ import {
 
 export const dynamic = "force-dynamic";
 
-/** Reject a pending proposal (user action; nothing is applied). */
+
 export async function POST(
   _request: NextRequest,
   { params }: { params: { id: string } },

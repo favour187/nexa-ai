@@ -22,7 +22,7 @@ export interface PlanInput {
   constraints?: string | null;
 }
 
-/** Minimal chat-completion client shape (matches the OpenAI SDK at runtime). */
+
 export interface FeatherlessChatClient {
   chat: {
     completions: {
@@ -41,14 +41,14 @@ export interface PlannerDeps {
   maxAttempts?: number;
 }
 
-/**
- * Generate a structured execution plan from a goal using Featherless AI.
- *
- * - JSON-mode output is validated against `aiPlanSchema` before being returned.
- * - On invalid/empty/unparseable output or a transient error, retries once,
- *   then throws a typed AiError. NEVER returns fabricated data.
- * - Rate-limit, configuration, and request-level service errors are not retried.
- */
+
+
+
+
+
+
+
+
 export async function generatePlan(
   input: PlanInput,
   deps: PlannerDeps = {},
@@ -60,8 +60,8 @@ export async function generatePlan(
   const maxAttempts = deps.maxAttempts ?? 2;
   const model = deps.model ?? (env.NEXA_FEATHERLESS_MODEL.trim() || DEFAULT_MODEL);
 
-  // Lazy client creation so this module stays importable in tests without a
-  // configured Featherless key and without importing the server-only client.
+
+
   const getClient = async (): Promise<FeatherlessChatClient> => {
     if (deps.client) return deps.client;
     const { createFeatherlessClient } = await import("./client");
@@ -139,7 +139,7 @@ export async function generatePlan(
     : new AiServiceError("Plan generation failed");
 }
 
-/** Map an OpenAI/Featherless SDK error to a typed AiError. */
+
 function mapError(error: unknown): Error {
   const anyError = error as {
     constructor?: { name?: string };

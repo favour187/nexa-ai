@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-/**
- * Strict schema for the "What should I do now?" recommendation (specs/ai.md §3.5,
- * §4). The recommendation is read-only — it changes nothing. `recommended_task_id`
- * references an existing task (validated server-side) or is null when there is
- * nothing to recommend.
- */
+
+
+
+
+
+
 export const recommendationSchema = z.object({
   recommended_task_id: z.string().uuid().nullable(),
   recommended_task_title: z.string().min(1).max(200),
@@ -20,7 +20,7 @@ export const recommendationSchema = z.object({
 
 export type Recommendation = z.infer<typeof recommendationSchema>;
 
-/** Recommendation enriched with the related goal context for the UI. */
+
 export type NextActionResponse = Recommendation & {
   goal_id: string | null;
   goal_title: string | null;

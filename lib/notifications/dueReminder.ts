@@ -1,8 +1,8 @@
-/**
- * Pure helpers: every scheduled task gets a reminder at due time
- * (minus the user's default lead minutes). Custom reminders
- * (lead_minutes === null) are left alone.
- */
+
+
+
+
+
 
 export const AUTO_REMINDER_CHANNEL = "web_notification" as const;
 
@@ -46,7 +46,7 @@ export function isOpenScheduledTask(
   return Boolean(task.due_at) && !CLOSED.has(task.status);
 }
 
-/** remind_at = due_at minus lead minutes (lead 0 = exactly when due). */
+
 export function computeRemindAt(dueAtIso: string, leadMinutes: number): string {
   const due = new Date(dueAtIso).getTime();
   if (Number.isNaN(due)) return dueAtIso;
@@ -78,8 +78,8 @@ export function planAutoReminders(
     const remindAt = computeRemindAt(task.due_at, lead);
     const rows = byTask.get(task.id) ?? [];
     if (rows.length === 0) {
-      // The reminder window has already passed — don't create a stale reminder
-      // (also prevents recreate → fire → delete loops for overdue tasks).
+
+
       if (new Date(remindAt).getTime() < now.getTime()) continue;
       inserts.push({
         user_id: task.user_id,
@@ -92,8 +92,8 @@ export function planAutoReminders(
       });
       continue;
     }
-    // A custom reminder (no lead_minutes) is the user's choice — do not add
-    // or overwrite. Auto rows are kept in sync with due_at.
+
+
     if (rows.some((r) => r.lead_minutes === null)) continue;
     const auto = rows.find((r) => r.lead_minutes !== null && r.enabled);
     if (!auto) continue;

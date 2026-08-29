@@ -25,15 +25,15 @@ export interface UnderstandDeps {
   maxAttempts?: number;
 }
 
-/**
- * Classify a free-form user message into an internal intent (Phase C).
- *
- * Uses the EXISTING Featherless client (one AI system — no duplicate
- * integrations). The classifier is a router only: it never answers, simulates,
- * or proposes changes itself; the /api/ai/understand route executes the
- * matched EXISTING capability. Output is strictly validated; on a malformed
- * response we retry once, then fail safe (no guess).
- */
+
+
+
+
+
+
+
+
+
 export async function classifyUserRequest(
   context: MentorContext,
   message: string,
@@ -82,7 +82,7 @@ export async function classifyUserRequest(
     } catch (error) {
       lastError = error;
       const mapped = mapSdkError(error);
-      if (mapped instanceof AiServiceError) throw mapped; // non-transient
+      if (mapped instanceof AiServiceError) throw mapped;
       if (attempt < maxAttempts) continue;
       throw mapped;
     }

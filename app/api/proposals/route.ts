@@ -21,12 +21,12 @@ const bodySchema = z.object({
   rationale: z.string().trim().max(1000).optional(),
 });
 
-/**
- * Create a PENDING proposal from a provided, validated change set
- * (specs/architecture.md §6). Used to stage a what-if simulation as a `replan`
- * proposal. This performs NO plan write — the change is applied only when the
- * user accepts it via the standard `POST /api/proposals/:id/accept`.
- */
+
+
+
+
+
+
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) return unauthorized();

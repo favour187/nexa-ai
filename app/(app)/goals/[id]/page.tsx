@@ -102,7 +102,7 @@ export default async function GoalDetailPage({
         </Card>
       ) : null}
 
-      {/* Plan */}
+      {}
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-slate-900">AI-generated plan</h2>
 
@@ -145,7 +145,7 @@ export default async function GoalDetailPage({
         )}
       </section>
 
-      {/* Milestones & tasks */}
+      {}
       {plan && milestones.length > 0 ? (
         <section className="mt-8">
           <h2 className="text-lg font-semibold text-slate-900">Milestones</h2>
@@ -210,14 +210,14 @@ export default async function GoalDetailPage({
             ))}
           </div>
 
-          {/* Adaptive replanning */}
+          {}
           {plan.status === "active" ? (
             <div className="mt-6">
               <ReplanPanel goalId={goal.id} />
             </div>
           ) : null}
 
-          {/* Natural-language changes (Phase C) — scoped to this goal */}
+          {}
           <div className="mt-6">
             <NlCommandBar
               goalId={goal.id}

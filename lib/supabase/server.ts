@@ -3,12 +3,12 @@ import { cookies } from "next/headers";
 import { env, isSupabaseConfigured } from "@/lib/env";
 import { ConfigurationError } from "@/lib/db/errors";
 
-/**
- * Server Supabase client bound to the request cookies (for auth session + RLS).
- * The `setAll` callback is wrapped because it can be invoked from a Server
- * Component where cookies are read-only; the middleware refreshes the session
- * in that case. (Supabase SSR recommended pattern.)
- */
+
+
+
+
+
+
 export function createClient() {
   if (!isSupabaseConfigured) {
     throw new ConfigurationError(
@@ -32,8 +32,8 @@ export function createClient() {
               cookieStore.set(name, value, options),
             );
           } catch {
-            // Called from a Server Component where cookies are read-only;
-            // the middleware refreshes the session in that case.
+
+
           }
         },
       },
@@ -41,7 +41,7 @@ export function createClient() {
   );
 }
 
-/** Returns a client or null (never throws). */
+
 export async function tryCreateClient() {
   try {
     return createClient();

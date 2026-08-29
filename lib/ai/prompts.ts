@@ -2,11 +2,11 @@ import type { PlanInput } from "./planner";
 import type { ReplanContext } from "./replan-schema";
 import type { ReminderContext } from "./reminder-schema";
 
-/**
- * Versioned prompt templates, stored in the repo so they are auditable
- * (specs/ai.md §5). Each system prompt encodes the propose/apply rules and the
- * exact JSON schema the model must return.
- */
+
+
+
+
+
 
 export const PLANNER_PROMPT_VERSION = "planner.v1";
 export const REPLANNER_PROMPT_VERSION = "replanner.v1";
@@ -340,7 +340,7 @@ PROHIBITED:
 - Do not give professional medical, legal, or financial advice; keep such guidance general and suggest consulting a qualified professional.
 - Do not pretend to perform actions in the app (creating/editing/deleting tasks, sending messages, making purchases). You only advise and inform.`;
 
-/** Compact plan snapshot appended to the system prompt — used only when relevant. */
+
 export function buildMentorContextBlock(
   context: import("@/lib/db/mentor-context").MentorContext,
 ): string {
@@ -378,12 +378,12 @@ export function buildMentorContextBlock(
 
 export const UNDERSTAND_PROMPT_VERSION = "understand.v1";
 
-/**
- * NL intent classifier (Phase C). Decides WHICH existing NEXA capability a
- * free-form user message needs, and never invents content itself. The model
- * only classifies + summarizes; execution happens in the existing
- * next-action / what-if / replan / mentor engines.
- */
+
+
+
+
+
+
 export const UNDERSTAND_SYSTEM_PROMPT = `You are NEXA's intent router. The user talks to NEXA in plain language about their goals and plan. Your ONLY job is to classify the user's message and summarize it — you never answer questions yourself, never simulate, and never propose plan changes. The real work is done by NEXA's specialized engines, which receive your classification.
 
 Available intents (pick EXACTLY one):

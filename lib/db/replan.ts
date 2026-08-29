@@ -2,10 +2,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Goal, Milestone, Task } from "@/types/db";
 import type { ReplanContext } from "@/lib/ai/replan-schema";
 
-/**
- * Gather the current plan state for one goal to send to the AI (scoped — no
- * secrets/PII). Returns null when the goal is not found / not owned (RLS).
- */
+
+
+
+
 export async function fetchReplanContext(
   supabase: SupabaseClient,
   goalId: string,
@@ -18,8 +18,8 @@ export async function fetchReplanContext(
   if (goalError) throw goalError;
   if (!goal) return null;
 
-  // Prefer the ACTIVE plan (what the user is executing); fall back to the most
-  // recent plan if there is no active one yet (architecture.md §4 invariant).
+
+
   const { data: activePlan } = await supabase
     .from("plans")
     .select("*")
@@ -91,12 +91,12 @@ export async function fetchReplanContext(
   return { goal: goal as Goal, context };
 }
 
-/**
- * Apply a pending replan proposal atomically via the `apply_replan` Postgres
- * function (migration 0003). The function validates ownership (auth.uid()),
- * applies the change set, records an ai_event with a before-snapshot (history),
- * and marks the proposal accepted — all in one transaction.
- */
+
+
+
+
+
+
 export async function applyReplan(
   supabase: SupabaseClient,
   proposalId: string,

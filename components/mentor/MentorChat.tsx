@@ -47,7 +47,7 @@ export function MentorChat() {
     const trimmed = text.trim();
     if (!trimmed || loading) return;
     setError(null);
-    // Send prior turns so the assistant has conversational memory.
+
     const history = messages.map((m) => ({ role: m.role, content: m.text }));
     setMessages((prev) => [...prev, { role: "user", text: trimmed }]);
     setInput("");
@@ -79,7 +79,7 @@ export function MentorChat() {
 
   return (
     <Card className="flex min-w-0 flex-col overflow-hidden p-0">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3 sm:px-6">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-gradient text-sm font-bold text-white shadow-glow-sm">
           N
@@ -94,7 +94,7 @@ export function MentorChat() {
         </div>
       </div>
 
-      {/* Conversation */}
+      {}
       <div
         ref={scrollRef}
         className="flex max-h-[60vh] min-h-[160px] flex-col gap-4 overflow-y-auto px-4 py-4 sm:px-6"
@@ -154,7 +154,7 @@ export function MentorChat() {
         </p>
       ) : null}
 
-      {/* Composer */}
+      {}
       <form
         onSubmit={onSubmit}
         className="flex items-end gap-2 border-t border-slate-100 px-4 py-3 sm:px-6"

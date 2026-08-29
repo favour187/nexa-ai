@@ -22,11 +22,11 @@ export const dynamic = "force-dynamic";
 
 const bodySchema = z.object({ task_id: z.string().uuid() });
 
-/**
- * Recommend a reminder time for a task (specs/notifications.md §8, ai.md §6).
- * Only available when the user has enabled AI-suggested times. Returns a
- * PROPOSAL (pending) — nothing is created until the user accepts it.
- */
+
+
+
+
+
 export async function POST(request: NextRequest) {
   const user = await getUser();
   if (!user) return unauthorized();
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) return zodBadRequest(parsed.error);
 
-  // Gate: AI-suggested times must be enabled by the user.
+
   const settings = await getNotificationSettings(supabase, user.id);
   if (!settings.allow_ai_suggested_times) {
     return badRequest(
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Fetch the task (RLS scopes to the user) and its goal for context.
+
   const { data: taskRow, error: taskError } = await supabase
     .from("tasks")
     .select(
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status });
   }
 
-  // A recommendation in the past is useless — reject (never silently adjust).
+
   if (new Date(recommendation.remind_at).getTime() <= Date.now()) {
     return NextResponse.json(
       { error: "The AI suggested a time in the past. Please try again." },

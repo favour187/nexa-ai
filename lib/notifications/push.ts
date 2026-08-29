@@ -2,17 +2,17 @@ import { getPublicVapidKey } from "@/lib/push/vapid";
 import { requestNotificationPermission } from "@/lib/notifications/permission";
 import { api } from "@/lib/api/client";
 
-/**
- * Client-side Web Push helpers (Phase D — specs/notifications.md §3-§5).
- *
- * All of this runs only in the browser, only on HTTPS (or localhost), and
- * only from explicit user actions. It never claims native-alarm capability:
- * the correct framing is "NEXA can deliver push notifications in the
- * background even when the NEXA webpage is not open, subject to browser/device
- * permissions and platform/network availability."
- */
 
-/** Push needs a secure context + service workers + the Push API. */
+
+
+
+
+
+
+
+
+
+
 export function isPushSupported(): boolean {
   if (typeof window === "undefined") return false;
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
@@ -23,7 +23,7 @@ export function isPushSupported(): boolean {
   return protocol === "https:" || host === "localhost" || host === "127.0.0.1";
 }
 
-/** Standard base64url -> Uint8Array (required by pushManager.subscribe). */
+
 export function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64.length % 4)) % 4);
   const base64WithPadding = (base64 + padding)
@@ -47,7 +47,7 @@ async function getRegistration(): Promise<ServiceWorkerRegistration | null> {
   }
 }
 
-/** The browser's current push subscription, if any. */
+
 export async function getPushSubscription(): Promise<PushSubscription | null> {
   const registration = await getRegistration();
   if (!registration) return null;
@@ -58,15 +58,15 @@ export async function getPushSubscription(): Promise<PushSubscription | null> {
   }
 }
 
-/** True when this device is currently subscribed for push. */
+
 export async function isPushSubscribed(): Promise<boolean> {
   return (await getPushSubscription()) !== null;
 }
 
-/**
- * Subscribe this device for background push. Returns the new subscription or
- * null when the user denied / the platform does not support it.
- */
+
+
+
+
 export async function subscribeToPush(): Promise<PushSubscription | null> {
   const registration = await getRegistration();
   if (!registration) return null;
@@ -98,8 +98,8 @@ export async function subscribeToPush(): Promise<PushSubscription | null> {
     );
     return subscription;
   } catch (error) {
-    // Re-throw so the settings UI can show a specific reason (e.g. migration
-    // 0005 not applied). Permission / platform failures still return null.
+
+
     if (error && typeof error === "object" && "status" in error) {
       throw error;
     }
@@ -107,7 +107,7 @@ export async function subscribeToPush(): Promise<PushSubscription | null> {
   }
 }
 
-/** Unsubscribe this device and remove the server-side row. */
+
 export async function unsubscribeFromPush(): Promise<boolean> {
   try {
     const subscription = await getPushSubscription();

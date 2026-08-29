@@ -3,11 +3,11 @@ import Link from "next/link";
 import { Brand } from "@/components/Brand";
 import { RecoveryForward } from "@/components/auth/RecoveryForward";
 
-/**
- * Shared auth layout (login + signup). The NEXA mark animates in, then the form
- * fades up — a short, premium entrance. Decorative motion is disabled under
- * prefers-reduced-motion (see globals.css).
- */
+
+
+
+
+
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 py-10">

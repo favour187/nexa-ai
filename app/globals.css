@@ -14,7 +14,7 @@ body {
 
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
-  /* Subtle, premium layered background instead of flat slate-50. */
+
   background-image:
     radial-gradient(820px 460px at 100% -8%, rgba(124, 58, 237, 0.06), transparent 60%),
     radial-gradient(760px 420px at -8% 0%, rgba(99, 102, 241, 0.07), transparent 58%);
@@ -22,7 +22,7 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-/* Soft indigo/violet mesh used on marketing + auth surfaces. */
+
 .nexa-mesh {
   background:
     radial-gradient(1100px 560px at 8% -12%, rgba(99, 102, 241, 0.22), transparent 58%),
@@ -38,7 +38,7 @@ body {
   mask-image: radial-gradient(ellipse at center, black 25%, transparent 78%);
 }
 
-/* Gradient-clipped text — use for emphasis words / accents. */
+
 .text-gradient {
   background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
   -webkit-background-clip: text;
@@ -47,7 +47,7 @@ body {
   color: transparent;
 }
 
-/* Thin gradient top accent for cards / panels. */
+
 .nexa-card-accent::before {
   content: "";
   position: absolute;
@@ -62,7 +62,7 @@ body {
   opacity: 1;
 }
 
-/* Custom scrollbar (desktop) for a more app-like feel. */
+
 @media (pointer: fine) {
   * {
     scrollbar-width: thin;
@@ -80,9 +80,9 @@ body {
   }
 }
 
-/* ----------------------------------------------------------------------------
-   NEXA motion — transform/opacity only (no layout thrash, no JS loops)
-   ---------------------------------------------------------------------------- */
+
+
+
 @keyframes nexa-mark-in {
   from {
     opacity: 0;

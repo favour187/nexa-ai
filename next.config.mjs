@@ -1,11 +1,11 @@
-/** @type {import('next').NextConfig} */
 
-// Security headers.
-// NOTE (deliberate): we intentionally do NOT set X-Frame-Options or CSP
-// `frame-ancestors` here. Restrictive framing policies break embedded live
-// previews (this app is shown inside an iframe). Production deployments should
-// add `frame-ancestors 'self'` (and a nonce-based CSP) once the hosting origin
-// is known. The headers below are safe to apply in all environments.
+
+
+
+
+
+
+
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

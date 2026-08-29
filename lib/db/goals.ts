@@ -2,19 +2,19 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Goal } from "@/types/db";
 import type { CreateGoalInput, UpdateGoalInput } from "@/lib/validation/goals";
 
-/**
- * Goal data-access repository.
- *
- * All functions are dependency-injected with a Supabase client so they can be
- * unit-tested with a mock. Row-Level Security (see
- * `supabase/migrations/0001_init.sql`) enforces that a user can only touch rows
- * where `user_id = auth.uid()`; we additionally scope by `userId` in the query
- * for defense in depth.
- *
- * IMPORTANT: no AI code path writes here. Goal creation simply stores a goal
- * with status `active`. Plan/milestone/task generation is deferred to the AI
- * phase (specs/product.md §9, specs/ai.md).
- */
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export async function listGoals(
   supabase: SupabaseClient,
@@ -76,7 +76,7 @@ export async function updateGoal(
   goalId: string,
   input: UpdateGoalInput,
 ): Promise<Goal> {
-  // Strip undefined fields so we never overwrite with null/undefined.
+
   const patch = Object.fromEntries(
     Object.entries(input).filter(([, v]) => v !== undefined),
   );

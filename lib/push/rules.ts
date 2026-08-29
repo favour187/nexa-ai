@@ -1,10 +1,10 @@
 import type { NotificationSettings } from "@/types/db";
 import { isWithinQuietHours } from "@/lib/notifications/quietHours";
 
-/**
- * Pure dispatch rules (Phase D). No server-only imports — unit-testable.
- * Decides whether a due reminder should be pushed right now.
- */
+
+
+
+
 
 export interface ReminderForDispatch {
   id: string;

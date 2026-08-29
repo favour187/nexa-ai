@@ -3,7 +3,7 @@ import { Brand } from "@/components/Brand";
 import { Button } from "@/components/ui/Button";
 import { getUser } from "@/lib/auth/session";
 
-// Render per request so the CTA reflects the live auth state.
+
 export const dynamic = "force-dynamic";
 
 const tagline = "Don't just plan. Execute.";

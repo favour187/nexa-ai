@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { buildMentorContext } from "@/lib/db/mentor-context";
 
-/**
- * Branched chainable mock: from(table) resolves a per-table value, simulating
- * the RLS-scoped reads that listGoals / listTasksForUser / ai_events perform.
- */
+
+
+
+
 function mockSupabase(tables: Record<string, unknown>) {
   const chainFor = (value: unknown) => {
     const c = new Proxy({} as Record<string, unknown>, {
@@ -80,7 +80,7 @@ describe("buildMentorContext (compact, data-minimized)", () => {
     });
 
     expect(ctx.availableMinutes).toBe(30);
-    expect(ctx.goals).toHaveLength(1); // paused goal excluded
+    expect(ctx.goals).toHaveLength(1);
     expect(ctx.goals[0].id).toBe("g1");
     expect(ctx.incompleteTasks).toHaveLength(1);
     expect(ctx.incompleteTasks[0]).toMatchObject({

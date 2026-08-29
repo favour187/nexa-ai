@@ -1,8 +1,8 @@
-// Writes NEXT_PUBLIC env vars to .env.production before `next build`.
-// These values are PUBLIC by design (the anon key is protected by Row-Level
-// Security, not by secrecy; the VAPID public key is meant for the browser).
-// Hardcoded as fallback so the client bundle always has them, even if Render's
-// build environment doesn't expose the env vars.
+
+
+
+
+
 import { writeFileSync } from "node:fs";
 
 const SUPABASE_URL =

@@ -14,7 +14,7 @@ import {
 
 export const dynamic = "force-dynamic";
 
-/** Update a task's status (user action — specs/architecture.md §6). */
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } },

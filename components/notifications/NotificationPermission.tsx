@@ -15,15 +15,15 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 
-/**
- * Notification controls (specs/notifications.md §4, §11; Phase D).
- *
- * Two layers, both permission-first and honest about web-platform limits:
- * 1. Browser notifications — while the NEXA tab is open.
- * 2. Web Push — background delivery even when the NEXA webpage is NOT open,
- *    subject to browser/device permissions and platform/network availability.
- * NEXA is NOT a native alarm clock and never claims to be one.
- */
+
+
+
+
+
+
+
+
+
 export function NotificationPermission() {
   const [state, setState] = useState<PermissionState>("default");
   const [pushSupported, setPushSupported] = useState(false);
@@ -145,7 +145,7 @@ export function NotificationPermission() {
         ) : null}
       </div>
 
-      {/* Background push (Phase D) */}
+      {}
       <div className="mt-5 border-t border-slate-200 pt-4">
         <div className="flex items-center justify-between gap-3">
           <div>

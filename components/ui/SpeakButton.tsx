@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { speak, stopSpeaking, isSpeechSupported } from "@/lib/voice/speech";
 import { cn } from "@/lib/utils";
 
-/** Small button that reads text aloud via the Web Speech API. Hidden if
- *  speech synthesis is not supported (SSR-safe). */
+
+
 export function SpeakButton({
   text,
   className,

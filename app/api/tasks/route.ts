@@ -6,7 +6,7 @@ import { serverError, serviceUnavailable, unauthorized } from "@/lib/api/http";
 
 export const dynamic = "force-dynamic";
 
-/** List the authenticated user's tasks with their goal (specs/architecture.md §6). */
+
 export async function GET() {
   const user = await getUser();
   if (!user) return unauthorized();

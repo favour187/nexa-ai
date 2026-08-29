@@ -8,13 +8,13 @@ import {
   upsertStoredDevice,
 } from "@/lib/push/devices";
 
-/**
- * push_subscriptions data-access (Phase D — specs/architecture.md §4).
- *
- * Prefers the dedicated table. If migration 0005 has not been applied, devices
- * are stored on notification_settings.channels.push_devices so background
- * delivery still works.
- */
+
+
+
+
+
+
+
 
 function toRow(
   userId: string,
@@ -103,7 +103,7 @@ export async function deleteSubscription(
       .eq("user_id", userId);
     if (updError) throw updError;
   } catch {
-    /* settings row may not exist */
+
   }
   return true;
 }

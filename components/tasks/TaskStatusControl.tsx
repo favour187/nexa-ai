@@ -26,7 +26,7 @@ const REASONS = [
 const selectClass =
   "h-8 rounded-md border border-slate-300 bg-white px-2 text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500";
 
-/** Per-task status control with optional reason (specs Phase 3 workflow). */
+
 export function TaskStatusControl({
   taskId,
   status,

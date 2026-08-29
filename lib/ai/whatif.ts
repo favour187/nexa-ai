@@ -23,11 +23,11 @@ export interface WhatIfDeps {
   maxAttempts?: number;
 }
 
-/**
- * Generate a READ-ONLY what-if simulation using the EXISTING Featherless client.
- * Output is validated against `simulationSchema`. Retries once on a transient
- * error, then throws a typed AiError. Never fabricates a projection.
- */
+
+
+
+
+
 export async function generateSimulation(
   context: ReplanContext,
   scenario: string,
@@ -112,7 +112,7 @@ export async function generateSimulation(
     : new AiServiceError("Simulation failed");
 }
 
-/** Build a UI-ready response (current -> proposed diff + removed titles). Pure. */
+
 export function buildWhatIfResponse(
   simulation: Simulation,
   context: ReplanContext,

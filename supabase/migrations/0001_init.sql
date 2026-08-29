@@ -1,19 +1,19 @@
--- =============================================================================
--- NEXA initial schema — Phase 1
--- Aligns with specs/architecture.md §4.
---
--- Phase 1 entities: goals, plans, milestones, tasks (+ users via Supabase Auth).
--- plans is included because the spec defines milestones.plan_id (milestones
--- cannot exist without plans). AI/notification tables (ai_proposals, ai_events,
--- notification_settings, reminder_schedules) are intentionally deferred to the
--- AI / notifications phases.
--- =============================================================================
+
+
+
+
+
+
+
+
+
+
 
 create extension if not exists "pgcrypto";
 
--- ---------------------------------------------------------------------------
--- Helpers
--- ---------------------------------------------------------------------------
+
+
+
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
@@ -24,9 +24,9 @@ begin
 end;
 $$;
 
--- ---------------------------------------------------------------------------
--- Tables
--- ---------------------------------------------------------------------------
+
+
+
 create table if not exists public.goals (
   id              uuid primary key default gen_random_uuid(),
   user_id         uuid not null references auth.users(id) on delete cascade,
@@ -48,7 +48,7 @@ create table if not exists public.plans (
   created_at timestamptz not null default now()
 );
 
--- At most one active plan per goal (specs/architecture.md §4 status invariant).
+
 create unique index if not exists plans_one_active_per_goal
   on public.plans (goal_id) where status = 'active';
 
@@ -74,9 +74,9 @@ create table if not exists public.tasks (
   completed_at     timestamptz
 );
 
--- ---------------------------------------------------------------------------
--- Triggers / indexes
--- ---------------------------------------------------------------------------
+
+
+
 drop trigger if exists trg_goals_updated_at on public.goals;
 create trigger trg_goals_updated_at
   before update on public.goals
@@ -88,15 +88,15 @@ create index if not exists idx_milestones_plan on public.milestones (plan_id);
 create index if not exists idx_tasks_milestone on public.tasks (milestone_id);
 create index if not exists idx_tasks_due      on public.tasks (due_at);
 
--- ---------------------------------------------------------------------------
--- Row Level Security (specs/architecture.md §5, §9)
--- ---------------------------------------------------------------------------
+
+
+
 alter table public.goals      enable row level security;
 alter table public.plans      enable row level security;
 alter table public.milestones enable row level security;
 alter table public.tasks      enable row level security;
 
--- goals: direct ownership
+
 drop policy if exists "goals_owner_select" on public.goals;
 create policy "goals_owner_select" on public.goals
   for select using (user_id = auth.uid());
@@ -113,14 +113,14 @@ drop policy if exists "goals_owner_delete" on public.goals;
 create policy "goals_owner_delete" on public.goals
   for delete using (user_id = auth.uid());
 
--- plans: ownership inherited through goal
+
 drop policy if exists "plans_owner_all" on public.plans;
 create policy "plans_owner_all" on public.plans
   for all
   using (exists (select 1 from public.goals g where g.id = plans.goal_id and g.user_id = auth.uid()))
   with check (exists (select 1 from public.goals g where g.id = plans.goal_id and g.user_id = auth.uid()));
 
--- milestones: ownership inherited through plan -> goal
+
 drop policy if exists "milestones_owner_all" on public.milestones;
 create policy "milestones_owner_all" on public.milestones
   for all
@@ -133,7 +133,7 @@ create policy "milestones_owner_all" on public.milestones
     join public.goals g on g.id = p.goal_id
     where p.id = milestones.plan_id and g.user_id = auth.uid()));
 
--- tasks: ownership inherited through milestone -> plan -> goal
+
 drop policy if exists "tasks_owner_all" on public.tasks;
 create policy "tasks_owner_all" on public.tasks
   for all

@@ -2,11 +2,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Plan } from "@/types/db";
 import { NotFoundError } from "@/lib/db/errors";
 
-/**
- * Plan data-access. Ownership is enforced by Row-Level Security via the
- * authenticated user's server client (specs/architecture.md §5): a user can
- * only read/update plans whose goal they own.
- */
+
+
+
+
+
 
 export async function getPlan(
   supabase: SupabaseClient,
@@ -21,7 +21,7 @@ export async function getPlan(
   return (data as Plan) ?? null;
 }
 
-/** Return the active plan for a goal if one exists. */
+
 export async function getActivePlanForGoal(
   supabase: SupabaseClient,
   goalId: string,
@@ -36,7 +36,7 @@ export async function getActivePlanForGoal(
   return (data as Plan) ?? null;
 }
 
-/** Return the most recently created plan for a goal (active or draft). */
+
 export async function getLatestPlanForGoal(
   supabase: SupabaseClient,
   goalId: string,
@@ -52,11 +52,11 @@ export async function getLatestPlanForGoal(
   return (data as Plan) ?? null;
 }
 
-/**
- * Promote a draft plan to active (user action — specs/architecture.md §6).
- * RLS ensures a user can only accept their own plan; if the plan does not exist
- * or is not owned, the update matches zero rows and we throw NotFoundError.
- */
+
+
+
+
+
 export async function acceptPlan(
   supabase: SupabaseClient,
   planId: string,

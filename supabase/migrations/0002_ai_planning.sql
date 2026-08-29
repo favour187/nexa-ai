@@ -1,10 +1,10 @@
--- =============================================================================
--- NEXA Phase 2 — Featherless AI goal planning
--- Additive schema changes + transactional plan persistence.
--- Aligns with specs/architecture.md §4 (updated) and specs/ai.md.
--- =============================================================================
 
--- ---- Phase 2 columns -------------------------------------------------------
+
+
+
+
+
+
 alter table public.goals add column if not exists constraints text;
 alter table public.plans add column if not exists strategy text;
 alter table public.plans add column if not exists rationale text;
@@ -13,11 +13,11 @@ alter table public.tasks add column if not exists order_index integer not null d
 
 create index if not exists idx_tasks_order on public.tasks (milestone_id, order_index);
 
--- ---- Transactional goal + plan creation ------------------------------------
--- Creates a goal, a DRAFT plan, its milestones and tasks in a single atomic
--- transaction. SECURITY DEFINER so it can insert across tables; it validates
--- auth.uid() so a user can only create their own data. Invalid AI output is
--- rejected BEFORE this runs, so a partial plan can never be written.
+
+
+
+
+
 create or replace function public.create_goal_with_plan(
   p_title text,
   p_description text,
@@ -88,6 +88,6 @@ begin
 end;
 $$;
 
--- Only authenticated users may call it.
+
 revoke execute on function public.create_goal_with_plan(text, text, text, timestamptz, text, text, text, jsonb) from anon, public;
 grant execute on function public.create_goal_with_plan(text, text, text, timestamptz, text, text, text, jsonb) to authenticated;

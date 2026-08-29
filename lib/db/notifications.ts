@@ -2,10 +2,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { NotificationSettings } from "@/types/db";
 import type { NotificationSettingsInput } from "@/lib/validation/notifications";
 
-/**
- * notification_settings data-access. Ownership is enforced by RLS
- * (user_id = auth.uid()) via the authenticated user's server client.
- */
+
+
+
+
 
 const DEFAULT_SETTINGS = {
   enabled: true,
@@ -16,7 +16,7 @@ const DEFAULT_SETTINGS = {
   push_subscribed: false,
 };
 
-/** Returns the user's settings, creating the default row on first access. */
+
 export async function getNotificationSettings(
   supabase: SupabaseClient,
   userId: string,
@@ -35,7 +35,7 @@ export async function getNotificationSettings(
     .select()
     .single();
   if (error) {
-    // A concurrent insert can race; fall back to reading the row.
+
     const { data: fallback } = await supabase
       .from("notification_settings")
       .select("*")
@@ -59,9 +59,9 @@ export async function updateNotificationSettings(
     quiet_hours: input.quiet_hours ?? null,
     default_lead_minutes: input.default_lead_minutes,
     allow_ai_suggested_times: input.allow_ai_suggested_times,
-    // push_subscribed and stored push devices are managed only by the
-    // subscribe/unsubscribe endpoints. Do not wipe channels unless the
-    // caller explicitly sent a new map.
+
+
+
   };
   if (input.channels !== undefined) {
     patch.channels = input.channels;
@@ -77,7 +77,7 @@ export async function updateNotificationSettings(
   return data as NotificationSettings;
 }
 
-/** Managed ONLY by the push subscribe/unsubscribe endpoints (Phase D). */
+
 export async function setPushSubscribed(
   supabase: SupabaseClient,
   userId: string,
