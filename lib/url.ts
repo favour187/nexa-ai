@@ -1,15 +1,6 @@
 import { type NextRequest } from "next/server";
 
-const PROD_ORIGIN = "https://nexa-ai-t1ce.onrender.com";
-
-
-
-
-
-
-
-
-
+const PROD_ORIGIN = "https://thenexa-ai.xyz";
 
 export function publicOrigin(request: NextRequest): string {
   const forwardedHost = request.headers.get("x-forwarded-host");
