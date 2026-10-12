@@ -17,7 +17,7 @@ jobs:
           TOKEN: ${{ secrets.DISPATCH_TOKEN }}
         run: |
           set -euo pipefail
-          url="https://nexa-ai-t1ce.onrender.com/api/notifications/dispatch"
+          url="https://nexa-ai-b9nx.onrender.com/api/notifications/dispatch"
           if [ -n "${TOKEN}" ]; then
             curl -fsS --retry 3 --retry-delay 5 -X POST \
               -H "x-dispatch-token: ${TOKEN}" \
